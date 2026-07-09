@@ -104,7 +104,7 @@ export class NouveauBulletin {
       patientNom: `${patient.prenom} ${patient.nom}`,
       pavillon: patient.pavillon,
       examenId: this.examenChoisiId()!,
-      examenNom: this.examenChoisiNom(),
+      nomExamen: this.examenChoisiNom(),
       indication: this.indication,
       traitementEnCours: this.traitementEnCours || null,
       medecinPrescripteurId: patient.typePatient === 'interne' ? this.medecinChoisiId() : null,

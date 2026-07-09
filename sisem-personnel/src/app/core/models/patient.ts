@@ -2,9 +2,15 @@ export interface Patient {
   id: number;
   prenom: string;
   nom: string;
+  dateNaissance: string;
   age: number;
-  numeroLabo: string;
+  sexe: 'M' | 'F' | '';
+  telephone: string;
+  email: string | null;
+  adresse: string;
+  ville: string;
+  numeroDossier: string;
   typePatient: 'interne' | 'externe';
-  pavillon: string | null;   // null si externe
+  pavillon: string | null;
   dateEnregistrement: string;
 }

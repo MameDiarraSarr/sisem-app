@@ -25,7 +25,7 @@ export class Dashboard {
     return this.tousLesPatients.filter(p =>
       p.prenom.toLowerCase().includes(terme) ||
       p.nom.toLowerCase().includes(terme) ||
-      p.numeroLabo.toLowerCase().includes(terme)
+      p.numeroDossier.toLowerCase().includes(terme)
     );
   });
 }

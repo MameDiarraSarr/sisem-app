@@ -21,7 +21,7 @@
         <tr>
           <td><b>{{ bulletin.numeroLabo }}</b></td>
           <td>{{ bulletin.patientNom }}</td>
-          <td>{{ bulletin.examenNom }}</td>
+          <td>{{ bulletin.nomExamen }}</td>
           <td>{{ bulletin.dateEnregistrement }}</td>
           <td>
             <button class="btn-consulter" [routerLink]="['/medecin/consultation', bulletin.id]">

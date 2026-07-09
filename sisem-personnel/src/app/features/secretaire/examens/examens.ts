@@ -21,7 +21,7 @@ export class Examens {
     return this.tout.filter(b =>
       b.patientNom.toLowerCase().includes(terme) ||
       b.numeroLabo.toLowerCase().includes(terme) ||
-      b.examenNom.toLowerCase().includes(terme)
+      b.nomExamen.toLowerCase().includes(terme)
     );
   });
 

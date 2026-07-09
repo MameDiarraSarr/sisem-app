@@ -20,7 +20,6 @@ export class NouveauPatient {
   email = '';
   adresse = '';
   ville = '';
-  numeroLabo = '';
   typePatient = '';
   pavillon = '';
 
@@ -39,29 +38,38 @@ export class NouveauPatient {
     return age;
   }
 
+  // Le numéro de dossier est généré par le système, pas saisi
+  private genererNumeroDossier(): string {
+    const total = this.patientService.getPatients().length + 1;
+    return 'DOS-' + String(total).padStart(4, '0');
+  }
+
   enregistrer(): void {
-    if (!this.prenom || !this.nom) {
-      alert('Le prénom et le nom sont obligatoires.');
+    if (!this.prenom || !this.nom || !this.telephone) {
+      alert('Le prénom, le nom et le téléphone sont obligatoires.');
       return;
     }
 
-    // On génère l'id du patient (pour pouvoir le passer au formulaire d'examen)
     const nouvelId = Date.now();
 
     const nouveauPatient: Patient = {
       id: nouvelId,
       prenom: this.prenom,
       nom: this.nom,
+      dateNaissance: this.dateNaissance,
       age: this.calculerAge(this.dateNaissance),
-      numeroLabo: this.numeroLabo,
+      sexe: this.sexe === 'M' ? 'M' : this.sexe === 'F' ? 'F' : '',
+      telephone: this.telephone,
+      email: this.email || null,
+      adresse: this.adresse,
+      ville: this.ville,
+      numeroDossier: this.genererNumeroDossier(),
       typePatient: this.typePatient === 'interne' ? 'interne' : 'externe',
       pavillon: this.typePatient === 'interne' ? this.pavillon : null,
       dateEnregistrement: new Date().toLocaleDateString('fr-FR'),
     };
 
     this.patientService.ajouterPatient(nouveauPatient);
-
-    // On redirige DIRECTEMENT vers le formulaire d'examen de ce patient
     this.router.navigate(['/secretaire/nouveau-bulletin', nouvelId]);
   }
 }

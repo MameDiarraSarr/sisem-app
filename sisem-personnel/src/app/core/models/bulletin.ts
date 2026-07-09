@@ -4,7 +4,7 @@ export interface Bulletin {
   patientNom: string;
   pavillon: string | null;       // pavillon du patient (pour filtrer le major)
   examenId: number;
-  examenNom: string;
+  nomExamen: string;
   indication: string;
   traitementEnCours: string | null;
   medecinPrescripteurId: number | null;
