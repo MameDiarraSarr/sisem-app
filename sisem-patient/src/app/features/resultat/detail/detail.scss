@@ -1,0 +1,81 @@
+:host { display: block; min-height: 100vh; font-family: 'Outfit', sans-serif; }
+
+.page-bg { min-height: 100vh; background: #EAF2F8; padding: 24px 18px 60px; }
+
+/* Barre navigation */
+.nav { max-width: 780px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: space-between; }
+.back { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid rgba(74,127,167,.25); color: #1A3D63; padding: 11px 18px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: .2s; }
+.back:hover { background: #F6FAFD; }
+.back svg { width: 18px; height: 18px; }
+.btn-download { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1A3D63, #4A7FA7); color: #fff; border: none; padding: 11px 20px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px rgba(26,61,99,.3); transition: .2s; }
+.btn-download:hover { transform: translateY(-2px); }
+.btn-download svg { width: 18px; height: 18px; }
+
+/* LE DOCUMENT — fond blanc, style compte-rendu */
+.document {
+  max-width: 780px; margin: 0 auto;
+  background: #fff; color: #1a1a1a;
+  border-radius: 8px; padding: 40px 44px;
+  box-shadow: 0 10px 40px rgba(26,61,99,.12);
+}
+
+.doc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.labo { display: flex; align-items: center; gap: 14px; }
+.labo-logo { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #0A1931, #4A7FA7); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
+.labo b { display: block; font-size: 15px; color: #0A1931; }
+.labo span { font-size: 12.5px; color: #4A7FA7; }
+.edition { font-size: 12px; color: #7a8a99; text-align: right; }
+
+.separator { height: 2px; background: linear-gradient(90deg, #1A3D63, #B3CFE5); margin: 22px 0; border-radius: 2px; }
+
+.bloc-identite { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin-bottom: 30px; }
+.bloc-identite .ligne { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+.bloc-identite .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #7a8a99; font-weight: 600; }
+.bloc-identite b { font-size: 14.5px; color: #0A1931; }
+.statut-ok { color: #1e874b !important; }
+
+.examen-titre { font-size: 16px; font-weight: 700; color: #fff; background: #1A3D63; padding: 11px 18px; border-radius: 8px; margin-bottom: 4px; }
+
+.tableau { width: 100%; border-collapse: collapse; margin-top: 14px; }
+.tableau th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: #4A7FA7; font-weight: 700; padding: 11px 10px; border-bottom: 2px solid #E1E9F0; }
+.tableau td { padding: 13px 10px; font-size: 14px; border-bottom: 1px solid #EEF3F7; color: #2a2a2a; }
+.tableau tr:last-child td { border-bottom: none; }
+.param { font-weight: 600; color: #0A1931; }
+.valeur { font-weight: 700; color: #0A1931; font-size: 15px; }
+.valeur.anormal { color: #C0392B; }
+.unite { color: #7a8a99; font-size: 13px; }
+.ref { color: #5a6a79; font-size: 13px; }
+
+.pastille { font-size: 11px; font-weight: 600; padding: 4px 11px; border-radius: 20px; white-space: nowrap; }
+.pastille.normal { background: rgba(30,135,75,.1); color: #1e874b; }
+.pastille.anormal { background: rgba(192,57,43,.1); color: #C0392B; }
+.pastille.neutre { background: #f0f0f0; color: #999; }
+
+.note { margin-top: 26px; padding: 16px 18px; background: #F6FAFD; border-left: 3px solid #4A7FA7; border-radius: 0 8px 8px 0; }
+.note-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #4A7FA7; font-weight: 700; }
+.note p { font-size: 14px; color: #2a2a2a; margin-top: 6px; line-height: 1.5; }
+
+.signature { margin-top: 36px; }
+.sep-sign { height: 1px; background: #E1E9F0; margin-bottom: 16px; }
+.signature p { font-size: 13px; color: #5a6a79; margin-bottom: 4px; }
+.signature .mention { font-size: 11.5px; color: #9aa8b5; font-style: italic; }
+
+.introuvable { max-width: 780px; margin: 40px auto; text-align: center; color: #7a8a99; background: #fff; padding: 40px; border-radius: 8px; }
+
+/* Impression : on ne montre que le document */
+@media print {
+  .no-print { display: none !important; }
+  .page-bg { background: #fff; padding: 0; }
+  .document { box-shadow: none; max-width: 100%; padding: 20px; }
+}
+
+.bas { max-width: 780px; margin: 22px auto 0; }
+.bas .btn-download {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #1A3D63, #4A7FA7); color: #fff;
+  font-family: inherit; font-weight: 700; font-size: 15px; cursor: pointer;
+  box-shadow: 0 12px 30px rgba(26,61,99,.35); transition: transform .15s, box-shadow .25s;
+}
+.bas .btn-download:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(26,61,99,.45); }
+.bas .btn-download svg { width: 20px; height: 20px; }

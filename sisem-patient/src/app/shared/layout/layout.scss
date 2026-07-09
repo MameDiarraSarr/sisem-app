@@ -1,0 +1,75 @@
+:host { display: block; min-height: 100vh; position: relative; overflow-x: hidden; font-family: 'Outfit', sans-serif; }
+
+.bg { position: fixed; inset: 0; z-index: 0; background: linear-gradient(135deg, #F6FAFD 0%, #EAF2F8 50%, #F6FAFD 100%); }
+.blob { position: fixed; border-radius: 50%; filter: blur(90px); opacity: .4; z-index: 0; }
+.blob.b1 { width: 460px; height: 460px; background: #B3CFE5; top: -160px; left: 5%; animation: drift 16s ease-in-out infinite; }
+.blob.b2 { width: 400px; height: 400px; background: #4A7FA7; bottom: -160px; right: -60px; opacity: .25; animation: drift 18s ease-in-out infinite reverse; }
+@keyframes drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,-30px) scale(1.1); } }
+
+/* HEADER en haut */
+.header {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(74,127,167,.15);
+}
+
+.logo { display: flex; align-items: center; gap: 11px; }
+.logo .mk { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #1A3D63, #4A7FA7); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(26,61,99,.25); }
+.logo .mk svg { width: 21px; height: 21px; }
+.logo .bn { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #0A1931; }
+
+/* Liens */
+.nav { display: flex; align-items: center; gap: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: #4A7FA7; cursor: pointer;
+  padding: 10px 16px; border-radius: 12px; transition: .2s;
+  background: none; border: none; font-family: inherit; font-size: 14px; font-weight: 600;
+}
+.nav-item svg { width: 19px; height: 19px; }
+.nav-item:hover { background: rgba(74,127,167,.1); color: #1A3D63; }
+.nav-item.active { background: linear-gradient(135deg, #1A3D63, #4A7FA7); color: #fff; }
+.nav-item.active svg { color: #fff; }
+.nav-item.deco { color: #4A7FA7; }
+.nav-item.deco:hover { background: rgba(74,127,167,.1); color: #1A3D63; }
+
+/* Hamburger caché sur desktop */
+.hamburger { display: none; background: none; border: none; cursor: pointer; color: #1A3D63; padding: 6px; }
+.hamburger svg { width: 26px; height: 26px; }
+
+.contenu { position: relative; z-index: 1; min-height: calc(100vh - 73px); }
+
+/* Bouton chatbot flottant */
+.chatbot-btn {
+  position: fixed; bottom: 26px; right: 26px; z-index: 25;
+  width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #1A3D63, #4A7FA7);
+  display: grid; place-items: center;
+  box-shadow: 0 12px 30px rgba(26,61,99,.4);
+  transition: transform .2s;
+}
+.chatbot-btn:hover { transform: scale(1.08); }
+.chatbot-btn svg { width: 27px; height: 27px; color: #fff; }
+
+/* RESPONSIVE — menu hamburger en dessous de 768px */
+@media (max-width: 768px) {
+  .hamburger { display: block; }
+
+  .nav {
+    position: absolute; top: 100%; right: 0; left: 0;
+    flex-direction: column; align-items: stretch; gap: 4px;
+    padding: 12px 20px 20px;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-bottom: 1px solid rgba(74,127,167,.15);
+    box-shadow: 0 12px 30px rgba(26,61,99,.12);
+    transform: translateY(-10px); opacity: 0; pointer-events: none; transition: .25s;
+  }
+  .nav.ouvert { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .nav-item { justify-content: flex-start; padding: 14px 16px; }
+}

@@ -1,0 +1,93 @@
+<div class="page-bg">
+  <!-- Barre navigation (juste le retour en haut) -->
+  <div class="nav">
+    <button class="back" routerLink="/accueil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      Retour
+    </button>
+  </div>
+
+  @if (resultat) {
+    <div class="document">
+
+      <div class="doc-head">
+        <div class="labo">
+          <div class="labo-logo">SISEM</div>
+          <div>
+            <b>Laboratoire — Hôpital d'Enfants Albert Royer</b>
+            <span>Compte-rendu d'analyses médicales</span>
+          </div>
+        </div>
+        <div class="edition">Édité le {{ dateEdition }}</div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="bloc-identite">
+        <div class="col">
+          <div class="ligne"><span class="lbl">Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
+          <div class="ligne"><span class="lbl">N° Dossier (Labo)</span><b>{{ resultat.numeroLabo }}</b></div>
+        </div>
+        <div class="col">
+          <div class="ligne"><span class="lbl">Date du résultat</span><b>{{ resultat.dateResultat }}</b></div>
+          <div class="ligne"><span class="lbl">Statut</span><b class="statut-ok">Compte-rendu complet</b></div>
+        </div>
+      </div>
+
+      <div class="examen-titre">{{ resultat.examenNom }}</div>
+
+      <table class="tableau">
+        <thead>
+          <tr>
+            <th>Paramètre</th>
+            <th>Résultat</th>
+            <th>Unité</th>
+            <th>Valeurs de référence</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (analyse of resultat.analyses; track analyse.nom) {
+            <tr>
+              <td class="param">{{ analyse.nom }}</td>
+              <td class="valeur" [class.anormal]="statutValeur(analyse.valeur, analyse.valeurReference) === 'anormal'">{{ analyse.valeur }}</td>
+              <td class="unite">{{ analyse.unite }}</td>
+              <td class="ref">{{ analyse.valeurReference }}</td>
+              <td class="indic">
+                @switch (statutValeur(analyse.valeur, analyse.valeurReference)) {
+                  @case ('normal') { <span class="pastille normal">Normal</span> }
+                  @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
+                  @default { <span class="pastille neutre">—</span> }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (resultat.commentaire) {
+        <div class="note">
+          <span class="note-lbl">Interprétation du biologiste</span>
+          <p>{{ resultat.commentaire }}</p>
+        </div>
+      }
+
+      <div class="signature">
+        <div class="sep-sign"></div>
+        <p>Compte-rendu validé par le biologiste responsable.</p>
+        <p class="mention">Document généré par SISEM — Ne pas se substituer à l'avis de votre médecin.</p>
+      </div>
+
+    </div>
+
+    <!-- Bouton télécharger EN BAS -->
+    <div class="bas">
+      <button class="btn-download" (click)="telechargerPdf()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger le PDF
+      </button>
+    </div>
+  } @else {
+    <div class="introuvable">Résultat introuvable.</div>
+  }
+</div>

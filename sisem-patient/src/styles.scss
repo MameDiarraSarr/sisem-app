@@ -1,0 +1,16 @@
+:root {
+  --navy-dark: #0A1931;
+  --navy: #1A3D63;
+  --blue-mid: #4A7FA7;
+  --blue-light: #B3CFE5;
+  --bg-light: #F6FAFD;
+  --bg-light-2: #EAF2F8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  font-family: 'Outfit', sans-serif;
+  color: var(--navy-dark);
+  overflow-x: hidden;
+}

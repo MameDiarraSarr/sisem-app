@@ -1,0 +1,46 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<!-- Barre de navigation en HAUT -->
+<header class="header">
+  <div class="logo">
+    <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+    <span class="bn">SISEM</span>
+  </div>
+
+  <!-- Bouton hamburger (visible seulement en mobile) -->
+  <button class="hamburger" (click)="basculerMenu()">
+    @if (menuOuvert()) {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    }
+  </button>
+
+  <!-- Liens de navigation -->
+  <nav class="nav" [class.ouvert]="menuOuvert()">
+    <a class="nav-item" routerLink="/accueil" routerLinkActive="active" (click)="fermerMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Liste des résultats</span>
+    </a>
+    <a class="nav-item" routerLink="/profil" routerLinkActive="active" (click)="fermerMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profil</span>
+    </a>
+    <button class="nav-item deco" (click)="seDeconnecter()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+      <span>Déconnexion</span>
+    </button>
+  </nav>
+</header>
+
+<!-- Zone de contenu -->
+<main class="contenu">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Bouton chatbot flottant -->
+<button class="chatbot-btn" routerLink="/assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>

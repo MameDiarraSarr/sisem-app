@@ -1,0 +1,171 @@
+<div class="page">
+  <div class="hello">
+    <h1>Bonjour {{ patient?.prenom }} 👋</h1>
+    <p>Consultez vos résultats d'examens</p>
+  </div>
+
+  <!-- ══ SECTION 1 : RÉSULTATS RÉCENTS ══ -->
+  <div class="section glass" [class.ouvert]="sectionRecents()">
+    <button class="section-tete" (click)="basculerRecents()">
+      <div class="s-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <div class="s-infos">
+        <b>Résultats</b>
+        <span>{{ resultatsRecents().length }} résultat(s) récent(s)</span>
+      </div>
+      <svg class="fleche" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    @if (sectionRecents()) {
+      <div class="section-corps">
+        @for (r of resultatsRecents(); track r.id) {
+          <div class="item" [class.ouvert]="detailOuvertId() === r.id">
+            <button class="item-tete" (click)="basculerDetail(r.id)">
+              <div class="i-infos">
+                <b>{{ r.examenNom }}</b>
+                <span>N° {{ r.numeroLabo }} · {{ r.dateResultat }}</span>
+              </div>
+              <div class="badge">Disponible</div>
+              <svg class="fleche-item" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+
+            @if (detailOuvertId() === r.id) {
+              <div class="item-corps">
+                @if (r.medecinPrescripteur) {
+                  <div class="prescripteur">Prescrit par <b>{{ r.medecinPrescripteur }}</b></div>
+                }
+                <table>
+                  <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th></th></tr></thead>
+                  <tbody>
+                    @for (a of r.analyses; track a.nom) {
+                      <tr>
+                        <td class="param">{{ a.nom }}</td>
+                        <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
+                        <td class="unite">{{ a.unite }}</td>
+                        <td class="ref">{{ a.valeurReference }}</td>
+                        <td>
+                          @switch (statutValeur(a.valeur, a.valeurReference)) {
+                            @case ('normal') { <span class="pastille normal">Normal</span> }
+                            @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
+                            @default { <span class="pastille neutre">—</span> }
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+
+                @if (r.commentaire) {
+                  <div class="note">
+                    <span class="note-lbl">Interprétation du biologiste</span>
+                    <p>{{ r.commentaire }}</p>
+                  </div>
+                }
+
+                <button class="btn-pdf" (click)="telechargerPdf(r.id)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Télécharger le PDF
+                </button>
+              </div>
+            }
+          </div>
+        } @empty {
+          <p class="rien">Aucun résultat disponible pour le moment.</p>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ══ SECTION 2 : RÉSULTATS ANTÉRIEURS ══ -->
+  <div class="section glass" [class.ouvert]="sectionAnterieurs()">
+    <button class="section-tete" (click)="basculerAnterieurs()">
+      <div class="s-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="s-infos">
+        <b>Résultats antérieurs</b>
+        <span>Historique de vos examens</span>
+      </div>
+      <svg class="fleche" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    @if (sectionAnterieurs()) {
+      <div class="section-corps">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input placeholder="Filtrer par examen, N° labo, date, prescripteur..."
+                 [value]="recherche()" (input)="onRecherche($any($event.target).value)">
+        </div>
+
+        <table class="tab-hist">
+          <thead>
+            <tr><th>Référence</th><th>Examen</th><th>Prescripteur</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (r of resultatsAnterieurs(); track r.id) {
+              <tr class="ligne" [class.active]="detailOuvertId() === r.id" (click)="basculerDetail(r.id)">
+                <td class="reference">{{ r.numeroLabo }}</td>
+                <td>{{ r.examenNom }}</td>
+                <td class="presc">{{ r.medecinPrescripteur ?? '—' }}</td>
+                <td class="date">{{ r.dateResultat }}</td>
+                <td class="chev">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </td>
+              </tr>
+
+              @if (detailOuvertId() === r.id) {
+                <tr class="ligne-detail">
+                  <td colspan="5">
+                    <!-- Même carte que les résultats récents -->
+                    <div class="item ouvert">
+                      <div class="item-corps">
+                        @if (r.medecinPrescripteur) {
+                          <div class="prescripteur">Prescrit par <b>{{ r.medecinPrescripteur }}</b></div>
+                        }
+                        <table>
+                          <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th></th></tr></thead>
+                          <tbody>
+                            @for (a of r.analyses; track a.nom) {
+                              <tr>
+                                <td class="param">{{ a.nom }}</td>
+                                <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
+                                <td class="unite">{{ a.unite }}</td>
+                                <td class="ref">{{ a.valeurReference }}</td>
+                                <td>
+                                  @switch (statutValeur(a.valeur, a.valeurReference)) {
+                                    @case ('normal') { <span class="pastille normal">Normal</span> }
+                                    @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
+                                    @default { <span class="pastille neutre">—</span> }
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+
+                        @if (r.commentaire) {
+                          <div class="note">
+                            <span class="note-lbl">Interprétation du biologiste</span>
+                            <p>{{ r.commentaire }}</p>
+                          </div>
+                        }
+
+                        <button class="btn-pdf" (click)="telechargerPdf(r.id)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          Télécharger le PDF
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr><td colspan="5" class="rien">Aucun résultat antérieur.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

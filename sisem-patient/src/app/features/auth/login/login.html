@@ -1,0 +1,33 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="login-wrap">
+  <div class="card">
+    <div class="logo">
+      <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+      <span class="bn">SISEM</span>
+    </div>
+
+    <h1>Espace Patient</h1>
+    <p class="sub">Connectez-vous pour consulter vos résultats</p>
+
+    <div class="field">
+      <label>Numéro de téléphone</label>
+      <input type="tel" placeholder="77 123 45 67" [(ngModel)]="telephone" name="telephone">
+    </div>
+
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse" (keyup.enter)="seConnecter()">
+    </div>
+
+    @if (erreur) {
+      <div class="erreur">{{ erreur }}</div>
+    }
+
+    <button class="btn-connexion" (click)="seConnecter()">Se connecter</button>
+
+    <p class="foot">Vos identifiants vous ont été remis lors de votre enregistrement à l'accueil.</p>
+  </div>
+</div>
