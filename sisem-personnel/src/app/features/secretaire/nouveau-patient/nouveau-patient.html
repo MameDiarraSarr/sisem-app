@@ -1,0 +1,107 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrapper">
+  <!-- En-tête avec retour -->
+  <div class="form-head">
+    <button class="back" routerLink="/secretaire">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div>
+      <h1>Enregistrer un patient</h1>
+      <p class="sub">Saisissez les informations à partir du bulletin</p>
+    </div>
+  </div>
+
+  <!-- Le formulaire -->
+  <div class="form-card glass">
+
+    <div class="section-title">Informations personnelles</div>
+    <div class="grid">
+      <div class="field">
+        <label>Prénom</label>
+        <input type="text" placeholder="Amadou" [(ngModel)]="prenom" name="prenom">
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" placeholder="Diop" [(ngModel)]="nom" name="nom">
+      </div>
+      <div class="field">
+        <label>Date de naissance</label>
+        <input type="date" [(ngModel)]="dateNaissance" name="dateNaissance">
+      </div>
+      <div class="field">
+        <label>Sexe</label>
+        <select [(ngModel)]="sexe" name="sexe">
+          <option value="">Sélectionner</option>
+          <option value="M">Masculin</option>
+          <option value="F">Féminin</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title">Coordonnées</div>
+    <div class="grid">
+      <div class="field">
+        <label>Téléphone</label>
+        <input type="tel" placeholder="77 123 45 67" [(ngModel)]="telephone" name="telephone">
+      </div>
+      <div class="field">
+        <label>Email <span class="opt">(optionnel)</span></label>
+        <input type="email" placeholder="exemple@mail.com" [(ngModel)]="email" name="email">
+      </div>
+      <div class="field">
+        <label>Adresse</label>
+        <input type="text" placeholder="Quartier, rue..." [(ngModel)]="adresse" name="adresse">
+      </div>
+      <div class="field">
+        <label>Ville</label>
+        <input type="text" placeholder="Dakar" [(ngModel)]="ville" name="ville">
+      </div>
+    </div>
+
+    <div class="section-title">Informations laboratoire</div>
+    <div class="grid">
+      <div class="field">
+        <label>N° Labo <span class="opt">(donné par l'accueil)</span></label>
+        <input type="text" placeholder="20/16/06/2026" [(ngModel)]="numeroLabo" name="numeroLabo">
+      </div>
+    </div>
+
+    <div class="section-title">Type de patient</div>
+    <div class="grid">
+      <div class="field">
+        <label>Patient</label>
+        <select [(ngModel)]="typePatient" name="typePatient">
+          <option value="">Sélectionner</option>
+          <option value="interne">Interne</option>
+          <option value="externe">Externe</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Pavillon <span class="opt">(si interne)</span></label>
+        <select [(ngModel)]="pavillon" name="pavillon">
+          <option value="">Sélectionner</option>
+          <option value="M">Pavillon M</option>
+          <option value="N">Pavillon N</option>
+          <option value="O">Pavillon O</option>
+          <option value="K">Pavillon K</option>
+          <option value="USAD">USAD</option>
+          <option value="SAU">SAU</option>
+          <option value="Dermato">Dermato</option>
+          <option value="Esther">Esther</option>
+          <option value="Chirurgie">Chirurgie</option>
+          <option value="ChirPed">Chir Ped</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="actions">
+      <button class="btn-ghost" routerLink="/secretaire">Annuler</button>
+      <button class="btn-primary" (click)="enregistrer()">Enregistrer le patient</button>
+    </div>
+
+  </div>
+</div>

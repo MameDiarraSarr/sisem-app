@@ -1,0 +1,36 @@
+<div class="topbar">
+  <div>
+    <h1>Résultats à valider</h1>
+    <p class="sub">Examinez les résultats saisis avant validation</p>
+  </div>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>En attente de validation</h3>
+    <span class="count">{{ bulletins.length }} bulletin(s)</span>
+  </div>
+
+  <table>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+    <tbody>
+      @for (bulletin of bulletins; track bulletin.id) {
+        <tr>
+          <td><b>{{ bulletin.numeroLabo }}</b></td>
+          <td>{{ bulletin.patientNom }}</td>
+          <td>{{ bulletin.examenNom }}</td>
+          <td>{{ bulletin.dateEnregistrement }}</td>
+          <td><span class="statut orange">Saisi</span></td>
+          <td>
+            <button class="btn-examiner" [routerLink]="['/biologiste/detail', bulletin.id]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Examiner
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6" class="vide">Aucun résultat à valider pour le moment.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

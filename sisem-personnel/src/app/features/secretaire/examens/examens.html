@@ -1,0 +1,37 @@
+<div class="topbar">
+  <div>
+    <h1>Examens</h1>
+    <p class="sub">Suivez tous les bulletins d'examens</p>
+  </div>
+  <button class="btn-primary" routerLink="/secretaire/nouveau-bulletin">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+    Nouveau bulletin
+  </button>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>Tous les bulletins</h3>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Rechercher par patient, N° Labo ou examen..." [(ngModel)]="recherche">
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen demandé</th><th>Date</th><th>Statut</th></tr></thead>
+    <tbody>
+      @for (bulletin of bulletins(); track bulletin.id) {
+        <tr>
+          <td><b>{{ bulletin.numeroLabo }}</b></td>
+          <td>{{ bulletin.patientNom }}</td>
+          <td>{{ bulletin.examenNom }}</td>
+          <td>{{ bulletin.dateEnregistrement }}</td>
+          <td><span class="statut" [class]="bulletin.statut">{{ statutLibelle(bulletin.statut) }}</span></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="vide">Aucun examen enregistré.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

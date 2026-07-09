@@ -1,0 +1,41 @@
+<div class="bg">
+  <img src="labos.jpg" alt="Laboratoire">
+</div>
+
+<div class="brand-block">
+  <div class="logo">
+    <div class="mk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg>
+    </div>
+    <span class="bn">SISEM</span>
+  </div>
+</div>
+
+<div class="glass">
+  <h2>Connexion</h2>
+  <p class="sub">Accédez à votre espace</p>
+
+ <div class="field">
+    <label for="email">Email</label>
+    <div class="iw">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+      <input id="email" type="email" placeholder="exemple@albertroyer.sn" [(ngModel)]="email">    </div>
+  </div>
+
+  <div class="field">
+    <label for="pwd">Mot de passe</label>
+    <div class="iw">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <input id="pwd" type="password" placeholder="••••••••" [(ngModel)]="motDePasse">
+    </div>
+  </div>
+
+  <div class="row">
+    <label class="rem"><input type="checkbox"> Se souvenir de moi</label>
+    <a class="lk" href="#">Mot de passe oublié ?</a>
+  </div>
+
+  <button class="btn" (click)="seConnecter()">Se connecter</button>
+
+  <p class="foot">Vos identifiants vous sont remis par l'<strong>administrateur</strong>.</p>
+</div>

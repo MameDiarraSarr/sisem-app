@@ -1,0 +1,74 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrapper">
+  <div class="form-head">
+    <button class="back" routerLink="/admin/personnel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div>
+      <h1>Modifier le compte</h1>
+      <p class="sub">Mettez à jour les informations du membre</p>
+    </div>
+  </div>
+
+  <div class="form-card glass">
+    <div class="section-title">Informations du membre</div>
+    <div class="grid">
+      <div class="field">
+        <label>Prénom</label>
+        <input type="text" [(ngModel)]="prenom" name="prenom">
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="nom" name="nom">
+      </div>
+      <div class="field">
+        <label>Email professionnel</label>
+        <input type="email" [(ngModel)]="email" name="email">
+      </div>
+      <div class="field">
+        <label>Téléphone</label>
+        <input type="tel" [(ngModel)]="telephone" name="telephone">
+      </div>
+    </div>
+
+    <div class="section-title">Rôle et affectation</div>
+    <div class="grid">
+      <div class="field">
+        <label>Rôle</label>
+        <select [(ngModel)]="role" name="role">
+          <option value="secretaire">Secrétaire</option>
+          <option value="technicien">Technicien</option>
+          <option value="biologiste">Biologiste</option>
+          <option value="major">Major</option>
+          <option value="medecin">Médecin</option>
+        </select>
+      </div>
+      @if (besoinPavillon()) {
+        <div class="field">
+          <label>Pavillon</label>
+          <select [(ngModel)]="pavillon" name="pavillon">
+            <option value="">Sélectionner</option>
+            <option value="Pavillon M">Pavillon M</option>
+            <option value="Pavillon N">Pavillon N</option>
+            <option value="Pavillon O">Pavillon O</option>
+            <option value="Pavillon K">Pavillon K</option>
+            <option value="USAD">USAD</option>
+            <option value="SAU">SAU</option>
+            <option value="Dermato">Dermato</option>
+            <option value="Esther">Esther</option>
+            <option value="Chirurgie">Chirurgie</option>
+            <option value="Chir Ped">Chir Ped</option>
+          </select>
+        </div>
+      }
+    </div>
+
+    <div class="actions">
+      <button class="btn-ghost" routerLink="/admin/personnel">Annuler</button>
+      <button class="btn-primary" (click)="enregistrer()">Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>

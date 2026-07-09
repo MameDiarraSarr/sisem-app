@@ -1,0 +1,32 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+    <span class="bn">SISEM</span>
+  </div>
+
+  <div class="sb-section">Principal</div>
+  @for (lien of menu(); track lien.route) {
+    <a class="sb-link" [routerLink]="lien.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="lien.icone"/></svg>
+      {{ lien.libelle }}
+    </a>
+  }
+
+  <div class="sb-section">Compte</div>
+  <a class="sb-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Mon profil</a>
+  <a class="sb-link" (click)="seDeconnecter()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg> Déconnexion</a>
+
+  <div class="sb-foot">
+    <div class="av">{{ initiales() }}</div>
+    <div class="who"><b>{{ utilisateur()?.nom }}</b><span>{{ roleLibelle() }}</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <router-outlet></router-outlet>
+</main>

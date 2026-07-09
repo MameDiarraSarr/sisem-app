@@ -1,0 +1,52 @@
+:host { display: block; padding: 0 48px 30px; }
+
+.glass {
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 32px rgba(26,61,99,.08);
+}
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 5;
+  padding: 32px 0 24px 26px; margin-bottom: 24px;
+  background: rgba(246,250,253,.75);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+.topbar h1 { font-size: 27px; font-weight: 800; color: #0A1931; }
+.topbar .sub { font-size: 13.5px; color: #4A7FA7; margin-top: 3px; }
+.btn-primary {
+  background: linear-gradient(135deg, #1A3D63, #4A7FA7);
+  color: #fff; border: none; padding: 13px 22px; border-radius: 14px;
+  font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 10px 26px rgba(26,61,99,.3); transition: transform .15s, box-shadow .25s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(26,61,99,.4); }
+.btn-primary svg { width: 17px; height: 17px; }
+
+.panel { border-radius: 22px; padding: 26px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+.panel-head h3 { font-size: 17px; font-weight: 700; color: #0A1931; }
+.search { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.6); border: 1px solid rgba(74,127,167,.2); border-radius: 13px; padding: 11px 15px; width: 320px; }
+.search input { border: none; outline: none; font-family: inherit; font-size: 14px; width: 100%; background: none; color: #0A1931; }
+.search input::placeholder { color: #4A7FA7; opacity: .7; }
+.search svg { width: 17px; height: 17px; color: #4A7FA7; }
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; color: #4A7FA7; font-weight: 700; padding: 11px 10px; border-bottom: 1px solid rgba(74,127,167,.18); }
+td { padding: 15px 10px; font-size: 14px; border-bottom: 1px solid rgba(74,127,167,.1); color: #1A3D63; }
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .2s; }
+tbody tr:hover { background: rgba(74,127,167,.06); }
+
+/* Statuts avec les couleurs du flux : bleu → orange → violet */
+.statut { font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 30px; }
+.statut.enregistre { background: rgba(74,127,167,.15); color: #1A3D63; border: 1px solid rgba(74,127,167,.3); }
+.statut.saisi { background: rgba(224,146,47,.15); color: #B5701A; border: 1px solid rgba(224,146,47,.3); }
+.statut.valide { background: rgba(139,92,246,.13); color: #6D3FD1; border: 1px solid rgba(139,92,246,.28); }
+
+.vide { text-align: center; color: #8FA6BC; padding: 30px; font-style: italic; }

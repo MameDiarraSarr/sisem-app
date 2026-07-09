@@ -1,0 +1,46 @@
+<div class="topbar">
+  <div>
+    <h1>Médecins du pavillon</h1>
+    <p class="sub">Gérez les médecins de {{ pavillon }}</p>
+  </div>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>Médecins affectés</h3>
+    <span class="count">{{ medecins().length }} médecin(s)</span>
+  </div>
+
+  <table>
+    <thead><tr><th>Médecin</th><th>Email</th><th>Action</th></tr></thead>
+    <tbody>
+      @for (medecin of medecins(); track medecin.id) {
+        <tr>
+          <td>
+            <div class="p">
+              <div class="av">{{ medecin.prenom[0] }}{{ medecin.nom[0] }}</div>
+              <div><b>Dr. {{ medecin.prenom }} {{ medecin.nom }}</b><span>{{ medecin.telephone }}</span></div>
+            </div>
+          </td>
+          <td>{{ medecin.email }}</td>
+          <td>
+            @if (medecin.statut === 'actif') {
+              <span class="badge-on">Actif</span>
+            } @else {
+              <span class="badge-off">Inactif</span>
+            }
+          </td>
+          <td>
+            @if (medecin.statut === 'actif') {
+              <button class="btn-toggle off" (click)="basculerStatut(medecin.id)">Désactiver</button>
+            } @else {
+              <button class="btn-toggle on" (click)="basculerStatut(medecin.id)">Activer</button>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="4" class="vide">Aucun médecin affecté à votre pavillon.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

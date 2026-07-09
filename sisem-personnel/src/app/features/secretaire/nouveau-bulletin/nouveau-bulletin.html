@@ -1,0 +1,100 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrapper">
+  <div class="form-head">
+    <button class="back" routerLink="/secretaire">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div>
+      <h1>Nouveau bulletin</h1>
+      <p class="sub">Ajoutez un examen pour ce patient</p>
+    </div>
+  </div>
+
+  <div class="form-card glass">
+
+    @if (patientChoisi()) {
+      <div class="patient-banner">
+        <div class="av">{{ patientChoisi()!.prenom[0] }}{{ patientChoisi()!.nom[0] }}</div>
+        <div>
+          <b>{{ patientChoisi()!.prenom }} {{ patientChoisi()!.nom }}</b>
+          <span>{{ patientChoisi()!.age }} ans · {{ patientChoisi()!.typePatient }}@if (patientChoisi()!.pavillon) { · {{ patientChoisi()!.pavillon }} }</span>
+        </div>
+      </div>
+
+      <div class="section-title">Détails de l'examen</div>
+      <div class="grid">
+        <div class="field">
+          <label>N° Labo <span class="opt">(donné par l'accueil)</span></label>
+          <input type="text" placeholder="25/03/07/2026" [(ngModel)]="numeroLabo" name="numeroLabo">
+        </div>
+
+        <div class="field autocomplete">
+          <label>Examen demandé</label>
+          <input
+            type="text"
+            placeholder="Tapez le nom de l'examen..."
+            [ngModel]="rechercheExamen()"
+            (ngModelChange)="onRechercheExamen($event)"
+            name="rechercheExamen"
+            autocomplete="off">
+          @if (listeExamenVisible() && examensFiltres().length > 0) {
+            <ul class="suggestions">
+              @for (examen of examensFiltres(); track examen.id) {
+                <li (click)="choisirExamen(examen.id, examen.nom)">
+                  <span class="nom">{{ examen.nom }}</span>
+                  <span class="pav">{{ examen.analyses.length }} analyse(s)</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="field">
+          <label>Indication</label>
+          <input type="text" placeholder="Motif de l'examen..." [(ngModel)]="indication" name="indication">
+        </div>
+        <div class="field">
+          <label>Traitement en cours <span class="opt">(optionnel)</span></label>
+          <input type="text" placeholder="Aucun / nom du traitement" [(ngModel)]="traitementEnCours" name="traitementEnCours">
+        </div>
+
+        @if (patientEstInterne()) {
+          <div class="field full autocomplete">
+            <label>Médecin prescripteur <span class="opt">(patient interne)</span></label>
+            <input
+              type="text"
+              placeholder="Tapez le nom du médecin..."
+              [ngModel]="rechercheMedecin()"
+              (ngModelChange)="onRechercheMedecin($event)"
+              name="rechercheMedecin"
+              autocomplete="off">
+            @if (listeMedecinVisible() && medecinsFiltres().length > 0) {
+              <ul class="suggestions">
+                @for (medecin of medecinsFiltres(); track medecin.id) {
+                  <li (click)="choisirMedecin(medecin.id, 'Dr. ' + medecin.prenom + ' ' + medecin.nom)">
+                    <span class="nom">Dr. {{ medecin.prenom }} {{ medecin.nom }}</span>
+                    <span class="pav">{{ medecin.pavillon }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="actions">
+        <button class="btn-ghost" routerLink="/secretaire">Annuler</button>
+        <button class="btn-primary" (click)="enregistrer()">Créer le bulletin</button>
+      </div>
+    } @else {
+      <div class="aucun">
+        <p>Aucun patient sélectionné. Veuillez choisir un patient depuis la liste.</p>
+        <button class="btn-primary" routerLink="/secretaire">Aller à la liste des patients</button>
+      </div>
+    }
+
+  </div>
+</div>

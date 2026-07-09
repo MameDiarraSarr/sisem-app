@@ -1,0 +1,38 @@
+<div class="topbar">
+  <div>
+    <h1>Résultats du pavillon</h1>
+    <p class="sub">Résultats validés · {{ pavillon }}</p>
+  </div>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>Résultats validés</h3>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Rechercher un patient ou N° Labo..." [(ngModel)]="recherche">
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+      @for (bulletin of bulletins(); track bulletin.id) {
+        <tr>
+          <td><b>{{ bulletin.numeroLabo }}</b></td>
+          <td>{{ bulletin.patientNom }}</td>
+          <td>{{ bulletin.examenNom }}</td>
+          <td>{{ bulletin.dateEnregistrement }}</td>
+          <td>
+            <button class="btn-consulter" [routerLink]="['/major/consultation', bulletin.id]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Consulter
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="vide">Aucun résultat disponible pour votre pavillon.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

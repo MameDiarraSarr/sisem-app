@@ -1,0 +1,40 @@
+/* You can add global styles to this file, and also import other style files */
+/* ===================================================
+   SISEM — Styles globaux
+   Palette de couleurs centralisée
+   =================================================== */
+
+:root {
+  /* Couleurs principales */
+  --navy-deep: #0A1931;
+  --navy: #1A3D63;
+  --blue: #4A7FA7;
+  --blue-light: #B3CFE5;
+
+  /* Couleurs d'interface */
+  --bg: #F4F8FC;
+  --white: #FFFFFF;
+  --ink: #1B2A3D;
+  --muted: #8295A8;
+  --line: #E7EEF5;
+
+  /* Statuts des bulletins (progression bleue) */
+  --statut-enregistre: #B3CFE5;
+  --statut-saisi: #4A7FA7;
+  --statut-valide: #1A3D63;
+}
+
+/* Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+}

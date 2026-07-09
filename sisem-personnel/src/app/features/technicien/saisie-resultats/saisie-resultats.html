@@ -1,0 +1,51 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrapper">
+  <div class="form-head">
+    <button class="back" routerLink="/technicien">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div>
+      <h1>Saisie des résultats</h1>
+      <p class="sub">Entrez les valeurs mesurées pour chaque analyse</p>
+    </div>
+  </div>
+
+  @if (bulletin) {
+    <div class="info-card glass">
+      <div class="info"><span class="lbl">N° Labo</span><b>{{ bulletin.numeroLabo }}</b></div>
+      <div class="info"><span class="lbl">Patient</span><b>{{ bulletin.patientNom }}</b></div>
+      <div class="info"><span class="lbl">Examen</span><b>{{ bulletin.examenNom }}</b></div>
+    </div>
+  }
+
+  <div class="form-card glass">
+    <div class="section-title">Analyses</div>
+
+    <table>
+      <thead><tr><th>Analyse</th><th>Valeur mesurée</th><th>Unité</th><th>Valeurs de référence</th></tr></thead>
+      <tbody>
+        @for (analyse of analyses; track analyse.nom) {
+          <tr>
+            <td><b>{{ analyse.nom }}</b></td>
+            <td><input type="text" class="val" placeholder="—" [(ngModel)]="analyse.valeur" [name]="analyse.nom"></td>
+            <td class="unite">{{ analyse.unite }}</td>
+            <td class="ref">{{ analyse.valeurReference }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="vide">Aucune analyse définie pour cet examen.</td></tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="section-title" style="margin-top:28px;">Commentaire</div>
+    <textarea class="commentaire" placeholder="Observations éventuelles..." [(ngModel)]="commentaire" name="commentaire"></textarea>
+
+    <div class="actions">
+      <button class="btn-ghost" routerLink="/technicien">Annuler</button>
+      <button class="btn-primary" (click)="enregistrerResultats()">Enregistrer les résultats</button>
+    </div>
+  </div>
+</div>

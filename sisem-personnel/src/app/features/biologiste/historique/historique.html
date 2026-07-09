@@ -1,0 +1,30 @@
+<div class="topbar">
+  <div>
+    <h1>Historique des validations</h1>
+    <p class="sub">Résultats que vous avez validés</p>
+  </div>
+</div>
+
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>Résultats validés</h3>
+    <span class="count">{{ bulletins.length }} bulletin(s)</span>
+  </div>
+
+  <table>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen</th><th>Date</th><th>Statut</th></tr></thead>
+    <tbody>
+      @for (bulletin of bulletins; track bulletin.id) {
+        <tr>
+          <td><b>{{ bulletin.numeroLabo }}</b></td>
+          <td>{{ bulletin.patientNom }}</td>
+          <td>{{ bulletin.examenDemande }}</td>
+          <td>{{ bulletin.dateEnregistrement }}</td>
+          <td><span class="statut violet">Validé</span></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="vide">Aucun résultat validé pour le moment.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
