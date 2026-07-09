@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Patient extends Authenticatable
 {
+    use HasApiTokens;
     protected $fillable = [
         'numero_dossier', 'prenom', 'nom', 'date_naissance', 'sexe',
         'telephone', 'email', 'adresse', 'ville', 'mot_de_passe',
