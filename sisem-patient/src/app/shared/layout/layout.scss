@@ -43,17 +43,7 @@
 
 .contenu { position: relative; z-index: 1; min-height: calc(100vh - 73px); }
 
-/* Bouton chatbot flottant */
-.chatbot-btn {
-  position: fixed; bottom: 26px; right: 26px; z-index: 25;
-  width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
-  background: linear-gradient(135deg, #1A3D63, #4A7FA7);
-  display: grid; place-items: center;
-  box-shadow: 0 12px 30px rgba(26,61,99,.4);
-  transition: transform .2s;
-}
-.chatbot-btn:hover { transform: scale(1.08); }
-.chatbot-btn svg { width: 27px; height: 27px; color: #fff; }
+
 
 /* RESPONSIVE — menu hamburger en dessous de 768px */
 @media (max-width: 768px) {
