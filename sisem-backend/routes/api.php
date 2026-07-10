@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthPersonnelController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\PatientController;
+use App\Http\Controllers\Api\BulletinExamenController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
@@ -34,4 +35,19 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/patients/{patient}', [PatientController::class, 'show']);
     Route::post('/patients', [PatientController::class, 'store'])
         ->middleware('role:secretaire,admin');
+});
+
+// ── Bulletins d'examen ──
+Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
+    Route::get('/bulletins', [BulletinExamenController::class, 'index']);
+    Route::get('/bulletins/{bulletin}', [BulletinExamenController::class, 'show']);
+
+    Route::post('/bulletins', [BulletinExamenController::class, 'store'])
+        ->middleware('role:secretaire,admin');
+
+    Route::patch('/bulletins/{bulletin}/valider', [BulletinExamenController::class, 'valider'])
+        ->middleware('role:biologiste');
+
+    Route::patch('/bulletins/{bulletin}/renvoyer', [BulletinExamenController::class, 'renvoyer'])
+        ->middleware('role:biologiste');
 });
