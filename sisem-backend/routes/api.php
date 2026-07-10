@@ -8,7 +8,9 @@ use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\BulletinExamenController;
 use App\Http\Controllers\Api\ResultatController;
 use App\Http\Controllers\Api\PatientEspaceController;
-
+use App\Http\Controllers\Api\MedecinController;
+use App\Http\Controllers\Api\AffectationController;
+use App\Http\Controllers\Api\PersonnelController;
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
 
@@ -66,4 +68,22 @@ Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     // Espace résultats
     Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
     Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
+});
+
+// ── Médecins (autocomplétion prescripteur) ──
+Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
+    Route::get('/medecins', [MedecinController::class, 'index']);
+});
+
+// ── Gestion du personnel (admin) ──
+Route::middleware(['auth:sanctum', 'personnel', 'role:admin'])->group(function () {
+    Route::get('/personnel', [PersonnelController::class, 'index']);
+    Route::post('/personnel', [PersonnelController::class, 'store']);
+    Route::patch('/personnel/{user}/statut', [PersonnelController::class, 'changerStatut']);
+});
+
+// ── Affectations (admin et major) ──
+Route::middleware(['auth:sanctum', 'personnel', 'role:admin,major'])->group(function () {
+    Route::get('/affectations', [AffectationController::class, 'index']);
+    Route::post('/affectations', [AffectationController::class, 'store']);
 });
