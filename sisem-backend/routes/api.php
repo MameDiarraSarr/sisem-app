@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\BulletinExamenController;
 use App\Http\Controllers\Api\ResultatController;
+use App\Http\Controllers\Api\PatientEspaceController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
@@ -56,4 +57,13 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Saisie des résultats (technicien) ──
 Route::middleware(['auth:sanctum', 'personnel', 'role:technicien'])->group(function () {
     Route::post('/bulletins/{bulletin}/resultats', [ResultatController::class, 'saisir']);
+});
+
+Route::middleware(['auth:sanctum', 'patient'])->group(function () {
+    Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
+    Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
+
+    // Espace résultats
+    Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
+    Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
 });
