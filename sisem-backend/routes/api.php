@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\BulletinExamenController;
+use App\Http\Controllers\Api\ResultatController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
@@ -50,4 +51,9 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 
     Route::patch('/bulletins/{bulletin}/renvoyer', [BulletinExamenController::class, 'renvoyer'])
         ->middleware('role:biologiste');
+});
+
+// ── Saisie des résultats (technicien) ──
+Route::middleware(['auth:sanctum', 'personnel', 'role:technicien'])->group(function () {
+    Route::post('/bulletins/{bulletin}/resultats', [ResultatController::class, 'saisir']);
 });
