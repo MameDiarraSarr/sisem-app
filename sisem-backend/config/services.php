@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'whapi' => [
+        'token' => env('WHAPI_TOKEN'),
+        'url' => env('WHAPI_URL', 'https://gate.whapi.cloud'),
+    ],
+
 ];

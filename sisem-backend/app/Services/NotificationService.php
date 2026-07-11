@@ -6,6 +6,7 @@ use App\Models\BulletinExamen;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class NotificationService
 {
@@ -61,14 +62,38 @@ class NotificationService
         }
     }
 
-    // ⚠️ À brancher quand la passerelle WhatsApp sera prête (Whapi/Wasender)
     private function envoyerParWhatsApp(Notification $notification, $patient): void
     {
-        // TODO : appel HTTP à la passerelle WhatsApp
-        // $reponse = Http::withToken($token)->post('https://gate.whapi.cloud/messages/text', [
-        //     'to' => $patient->telephone,
-        //     'body' => $notification->message . ' ' . $notification->lien,
-        // ]);
-        // if ($reponse->successful()) $notification->update(['envoye' => true]);
+        try {
+            // withoutVerifying() : contourne la vérification SSL en dev local (WAMP).
+            // ⚠️ À retirer au déploiement, en configurant cacert.pem dans php.ini.
+            $reponse = Http::withToken(config('services.whapi.token'))
+                ->withoutVerifying()
+                ->post(config('services.whapi.url') . '/messages/text', [
+                    'to' => $this->formaterNumero($patient->telephone),
+                    'body' => $notification->message . "\n\n" . $notification->lien,
+                ]);
+
+            if ($reponse->successful()) {
+                $notification->update(['envoye' => true]);
+            } else {
+                Log::error('Échec envoi WhatsApp : ' . $reponse->body());
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur WhatsApp : ' . $e->getMessage());
+        }
+    }
+
+    // WhatsApp attend le format international sans + ni espaces (ex: 221771234567)
+    private function formaterNumero(string $telephone): string
+    {
+        $numero = preg_replace('/[^0-9]/', '', $telephone);
+
+        // Numéro sénégalais local (9 chiffres commençant par 7) → préfixe 221
+        if (strlen($numero) === 9 && str_starts_with($numero, '7')) {
+            $numero = '221' . $numero;
+        }
+
+        return $numero;
     }
 }
