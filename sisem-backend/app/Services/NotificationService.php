@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\BulletinExamen;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
@@ -26,26 +28,47 @@ class NotificationService
             'envoye' => false,
         ]);
 
-        // Tentative d'envoi réel (WhatsApp/SMS) — à brancher plus tard
         $this->envoyer($notification);
 
         return $notification;
     }
 
-    // ⚠️ Point de branchement unique.
-    // Aujourd'hui : ne fait rien de plus (la notification est déjà en base et visible dans l'espace patient).
-    // Demain : un appel HTTP à une passerelle WhatsApp/SMS, puis $notification->update(['envoye' => true]).
+    // Choix du canal : email si disponible, sinon WhatsApp
     private function envoyer(Notification $notification): void
     {
-        // TODO déploiement : intégrer la passerelle d'envoi (voir TODO.md)
-        //
-        // Exemple futur :
-        // $reponse = Http::withToken($token)->post('https://passerelle/envoi', [
-        //     'to' => $notification->patient->telephone,
-        //     'text' => $notification->message . ' ' . $notification->lien,
+        $patient = $notification->patient;
+
+        if ($patient->email) {
+            $this->envoyerParMail($notification, $patient);
+        } else {
+            $this->envoyerParWhatsApp($notification, $patient);
+        }
+    }
+
+    private function envoyerParMail(Notification $notification, $patient): void
+    {
+        try {
+            Mail::raw(
+                $notification->message . "\n\nConsultez vos résultats : " . $notification->lien,
+                function ($m) use ($patient) {
+                    $m->to($patient->email)
+                      ->subject('SISEM - Vos résultats sont disponibles');
+                }
+            );
+            $notification->update(['envoye' => true]);
+        } catch (\Exception $e) {
+            Log::error('Échec envoi mail notification : ' . $e->getMessage());
+        }
+    }
+
+    // ⚠️ À brancher quand la passerelle WhatsApp sera prête (Whapi/Wasender)
+    private function envoyerParWhatsApp(Notification $notification, $patient): void
+    {
+        // TODO : appel HTTP à la passerelle WhatsApp
+        // $reponse = Http::withToken($token)->post('https://gate.whapi.cloud/messages/text', [
+        //     'to' => $patient->telephone,
+        //     'body' => $notification->message . ' ' . $notification->lien,
         // ]);
-        // if ($reponse->successful()) {
-        //     $notification->update(['envoye' => true]);
-        // }
+        // if ($reponse->successful()) $notification->update(['envoye' => true]);
     }
 }
