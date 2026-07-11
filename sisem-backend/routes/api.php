@@ -11,12 +11,19 @@ use App\Http\Controllers\Api\PatientEspaceController;
 use App\Http\Controllers\Api\MedecinController;
 use App\Http\Controllers\Api\AffectationController;
 use App\Http\Controllers\Api\PersonnelController;
+
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
 
-Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
-    Route::post('/personnel/deconnexion', [AuthPersonnelController::class, 'deconnexion']);
-    Route::get('/personnel/moi', [AuthPersonnelController::class, 'moi']);
+Route::middleware(['auth:sanctum', 'patient'])->group(function () {
+    Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
+    Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
+
+    Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
+    Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
+
+    Route::get('/patient/notifications', [PatientEspaceController::class, 'mesNotifications']);
+    Route::patch('/patient/notifications/{notification}/lue', [PatientEspaceController::class, 'marquerLue']);
 });
 
 // ── Patient (connexion par téléphone) ──

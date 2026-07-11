@@ -110,6 +110,10 @@ class BulletinExamenController extends Controller
 
         $bulletin->update(['statut' => 'valide']);
 
+        // Le patient est notifié que ses résultats sont disponibles
+        app(\App\Services\NotificationService::class)
+            ->notifierResultatsDisponibles($bulletin->load('patient'));
+
         return response()->json(['message' => 'Bulletin validé.', 'statut' => 'valide']);
     }
 

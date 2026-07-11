@@ -72,4 +72,30 @@ class PatientEspaceController extends Controller
             }),
         ]);
     }
+
+    public function mesNotifications(Request $request)
+    {
+        $patient = $request->user();
+
+        $notifications = \App\Models\Notification::where('patient_id', $patient->id)
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json($notifications->map(fn ($n) => [
+            'id' => $n->id,
+            'message' => $n->message,
+            'lien' => $n->lien,
+            'lu' => $n->lu,
+            'date' => $n->created_at->format('d/m/Y H:i'),
+        ]));
+    }
+
+    public function marquerLue(Request $request, \App\Models\Notification $notification)
+    {
+        abort_unless($notification->patient_id === $request->user()->id, 403, 'Accès refusé.');
+
+        $notification->update(['lu' => true]);
+
+        return response()->json(['message' => 'Notification lue.']);
+    }
 }
