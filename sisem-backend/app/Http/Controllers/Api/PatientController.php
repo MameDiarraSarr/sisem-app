@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Hospitalisation;
+use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
@@ -13,7 +15,7 @@ class PatientController extends Controller
     {
         $recherche = $request->query('recherche');
 
-        $patients = Patient::with('pavillon')
+        $patients = Patient::with('hospitalisationActive.pavillon')
             ->when($recherche, function ($query, $terme) {
                 $query->where(function ($q) use ($terme) {
                     $q->where('prenom', 'ilike', "%{$terme}%")
@@ -30,7 +32,7 @@ class PatientController extends Controller
 
     public function show(Patient $patient)
     {
-        $patient->load('pavillon');
+        $patient->load('hospitalisationActive.pavillon');
 
         return response()->json($this->formater($patient));
     }
@@ -50,29 +52,54 @@ class PatientController extends Controller
             'pavillon_id' => ['nullable', 'exists:pavillons,id'],
         ]);
 
-        // Un patient externe n'a pas de pavillon
-        if ($donnees['type_patient'] === 'externe') {
-            $donnees['pavillon_id'] = null;
-        } elseif (empty($donnees['pavillon_id'])) {
-            return response()->json([
-                'message' => 'Un patient interne doit être rattaché à un pavillon.',
-            ], 422);
+        // Un patient interne doit être rattaché à un pavillon
+        $pavillonId = null;
+        if ($donnees['type_patient'] === 'interne') {
+            if (empty($donnees['pavillon_id'])) {
+                return response()->json([
+                    'message' => 'Un patient interne doit être rattaché à un pavillon.',
+                ], 422);
+            }
+            $pavillonId = $donnees['pavillon_id'];
         }
 
-        $donnees['numero_dossier'] = $this->genererNumeroDossier();
+        // Le pavillon ne se stocke plus sur le patient : il devient une hospitalisation datée
+        unset($donnees['pavillon_id']);
+
+        $donnees['numero_dossier'] = $donnees['type_patient'] === 'interne'
+            ? $this->genererNumeroDossier()
+            : null;
         $donnees['mot_de_passe'] = $donnees['telephone']; // provisoire, à changer à la 1re connexion
 
-        $patient = Patient::create($donnees);
-        $patient->load('pavillon');
+        $patient = DB::transaction(function () use ($donnees, $pavillonId) {
+            $patient = Patient::create($donnees);
+
+            // Si interne : on ouvre une hospitalisation active dans son pavillon
+            if ($pavillonId) {
+                Hospitalisation::create([
+                    'patient_id' => $patient->id,
+                    'pavillon_id' => $pavillonId,
+                    'date_debut' => now(),
+                    'date_fin' => null,
+                ]);
+            }
+
+            return $patient;
+        });
+
+        $patient->load('hospitalisationActive.pavillon');
 
         return response()->json($this->formater($patient), 201);
     }
 
-    private function genererNumeroDossier(): string
+   private function genererNumeroDossier(): string
     {
-        // On lit le dernier numéro existant, pas le dernier id :
-        // une suppression laisserait un trou et produirait un doublon.
-        $dernier = Patient::orderByDesc('numero_dossier')->value('numero_dossier');
+        // On ignore les externes (numero_dossier null) et on lit le dernier
+        // numéro réellement attribué, pas le dernier id.
+        $dernier = Patient::whereNotNull('numero_dossier')
+            ->orderByDesc('numero_dossier')
+            ->value('numero_dossier');
+
         $numero = $dernier ? ((int) substr($dernier, 4)) + 1 : 1;
 
         return 'DOS-' . str_pad((string) $numero, 4, '0', STR_PAD_LEFT);
@@ -98,6 +125,8 @@ class PatientController extends Controller
 
     private function formater(Patient $p): array
     {
+        $hospit = $p->hospitalisationActive;
+
         return [
             'id' => $p->id,
             'numero_dossier' => $p->numero_dossier,
@@ -111,8 +140,8 @@ class PatientController extends Controller
             'adresse' => $p->adresse,
             'ville' => $p->ville,
             'type_patient' => $p->type_patient,
-            'pavillon' => $p->pavillon?->nom,
-            'pavillon_id' => $p->pavillon_id,
+            'pavillon' => $hospit?->pavillon?->nom,
+            'pavillon_id' => $hospit?->pavillon_id,
             'date_enregistrement' => $p->created_at->format('d/m/Y'),
         ];
     }

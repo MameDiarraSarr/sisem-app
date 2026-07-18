@@ -39,4 +39,15 @@ class Patient extends Authenticatable
     {
         return $this->hasMany(BulletinExamen::class);
     }
+
+    public function hospitalisations()
+    {
+        return $this->hasMany(Hospitalisation::class);
+    }
+
+    // Le séjour en cours : celui dont la date de fin n'est pas encore renseignée
+    public function hospitalisationActive()
+    {
+        return $this->hasOne(Hospitalisation::class)->whereNull('date_fin')->latestOfMany();
+    }
 }

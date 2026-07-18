@@ -79,7 +79,7 @@ class BulletinExamenController extends Controller
             $bulletin = BulletinExamen::create([
                 'numero_labo' => $donnees['numero_labo'],
                 'patient_id' => $patient->id,
-                'pavillon_id' => $patient->pavillon_id,
+                'pavillon_id' => $patient->hospitalisationActive?->pavillon_id,
                 'medecin_id' => $donnees['medecin_id'] ?? null,
                 'indication_examen' => $donnees['indication_examen'],
                 'traitement_en_cours' => $donnees['traitement_en_cours'] ?? null,

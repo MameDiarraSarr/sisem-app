@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('numero_dossier')->unique();
+            $table->string('numero_dossier')->nullable()->unique();
             $table->string('prenom');
             $table->string('nom');
             $table->date('date_naissance')->nullable();
@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('ville')->nullable();
             $table->string('mot_de_passe');
             $table->enum('type_patient', ['interne', 'externe']);
-            $table->foreignId('pavillon_id')->nullable()->constrained('pavillons')->nullOnDelete();
             $table->timestamps();
         });
     }
