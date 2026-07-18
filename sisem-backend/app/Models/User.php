@@ -13,6 +13,7 @@ class User extends Authenticatable
     protected $fillable = [
         'matricule', 'prenom', 'nom', 'date_naissance', 'sexe',
         'telephone', 'email', 'adresse', 'password', 'role', 'statut', 'pavillon_id',
+        'mot_de_passe_temporaire',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -23,6 +24,7 @@ class User extends Authenticatable
             'date_naissance' => 'date',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'mot_de_passe_temporaire' => 'boolean',
         ];
     }
 

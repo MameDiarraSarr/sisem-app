@@ -11,19 +11,15 @@ use App\Http\Controllers\Api\PatientEspaceController;
 use App\Http\Controllers\Api\MedecinController;
 use App\Http\Controllers\Api\AffectationController;
 use App\Http\Controllers\Api\PersonnelController;
+use App\Http\Controllers\Api\MotDePasseController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
 
-Route::middleware(['auth:sanctum', 'patient'])->group(function () {
-    Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
-    Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
-
-    Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
-    Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
-
-    Route::get('/patient/notifications', [PatientEspaceController::class, 'mesNotifications']);
-    Route::patch('/patient/notifications/{notification}/lue', [PatientEspaceController::class, 'marquerLue']);
+Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
+    Route::post('/personnel/deconnexion', [AuthPersonnelController::class, 'deconnexion']);
+    Route::get('/personnel/moi', [AuthPersonnelController::class, 'moi']);
+    Route::post('/personnel/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
 });
 
 // ── Patient (connexion par téléphone) ──
@@ -32,6 +28,13 @@ Route::post('/patient/connexion', [AuthPatientController::class, 'connexion']);
 Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
     Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
+    Route::post('/patient/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
+
+    Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
+    Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
+
+    Route::get('/patient/notifications', [PatientEspaceController::class, 'mesNotifications']);
+    Route::patch('/patient/notifications/{notification}/lue', [PatientEspaceController::class, 'marquerLue']);
 });
 
 // ── Catalogue d'examens (tout le personnel) ──
@@ -66,15 +69,6 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Saisie des résultats (technicien) ──
 Route::middleware(['auth:sanctum', 'personnel', 'role:technicien'])->group(function () {
     Route::post('/bulletins/{bulletin}/resultats', [ResultatController::class, 'saisir']);
-});
-
-Route::middleware(['auth:sanctum', 'patient'])->group(function () {
-    Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
-    Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
-
-    // Espace résultats
-    Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
-    Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
 });
 
 // ── Médecins (autocomplétion prescripteur) ──

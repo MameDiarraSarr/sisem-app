@@ -42,6 +42,7 @@ class AuthPersonnelController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'pavillon' => $user->pavillon?->nom,
+                'mot_de_passe_temporaire' => $user->mot_de_passe_temporaire,
             ],
         ]);
     }

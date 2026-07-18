@@ -8,10 +8,11 @@ use Laravel\Sanctum\HasApiTokens;
 class Patient extends Authenticatable
 {
     use HasApiTokens;
+
     protected $fillable = [
         'numero_dossier', 'prenom', 'nom', 'date_naissance', 'sexe',
         'telephone', 'email', 'adresse', 'ville', 'mot_de_passe',
-        'type_patient', 'pavillon_id',
+        'type_patient', 'mot_de_passe_temporaire',
     ];
 
     protected $hidden = ['mot_de_passe'];
@@ -21,6 +22,7 @@ class Patient extends Authenticatable
         return [
             'date_naissance' => 'date',
             'mot_de_passe' => 'hashed',
+            'mot_de_passe_temporaire' => 'boolean',
         ];
     }
 
@@ -28,11 +30,6 @@ class Patient extends Authenticatable
     public function getAuthPassword()
     {
         return $this->mot_de_passe;
-    }
-
-    public function pavillon()
-    {
-        return $this->belongsTo(Pavillon::class);
     }
 
     public function bulletins()

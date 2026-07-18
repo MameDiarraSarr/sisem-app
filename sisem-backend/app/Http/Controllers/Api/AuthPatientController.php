@@ -35,6 +35,7 @@ class AuthPatientController extends Controller
                 'nom' => $patient->nom,
                 'telephone' => $patient->telephone,
                 'numero_dossier' => $patient->numero_dossier,
+                'mot_de_passe_temporaire' => $patient->mot_de_passe_temporaire,
             ],
         ]);
     }
@@ -56,6 +57,7 @@ class AuthPatientController extends Controller
             'nom' => $patient->nom,
             'telephone' => $patient->telephone,
             'numero_dossier' => $patient->numero_dossier,
+            
         ]);
     }
 }
