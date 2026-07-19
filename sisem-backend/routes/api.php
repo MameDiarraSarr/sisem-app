@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MedecinController;
 use App\Http\Controllers\Api\AffectationController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\MotDePasseController;
+use App\Http\Controllers\Api\ProfilController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
@@ -20,6 +21,8 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::post('/personnel/deconnexion', [AuthPersonnelController::class, 'deconnexion']);
     Route::get('/personnel/moi', [AuthPersonnelController::class, 'moi']);
     Route::post('/personnel/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
+    Route::get('/personnel/profil', [ProfilController::class, 'afficher']);
+    Route::put('/personnel/profil', [ProfilController::class, 'modifier']);
 });
 
 // ── Patient (connexion par téléphone) ──
@@ -29,6 +32,8 @@ Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
     Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
     Route::post('/patient/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
+    Route::get('/patient/profil', [ProfilController::class, 'afficher']);
+    Route::put('/patient/profil', [ProfilController::class, 'modifier']);
 
     Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
     Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
