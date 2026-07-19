@@ -7,12 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     protected $fillable = [
-        'patient_id', 'bulletin_examen_id', 'message', 'lien', 'lu', 'envoye',
+        'user_id', 'patient_id', 'bulletin_examen_id', 'message', 'lien', 'lu', 'envoye',
     ];
 
     protected function casts(): array
     {
         return ['lu' => 'boolean', 'envoye' => 'boolean'];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function patient()

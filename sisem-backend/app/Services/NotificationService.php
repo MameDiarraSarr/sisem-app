@@ -14,10 +14,13 @@ class NotificationService
     private string $lienConnexion = 'http://localhost:4201/connexion';
 
     // Appelé quand un bulletin est validé
+    // Appelé quand un bulletin est validé
     public function notifierResultatsDisponibles(BulletinExamen $bulletin): Notification
     {
+        $bulletin->loadMissing('patient', 'medecin.user');
         $patient = $bulletin->patient;
 
+        // ── Le patient : notification + envoi externe (mail ou WhatsApp) ──
         $notification = Notification::create([
             'patient_id' => $patient->id,
             'bulletin_examen_id' => $bulletin->id,
@@ -31,7 +34,51 @@ class NotificationService
 
         $this->envoyer($notification);
 
+        // ── Le personnel : cloche dans l'application, sans envoi externe ──
+        $this->notifierPersonnel($bulletin, $patient);
+
         return $notification;
+    }
+
+    // Notifie secrétaires, major du pavillon et médecin prescripteur (cloche uniquement)
+    private function notifierPersonnel(BulletinExamen $bulletin, $patient): void
+    {
+        $message = "Les résultats du bulletin {$bulletin->numero_labo} "
+            . "({$patient->prenom} {$patient->nom}) ont été validés.";
+
+        $destinataires = collect();
+
+        // Toutes les secrétaires actives
+        $destinataires = $destinataires->merge(
+            \App\Models\User::where('role', 'secretaire')->where('statut', 'actif')->get()
+        );
+
+        // Le major du pavillon du bulletin
+        if ($bulletin->pavillon_id) {
+            $destinataires = $destinataires->merge(
+                \App\Models\User::where('role', 'major')
+                    ->where('pavillon_id', $bulletin->pavillon_id)
+                    ->where('statut', 'actif')
+                    ->get()
+            );
+        }
+
+        // Le médecin prescripteur
+        if ($bulletin->medecin && $bulletin->medecin->user) {
+            $destinataires->push($bulletin->medecin->user);
+        }
+
+        // Une notification par destinataire, sans doublon
+        foreach ($destinataires->unique('id') as $membre) {
+            Notification::create([
+                'user_id' => $membre->id,
+                'bulletin_examen_id' => $bulletin->id,
+                'message' => $message,
+                'lien' => null,
+                'lu' => false,
+                'envoye' => false,
+            ]);
+        }
     }
 
     // Choix du canal : email si disponible, sinon WhatsApp
