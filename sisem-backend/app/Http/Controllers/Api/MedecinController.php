@@ -32,4 +32,27 @@ class MedecinController extends Controller
             'pavillons' => $m->pavillons->pluck('nom'),
         ]));
     }
+
+    // Le major liste les médecins affectés à son pavillon
+    public function medecinsDeMonPavillon(Request $request)
+    {
+        $major = $request->user();
+
+        // Médecins ayant une affectation active dans le pavillon du major
+        $medecins = Medecin::with(['user', 'pavillons'])
+            ->whereHas('affectations', function ($q) use ($major) {
+                $q->where('pavillon_id', $major->pavillon_id)
+                  ->where('statut', 'active');
+            })
+            ->get();
+
+        return response()->json($medecins->map(fn ($m) => [
+            'id' => $m->id,
+            'nom_complet' => 'Dr. ' . $m->user->prenom . ' ' . $m->user->nom,
+            'prenom' => $m->user->prenom,
+            'nom' => $m->user->nom,
+            'specialite' => $m->specialite,
+            'statut_compte' => $m->user->statut,
+        ]));
+    }
 }

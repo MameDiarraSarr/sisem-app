@@ -77,11 +77,17 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Saisie des résultats (technicien) ──
 Route::middleware(['auth:sanctum', 'personnel', 'role:technicien'])->group(function () {
     Route::post('/bulletins/{bulletin}/resultats', [ResultatController::class, 'saisir']);
+    
 });
 
 // ── Médecins (autocomplétion prescripteur) ──
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/medecins', [MedecinController::class, 'index']);
+});
+
+// ── Major : médecins de son pavillon ──
+Route::middleware(['auth:sanctum', 'personnel', 'role:major'])->group(function () {
+    Route::get('/major/medecins', [MedecinController::class, 'medecinsDeMonPavillon']);
 });
 
 // ── Gestion du personnel (admin) ──
