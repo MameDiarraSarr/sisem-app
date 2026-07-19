@@ -92,6 +92,25 @@ class PatientController extends Controller
         return response()->json($this->formater($patient), 201);
     }
 
+    public function update(Request $request, Patient $patient)
+    {
+        $donnees = $request->validate([
+            'prenom' => ['required', 'string', 'max:100'],
+            'nom' => ['required', 'string', 'max:100'],
+            'date_naissance' => ['nullable', 'date', 'before:today'],
+            'sexe' => ['nullable', Rule::in(['M', 'F'])],
+            'telephone' => ['required', 'string', 'max:20', Rule::unique('patients', 'telephone')->ignore($patient->id)],
+            'email' => ['nullable', 'email', 'max:150'],
+            'adresse' => ['nullable', 'string', 'max:255'],
+            'ville' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $patient->update($donnees);
+        $patient->load('hospitalisationActive.pavillon');
+
+        return response()->json($this->formater($patient));
+    }
+
    private function genererNumeroDossier(): string
     {
         // On ignore les externes (numero_dossier null) et on lit le dernier

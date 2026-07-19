@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     Route::post('/patient/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
     Route::get('/patient/profil', [ProfilController::class, 'afficher']);
     Route::put('/patient/profil', [ProfilController::class, 'modifier']);
+    
 
     Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
     Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
@@ -53,6 +54,8 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/patients', [PatientController::class, 'index']);
     Route::get('/patients/{patient}', [PatientController::class, 'show']);
     Route::post('/patients', [PatientController::class, 'store'])
+        ->middleware('role:secretaire,admin');
+    Route::put('/patients/{patient}', [PatientController::class, 'update'])
         ->middleware('role:secretaire,admin');
 });
 
@@ -86,6 +89,7 @@ Route::middleware(['auth:sanctum', 'personnel', 'role:admin'])->group(function (
     Route::get('/personnel', [PersonnelController::class, 'index']);
     Route::post('/personnel', [PersonnelController::class, 'store']);
     Route::patch('/personnel/{user}/statut', [PersonnelController::class, 'changerStatut']);
+    Route::put('/personnel/{user}', [PersonnelController::class, 'update']);
 });
 
 // ── Affectations (admin et major) ──

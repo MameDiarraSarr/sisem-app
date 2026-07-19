@@ -67,6 +67,42 @@ class PersonnelController extends Controller
         return response()->json($this->formater($user), 201);
     }
 
+    public function update(Request $request, User $user)
+    {
+        $donnees = $request->validate([
+            'prenom' => ['required', 'string', 'max:100'],
+            'nom' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'telephone' => ['nullable', 'string', 'max:20'],
+            'pavillon_id' => ['nullable', 'exists:pavillons,id'],
+            'specialite' => ['nullable', 'string', 'max:150'],
+        ]);
+
+        // Le major reste rattaché à un pavillon
+        if ($user->role === 'major' && empty($donnees['pavillon_id'])) {
+            return response()->json([
+                'message' => 'Un major doit être rattaché à un pavillon.',
+            ], 422);
+        }
+
+        $user->update([
+            'prenom' => $donnees['prenom'],
+            'nom' => $donnees['nom'],
+            'email' => $donnees['email'],
+            'telephone' => $donnees['telephone'] ?? null,
+            'pavillon_id' => $donnees['pavillon_id'] ?? null,
+        ]);
+
+        // Si médecin, mettre à jour sa spécialité
+        if ($user->role === 'medecin' && array_key_exists('specialite', $donnees)) {
+            $user->medecin?->update(['specialite' => $donnees['specialite']]);
+        }
+
+        $user->load('pavillon');
+
+        return response()->json($this->formater($user));
+    }
+
     // Activer / désactiver — on ne supprime jamais un compte (traçabilité)
     public function changerStatut(Request $request, User $user)
     {
