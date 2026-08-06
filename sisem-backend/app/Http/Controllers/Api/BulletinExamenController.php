@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class BulletinExamenController extends Controller
 {
-    // La liste dépend du rôle de celui qui demande
+  // La liste dépend du rôle de celui qui demande
     public function index(Request $request)
     {
         $user = $request->user();
@@ -28,7 +28,7 @@ class BulletinExamenController extends Controller
             'major' => $requete->where('statut', 'valide')
                                 ->where('pavillon_id', $user->pavillon_id),
             'medecin' => $requete->where('statut', 'valide')
-                                 ->where('medecin_id', $user->medecin?->id),
+                                 ->whereIn('pavillon_id', $this->pavillonsDuMedecin($user)),
             default => null, // secrétaire et admin voient tout
         };
 
@@ -36,9 +36,29 @@ class BulletinExamenController extends Controller
             $requete->where('statut', $statut);
         }
 
+        // Filtre par patient (pour la fiche patient)
+        if ($patientId = $request->query('patient_id')) {
+            $requete->where('patient_id', $patientId);
+        }
+
         $bulletins = $requete->orderByDesc('id')->get();
 
         return response()->json($bulletins->map(fn ($b) => $this->formater($b)));
+    }
+
+    // Les pavillons où le médecin connecté a une affectation active
+    private function pavillonsDuMedecin($user): array
+    {
+        $medecin = $user->medecin;
+
+        if (! $medecin) {
+            return []; // pas de médecin lié → aucun bulletin
+        }
+
+        return $medecin->affectations()
+            ->where('statut', 'active')
+            ->pluck('pavillon_id')
+            ->all();
     }
 
     public function show(Request $request, BulletinExamen $bulletin)
@@ -52,6 +72,27 @@ class BulletinExamenController extends Controller
         ]);
 
         return response()->json($this->formaterDetail($bulletin));
+    }
+
+    // Enregistre l'impression/remise d'un résultat par la secrétaire
+    public function marquerImprime(BulletinExamen $bulletin)
+    {
+        // On ne trace que les résultats validés
+        if ($bulletin->statut !== 'valide') {
+            return response()->json([
+                'message' => 'Seul un résultat validé peut être imprimé.',
+            ], 422);
+        }
+
+        $bulletin->update([
+            'imprime_le' => now(),
+            'nombre_impressions' => $bulletin->nombre_impressions + 1,
+        ]);
+
+        return response()->json([
+            'imprime_le' => $bulletin->imprime_le->format('d/m/Y à H\hi'),
+            'nombre_impressions' => $bulletin->nombre_impressions,
+        ]);
     }
 
     public function store(Request $request)
@@ -138,14 +179,16 @@ class BulletinExamenController extends Controller
             'technicien' => $bulletin->statut === 'enregistre',
             'biologiste' => in_array($bulletin->statut, ['saisi', 'valide'], true),
             'major' => $bulletin->statut === 'valide' && $bulletin->pavillon_id === $user->pavillon_id,
-            'medecin' => $bulletin->statut === 'valide' && $bulletin->medecin_id === $user->medecin?->id,
+            // Le médecin accède au bulletin validé si c'est un pavillon où il est affecté activement
+            'medecin' => $bulletin->statut === 'valide'
+                         && in_array($bulletin->pavillon_id, $this->pavillonsDuMedecin($user), true),
             default => false,
         };
 
         abort_unless($autorise, 403, 'Accès refusé.');
     }
 
-    private function formater(BulletinExamen $b): array
+   private function formater(BulletinExamen $b): array
     {
         return [
             'id' => $b->id,
@@ -165,6 +208,8 @@ class BulletinExamenController extends Controller
             'traitement_en_cours' => $b->traitement_en_cours,
             'date_enregistrement' => $b->date_enregistrement->format('d/m/Y'),
             'statut' => $b->statut,
+            'imprime_le' => $b->imprime_le?->format('d/m/Y \à H\hi'),
+            'nombre_impressions' => $b->nombre_impressions,
             'examens' => $b->examenDemandes->map(fn ($ed) => [
                 'examen_demande_id' => $ed->id,
                 'examen_id' => $ed->examen->id,

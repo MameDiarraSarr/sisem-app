@@ -116,3 +116,14 @@
   .actions { flex-direction: column-reverse; }
   .btn-ghost, .btn-primary { width: 100%; }
 }
+
+.age-groupe {
+  display: flex;
+  gap: 8px;
+}
+.age-groupe .age-nombre {
+  flex: 1;
+}
+.age-groupe .age-unite {
+  width: 90px;
+}

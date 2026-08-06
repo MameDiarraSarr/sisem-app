@@ -1,6 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
-import { PersonnelService } from '../../../core/services/personnel';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Auth } from '../../../core/services/auth';
+import { environment } from '../../../../environments/environment';
+
+interface MedecinPavillon {
+  id: number;
+  nom_complet: string;
+  prenom: string;
+  nom: string;
+  specialite: string | null;
+  statut_affectation: string;
+}
 
 @Component({
   selector: 'app-major-medecins',
@@ -8,24 +18,33 @@ import { Auth } from '../../../core/services/auth';
   templateUrl: './medecins.html',
   styleUrl: './medecins.scss',
 })
-export class Medecins {
-  private personnelService = inject(PersonnelService);
+export class Medecins implements OnInit {
+  private http = inject(HttpClient);
   private auth = inject(Auth);
+  private readonly url = environment.apiUrl;
 
   pavillon = this.auth.utilisateurConnecte()?.pavillon ?? '';
 
-  private version = signal(0);
+  medecins = signal<MedecinPavillon[]>([]);
+  charge = signal(false);
 
-  // Les médecins de SON pavillon
-  medecins = () => {
-    this.version();
-    return this.personnelService.getPersonnel().filter(
-      m => m.role === 'medecin' && m.pavillon === this.pavillon
-    );
-  };
+  ngOnInit(): void {
+    this.charger();
+  }
 
-  basculerStatut(id: number): void {
-    this.personnelService.basculerStatut(id);
-    this.version.update(v => v + 1);
+  private charger(): void {
+    this.http.get<MedecinPavillon[]>(`${this.url}/major/medecins`).subscribe({
+      next: (liste) => {
+        this.medecins.set(liste);
+        this.charge.set(true);
+      },
+      error: () => this.charge.set(true),
+    });
+  }
+
+  basculerStatut(medecinId: number): void {
+    this.http.patch(`${this.url}/major/medecins/${medecinId}/statut`, {}).subscribe({
+      next: () => this.charger(), // recharge pour refléter le nouveau statut
+    });
   }
 }

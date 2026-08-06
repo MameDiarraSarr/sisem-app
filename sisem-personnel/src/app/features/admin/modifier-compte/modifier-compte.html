@@ -37,38 +37,44 @@
     <div class="section-title">Rôle et affectation</div>
     <div class="grid">
       <div class="field">
-        <label>Rôle</label>
-        <select [(ngModel)]="role" name="role">
+        <label>Rôle <span class="opt">(non modifiable)</span></label>
+        <select [(ngModel)]="role" name="role" disabled>
           <option value="secretaire">Secrétaire</option>
           <option value="technicien">Technicien</option>
           <option value="biologiste">Biologiste</option>
           <option value="major">Major</option>
           <option value="medecin">Médecin</option>
+          <option value="admin">Administrateur</option>
         </select>
       </div>
       @if (besoinPavillon()) {
         <div class="field">
           <label>Pavillon</label>
-          <select [(ngModel)]="pavillon" name="pavillon">
+          <select [(ngModel)]="pavillonId" name="pavillonId">
             <option value="">Sélectionner</option>
-            <option value="Pavillon M">Pavillon M</option>
-            <option value="Pavillon N">Pavillon N</option>
-            <option value="Pavillon O">Pavillon O</option>
-            <option value="Pavillon K">Pavillon K</option>
-            <option value="USAD">USAD</option>
-            <option value="SAU">SAU</option>
-            <option value="Dermato">Dermato</option>
-            <option value="Esther">Esther</option>
-            <option value="Chirurgie">Chirurgie</option>
-            <option value="Chir Ped">Chir Ped</option>
+            @for (p of pavillons(); track p.id) {
+              <option [value]="p.id">{{ p.nom }}</option>
+            }
           </select>
+        </div>
+      }
+      @if (role === 'medecin') {
+        <div class="field">
+          <label>Spécialité</label>
+          <input type="text" [(ngModel)]="specialite" name="specialite" placeholder="Pédiatrie...">
         </div>
       }
     </div>
 
+    @if (erreur()) {
+      <p class="message-erreur">{{ erreur() }}</p>
+    }
+
     <div class="actions">
       <button class="btn-ghost" routerLink="/admin/personnel">Annuler</button>
-      <button class="btn-primary" (click)="enregistrer()">Enregistrer les modifications</button>
+      <button class="btn-primary" (click)="enregistrer()" [disabled]="chargement()">
+        {{ chargement() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+      </button>
     </div>
   </div>
 </div>

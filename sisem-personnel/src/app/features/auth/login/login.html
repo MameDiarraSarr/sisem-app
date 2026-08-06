@@ -35,7 +35,13 @@
     <a class="lk" href="#">Mot de passe oublié ?</a>
   </div>
 
-  <button class="btn" (click)="seConnecter()">Se connecter</button>
+  @if (erreur()) {
+    <p class="message-erreur">{{ erreur() }}</p>
+  }
+
+  <button class="btn" (click)="seConnecter()" [disabled]="chargement()">
+    {{ chargement() ? 'Connexion...' : 'Se connecter' }}
+  </button>
 
   <p class="foot">Vos identifiants vous sont remis par l'<strong>administrateur</strong>.</p>
 </div>

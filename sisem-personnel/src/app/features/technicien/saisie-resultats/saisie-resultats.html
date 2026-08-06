@@ -13,11 +13,11 @@
     </div>
   </div>
 
-  @if (bulletin) {
+  @if (bulletin(); as b) {
     <div class="info-card glass">
-      <div class="info"><span class="lbl">N° Labo</span><b>{{ bulletin.numeroLabo }}</b></div>
-      <div class="info"><span class="lbl">Patient</span><b>{{ bulletin.patientNom }}</b></div>
-      <div class="info"><span class="lbl">Examen</span><b>{{ bulletin.nomExamen }}</b></div>
+      <div class="info"><span class="lbl">N° Labo</span><b>{{ b.numero_labo }}</b></div>
+      <div class="info"><span class="lbl">Patient</span><b>{{ b.patient.nom_complet }}</b></div>
+      <div class="info"><span class="lbl">Indication</span><b>{{ b.indication_examen }}</b></div>
     </div>
   }
 
@@ -27,12 +27,12 @@
     <table>
       <thead><tr><th>Analyse</th><th>Valeur mesurée</th><th>Unité</th><th>Valeurs de référence</th></tr></thead>
       <tbody>
-        @for (analyse of analyses; track analyse.nom) {
+        @for (ligne of lignes(); track ligne.analyse_reference_id) {
           <tr>
-            <td><b>{{ analyse.nom }}</b></td>
-            <td><input type="text" class="val" placeholder="—" [(ngModel)]="analyse.valeur" [name]="analyse.nom"></td>
-            <td class="unite">{{ analyse.unite }}</td>
-            <td class="ref">{{ analyse.valeurReference }}</td>
+            <td><b>{{ ligne.nom_analyse }}</b></td>
+            <td><input type="text" class="val" placeholder="—" [(ngModel)]="ligne.valeur" [name]="'a' + ligne.analyse_reference_id"></td>
+            <td class="unite">{{ ligne.unite }}</td>
+            <td class="ref">{{ ligne.valeur_normale }}</td>
           </tr>
         } @empty {
           <tr><td colspan="4" class="vide">Aucune analyse définie pour cet examen.</td></tr>
@@ -40,12 +40,15 @@
       </tbody>
     </table>
 
-    <div class="section-title" style="margin-top:28px;">Commentaire</div>
-    <textarea class="commentaire" placeholder="Observations éventuelles..." [(ngModel)]="commentaire" name="commentaire"></textarea>
+    @if (erreur()) {
+      <p class="message-erreur">{{ erreur() }}</p>
+    }
 
     <div class="actions">
       <button class="btn-ghost" routerLink="/technicien">Annuler</button>
-      <button class="btn-primary" (click)="enregistrerResultats()">Enregistrer les résultats</button>
+      <button class="btn-primary" (click)="enregistrerResultats()" [disabled]="chargement()">
+        {{ chargement() ? 'Enregistrement...' : 'Enregistrer les résultats' }}
+      </button>
     </div>
   </div>
 </div>

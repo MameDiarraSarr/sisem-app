@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ResultatService } from '../../../core/services/resultat';
 import { Auth } from '../../../core/services/auth';
+import { ResultatPatient } from '../../../core/models/resultat';
 import jsPDF from 'jspdf';
 
 @Component({
@@ -10,43 +11,69 @@ import jsPDF from 'jspdf';
   templateUrl: './detail.html',
   styleUrl: './detail.scss',
 })
-export class Detail {
+export class Detail implements OnInit {
 
   private route = inject(ActivatedRoute);
   private resultatService = inject(ResultatService);
   private auth = inject(Auth);
+  private cdr = inject(ChangeDetectorRef);
 
   patient = this.auth.patientConnecte();
 
-  resultat = this.resultatService.getResultat(
-    Number(this.route.snapshot.paramMap.get('id'))
-  );
+  resultat = signal<ResultatPatient | undefined>(undefined);
+  chargement = signal(true);
 
   dateEdition = new Date().toLocaleDateString('fr-FR');
 
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.resultatService.getResultat(id).subscribe({
+      next: (r) => {
+        this.resultat.set(r);
+        this.chargement.set(false);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.chargement.set(false);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   statutValeur(valeur: string, reference: string): 'normal' | 'anormal' | 'qualitatif' {
     const val = parseFloat(valeur.replace(',', '.'));
-    if (isNaN(val)) return 'qualitatif';
     const bornes = reference.split('-').map(b => parseFloat(b.trim().replace(',', '.')));
-    if (bornes.length !== 2 || bornes.some(isNaN)) return 'qualitatif';
-    const [min, max] = bornes;
-    return (val >= min && val <= max) ? 'normal' : 'anormal';
+
+    // Cas numérique : référence du type "135 - 145"
+    if (!isNaN(val) && bornes.length === 2 && !bornes.some(isNaN)) {
+      const [min, max] = bornes;
+      return (val >= min && val <= max) ? 'normal' : 'anormal';
+    }
+
+    // Cas qualitatif : référence texte (ex. "Négatif")
+    // On compare le résultat saisi à la valeur attendue, sans tenir compte de la casse ni des accents
+    const normaliser = (s: string) =>
+      s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    if (valeur && reference) {
+      return normaliser(valeur) === normaliser(reference) ? 'normal' : 'anormal';
+    }
+
+    return 'qualitatif';
   }
 
   telechargerPdf(): void {
-    if (!this.resultat) return;
+    const r = this.resultat();
+    if (!r) return;
 
-    const doc = new jsPDF();
-    const r = this.resultat;
     const p = this.patient;
 
-    // Couleurs SISEM
+    const doc = new jsPDF();
     const navy: [number, number, number] = [26, 61, 99];
     const blueMid: [number, number, number] = [74, 127, 167];
 
     let y = 20;
 
-    // En-tête
     doc.setFillColor(...navy);
     doc.rect(0, 0, 210, 4, 'F');
 
@@ -67,7 +94,6 @@ export class Detail {
     doc.setLineWidth(0.5);
     doc.line(20, y, 190, y);
 
-    // Identité patient
     y += 10;
     doc.setFontSize(11);
     doc.setTextColor(...navy);
@@ -78,7 +104,6 @@ export class Detail {
     doc.text('N Dossier : ' + r.numeroLabo, 20, y + 6);
     doc.text('Date du resultat : ' + r.dateResultat, 120, y + 6);
 
-    // Titre examen
     y += 16;
     doc.setFillColor(...navy);
     doc.rect(20, y - 5, 170, 9, 'F');
@@ -87,15 +112,15 @@ export class Detail {
     doc.setFontSize(11);
     doc.text(r.examenNom, 24, y + 1);
 
-    // Tableau des analyses
     y += 14;
     doc.setFontSize(9);
     doc.setTextColor(...blueMid);
     doc.setFont('helvetica', 'bold');
     doc.text('PARAMETRE', 22, y);
-    doc.text('RESULTAT', 90, y);
-    doc.text('UNITE', 125, y);
-    doc.text('REFERENCE', 155, y);
+    doc.text('RESULTAT', 82, y);
+    doc.text('UNITE', 112, y);
+    doc.text('REFERENCE', 138, y);
+    doc.text('ETAT', 172, y);
 
     y += 3;
     doc.setDrawColor(200, 210, 220);
@@ -107,30 +132,30 @@ export class Detail {
 
     for (const a of r.analyses) {
       const statut = this.statutValeur(a.valeur, a.valeurReference);
+
       doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'normal');
       doc.text(a.nom, 22, y);
 
-      // Valeur en rouge si anormale
-      if (statut === 'anormal') {
-        doc.setTextColor(192, 57, 43);
-        doc.setFont('helvetica', 'bold');
-      } else {
-        doc.setTextColor(10, 25, 49);
-        doc.setFont('helvetica', 'bold');
-      }
-      doc.text(a.valeur, 90, y);
+      // Valeur : rouge si hors norme, sinon bleu foncé
+      doc.setFont('helvetica', 'bold');
+      if (statut === 'anormal') { doc.setTextColor(192, 57, 43); }
+      else { doc.setTextColor(10, 25, 49); }
+      doc.text(a.valeur, 82, y);
 
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120, 120, 120);
-      doc.text(a.unite, 125, y);
-      doc.text(a.valeurReference, 155, y);
+      doc.text(a.unite, 112, y);
+      doc.text(a.valeurReference, 138, y);
+
+      // Colonne état
+      if (statut === 'anormal') { doc.setTextColor(192, 57, 43); doc.text('Hors norme', 172, y); }
+      else if (statut === 'normal') { doc.setTextColor(39, 130, 80); doc.text('Normal', 172, y); }
+      else { doc.setTextColor(150, 150, 150); doc.text('—', 172, y); }
 
       y += 8;
-      doc.setDrawColor(235, 240, 245);
-      doc.line(20, y - 3, 190, y - 3);
     }
 
-    // Commentaire
     if (r.commentaire) {
       y += 6;
       doc.setFillColor(246, 250, 253);
@@ -146,7 +171,6 @@ export class Detail {
       y += 16;
     }
 
-    // Pied de page
     y += 12;
     doc.setDrawColor(220, 225, 230);
     doc.line(20, y, 190, y);
@@ -158,7 +182,6 @@ export class Detail {
     doc.setTextColor(150, 150, 150);
     doc.text('Document genere par SISEM - Ne pas se substituer a l\'avis de votre medecin.', 20, y + 5);
 
-    // Télécharge le fichier
     doc.save('resultat-' + r.examenNom + '-' + r.numeroLabo.replace(/\//g, '-') + '.pdf');
   }
 }

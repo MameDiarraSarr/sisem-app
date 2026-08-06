@@ -1,6 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PersonnelService } from '../../../core/services/personnel';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+
+interface AffectationVue {
+  id: number;
+  medecin: string;
+  specialite: string | null;
+  pavillon: string;
+  date_debut: string;
+}
+interface Medecin { id: number; nom_complet: string; specialite: string | null; }
+interface Pavillon { id: number; nom: string; }
 
 @Component({
   selector: 'app-admin-affectations',
@@ -8,19 +19,57 @@ import { PersonnelService } from '../../../core/services/personnel';
   templateUrl: './affectations.html',
   styleUrl: './affectations.scss',
 })
-export class Affectations {
-  private personnelService = inject(PersonnelService);
+export class Affectations implements OnInit {
+  private http = inject(HttpClient);
+  private readonly url = environment.apiUrl;
 
-  membres = signal(this.personnelService.getPersonnelAffectable());
+  affectations = signal<AffectationVue[]>([]);
+  medecins = signal<Medecin[]>([]);
+  pavillons = signal<Pavillon[]>([]);
 
-  pavillons = ['Pavillon M', 'Pavillon N', 'Pavillon O', 'Pavillon K', 'USAD', 'SAU', 'Dermato', 'Esther', 'Chirurgie', 'Chir Ped'];
+  medecinId = '';
+  pavillonId = '';
+  chargement = signal(false);
+  erreur = signal<string | null>(null);
 
-  roleLibelle(role: string): string {
-    return role === 'medecin' ? 'Médecin' : 'Major';
+  ngOnInit(): void {
+    this.charger();
+    this.http.get<Medecin[]>(`${this.url}/medecins`).subscribe({
+      next: (l) => this.medecins.set(l),
+    });
+    this.http.get<Pavillon[]>(`${this.url}/pavillons`).subscribe({
+      next: (l) => this.pavillons.set(l),
+    });
   }
 
-  changer(id: number, pavillon: string): void {
-    this.personnelService.changerAffectation(id, pavillon);
-    this.membres.set([...this.personnelService.getPersonnelAffectable()]);
+  private charger(): void {
+    this.http.get<AffectationVue[]>(`${this.url}/affectations`).subscribe({
+      next: (l) => this.affectations.set(l),
+    });
+  }
+
+  affecter(): void {
+    if (!this.medecinId || !this.pavillonId) {
+      this.erreur.set('Choisissez un médecin et un pavillon.');
+      return;
+    }
+    this.erreur.set(null);
+    this.chargement.set(true);
+
+    this.http.post(`${this.url}/affectations`, {
+      medecin_id: Number(this.medecinId),
+      pavillon_id: Number(this.pavillonId),
+    }).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.medecinId = '';
+        this.pavillonId = '';
+        this.charger(); // rafraîchit la liste
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(err.error?.message ?? 'Erreur lors de l\'affectation.');
+      },
+    });
   }
 }

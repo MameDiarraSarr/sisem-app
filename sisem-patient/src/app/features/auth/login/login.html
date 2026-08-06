@@ -22,8 +22,8 @@
       <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse" (keyup.enter)="seConnecter()">
     </div>
 
-    @if (erreur) {
-      <div class="erreur">{{ erreur }}</div>
+    @if (erreur()) {
+      <div class="erreur">{{ erreur() }}</div>
     }
 
     <button class="btn-connexion" (click)="seConnecter()">Se connecter</button>

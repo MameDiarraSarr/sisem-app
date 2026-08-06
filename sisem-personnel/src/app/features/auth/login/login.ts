@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
@@ -11,37 +11,47 @@ import { Auth } from '../../../core/services/auth';
 })
 export class Login {
 
-  // Les champs liés au formulaire
   email = '';
   motDePasse = '';
 
-  // On récupère le service d'authentification et le router
+  // État pour l'affichage (chargement / erreur)
+  chargement = signal(false);
+  erreur = signal<string | null>(null);
+
   private auth = inject(Auth);
   private router = inject(Router);
 
-  // Fonction appelée au clic sur "Se connecter"
   seConnecter(): void {
-    const reussi = this.auth.connexion(this.email, this.motDePasse);
+    this.erreur.set(null);
+    this.chargement.set(true);
 
-    if (reussi) {
-      const role = this.auth.utilisateurConnecte()?.role;
-      if (role === 'secretaire') {
-        this.router.navigate(['/secretaire']);
-      } else if (role === 'technicien') {
-        this.router.navigate(['/technicien']);
-      } else if (role === 'biologiste') {
-        this.router.navigate(['/biologiste']);
-      } else if (role === 'medecin') {
-        this.router.navigate(['/medecin']);
-      } else if (role === 'admin') {
-        this.router.navigate(['/admin']);
-      } else if (role === 'major') {
-        this.router.navigate(['/major']);
-      } else {
-        this.router.navigate(['/login']);
-      }
-    } else {
-      alert('Email ou mot de passe incorrect.');
-    }
+    this.auth.connexion(this.email, this.motDePasse).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.redirigerSelonRole();
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        // 422 = identifiants invalides ; sinon message générique
+        if (err.status === 422 || err.status === 401) {
+          this.erreur.set('Email ou mot de passe incorrect.');
+        } else {
+          this.erreur.set('Impossible de contacter le serveur. Réessayez.');
+        }
+      },
+    });
+  }
+
+  private redirigerSelonRole(): void {
+    const role = this.auth.utilisateurConnecte()?.role;
+    const routes: Record<string, string> = {
+      secretaire: '/secretaire',
+      technicien: '/technicien',
+      biologiste: '/biologiste',
+      medecin: '/medecin',
+      admin: '/admin',
+      major: '/major',
+    };
+    this.router.navigate([routes[role ?? ''] ?? '/login']);
   }
 }

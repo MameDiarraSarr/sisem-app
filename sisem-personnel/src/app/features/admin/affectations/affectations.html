@@ -1,44 +1,59 @@
 <div class="topbar">
   <div>
     <h1>Affectations</h1>
-    <p class="sub">Gérez l'affectation des médecins et majors aux pavillons</p>
+    <p class="sub">Gérez l'affectation des médecins aux pavillons</p>
   </div>
 </div>
 
+<!-- Formulaire : créer une affectation -->
 <div class="panel glass">
   <div class="panel-head">
-    <h3>Personnel affecté aux pavillons</h3>
+    <h3>Nouvelle affectation</h3>
+  </div>
+
+  <div class="form-affectation">
+    <select class="select-pav" [(ngModel)]="medecinId" name="medecinId">
+      <option value="">Choisir un médecin</option>
+      @for (m of medecins(); track m.id) {
+        <option [value]="m.id">{{ m.nom_complet }}</option>
+      }
+    </select>
+
+    <select class="select-pav" [(ngModel)]="pavillonId" name="pavillonId">
+      <option value="">Choisir un pavillon</option>
+      @for (p of pavillons(); track p.id) {
+        <option [value]="p.id">{{ p.nom }}</option>
+      }
+    </select>
+
+    <button class="btn-primary" (click)="affecter()" [disabled]="chargement()">
+      {{ chargement() ? 'Affectation...' : 'Affecter' }}
+    </button>
+  </div>
+
+  @if (erreur()) {
+    <p class="message-erreur">{{ erreur() }}</p>
+  }
+</div>
+
+<!-- Liste des affectations actives -->
+<div class="panel glass">
+  <div class="panel-head">
+    <h3>Affectations actives</h3>
   </div>
 
   <table>
-    <thead><tr><th>Membre</th><th>Rôle</th><th>Pavillon actuel</th><th>Changer l'affectation</th></tr></thead>
+    <thead><tr><th>Médecin</th><th>Spécialité</th><th>Pavillon</th><th>Depuis le</th></tr></thead>
     <tbody>
-      @for (membre of membres(); track membre.id) {
+      @for (a of affectations(); track a.id) {
         <tr>
-          <td>
-            <div class="p">
-              <div class="av">{{ membre.prenom[0] }}{{ membre.nom[0] }}</div>
-              <div><b>{{ membre.prenom }} {{ membre.nom }}</b><span>{{ membre.email }}</span></div>
-            </div>
-          </td>
-          <td><span class="role">{{ roleLibelle(membre.role) }}</span></td>
-          <td>
-            @if (membre.pavillon) {
-              <span class="pav">{{ membre.pavillon }}</span>
-            } @else {
-              <span class="pav none">Non affecté</span>
-            }
-          </td>
-          <td>
-            <select class="select-pav" [ngModel]="membre.pavillon" (ngModelChange)="changer(membre.id, $event)" [name]="'pav' + membre.id">
-              @for (pav of pavillons; track pav) {
-                <option [value]="pav">{{ pav }}</option>
-              }
-            </select>
-          </td>
+          <td><b>{{ a.medecin }}</b></td>
+          <td>{{ a.specialite ?? '—' }}</td>
+          <td><span class="pav">{{ a.pavillon }}</span></td>
+          <td>{{ a.date_debut }}</td>
         </tr>
       } @empty {
-        <tr><td colspan="4" class="vide">Aucun médecin ou major à affecter.</td></tr>
+        <tr><td colspan="4" class="vide">Aucune affectation active.</td></tr>
       }
     </tbody>
   </table>

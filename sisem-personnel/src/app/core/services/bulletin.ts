@@ -1,48 +1,49 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Bulletin } from '../models/bulletin';
 
-@Injectable({
-  providedIn: 'root'
-})
+// Ce qu'on envoie pour créer un bulletin
+export interface NouveauBulletinDto {
+  numero_labo: string;
+  patient_id: number;
+  medecin_id: number | null;
+  indication_examen: string;
+  traitement_en_cours: string | null;
+  examens: number[];
+}
+
+@Injectable({ providedIn: 'root' })
 export class BulletinService {
+  private http = inject(HttpClient);
+  private readonly url = `${environment.apiUrl}/bulletins`;
 
-  // ⚠️ Données fictives temporaires — seront remplacées par le backend Laravel
-  private bulletins: Bulletin[] = [
-    { id: 1, numeroLabo: '20/16/06/2026', patientNom: 'Amadou Diop', pavillon: 'Pavillon M', examenId: 1, nomExamen: 'Hémogramme', indication: 'Suspicion d\'anémie', traitementEnCours: null, medecinPrescripteurId: 4, dateEnregistrement: '16/06/2026', statut: 'valide' },
-    { id: 2, numeroLabo: '21/16/06/2026', patientNom: 'Fatou Ndiaye', pavillon: null, examenId: 2, nomExamen: 'Glycémie', indication: 'Contrôle diabète', traitementEnCours: 'Metformine', medecinPrescripteurId: null, dateEnregistrement: '16/06/2026', statut: 'enregistre' },
-    { id: 3, numeroLabo: '22/16/06/2026', patientNom: 'Moussa Sarr', pavillon: 'USAD', examenId: 3, nomExamen: 'Bilan rénal', indication: 'Suivi insuffisance rénale', traitementEnCours: null, medecinPrescripteurId: 4, dateEnregistrement: '16/06/2026', statut: 'saisi' },
-    { id: 4, numeroLabo: '23/16/06/2026', patientNom: 'Aïssatou Ba', pavillon: null, examenId: 5, nomExamen: 'Sérologie', indication: 'Dépistage', traitementEnCours: null, medecinPrescripteurId: null, dateEnregistrement: '16/06/2026', statut: 'enregistre' },
-    { id: 5, numeroLabo: '24/16/06/2026', patientNom: 'Ibrahima Sy', pavillon: 'Pavillon M', examenId: 4, nomExamen: 'Ionogramme', indication: 'Déséquilibre électrolytique', traitementEnCours: 'Diurétique', medecinPrescripteurId: 4, dateEnregistrement: '16/06/2026', statut: 'valide' },
-  ];
-
-  getBulletins(): Bulletin[] {
-    return this.bulletins;
+  getBulletins(): Observable<Bulletin[]> {
+    return this.http.get<Bulletin[]>(this.url);
   }
 
-  getBulletinsATraiter(): Bulletin[] {
-    return this.bulletins.filter(b => b.statut === 'enregistre');
+  getBulletin(id: number): Observable<Bulletin> {
+    return this.http.get<Bulletin>(`${this.url}/${id}`);
   }
 
-  getBulletinsAValider(): Bulletin[] {
-    return this.bulletins.filter(b => b.statut === 'saisi');
+  getBulletinsDuPatient(patientId: number): Observable<Bulletin[]> {
+    return this.http.get<Bulletin[]>(`${this.url}?patient_id=${patientId}`);
   }
 
-  getBulletinsValides(): Bulletin[] {
-    return this.bulletins.filter(b => b.statut === 'valide');
+  ajouterBulletin(bulletin: NouveauBulletinDto): Observable<Bulletin> {
+    return this.http.post<Bulletin>(this.url, bulletin);
   }
 
-  getBulletinsValidesParPavillon(pavillon: string): Bulletin[] {
-    return this.bulletins.filter(b => b.statut === 'valide' && b.pavillon === pavillon);
+  validerBulletin(id: number): Observable<any> {
+    return this.http.patch(`${this.url}/${id}/valider`, {});
   }
 
-  ajouterBulletin(bulletin: Bulletin): void {
-    this.bulletins.push(bulletin);
+  renvoyerBulletin(id: number): Observable<any> {
+    return this.http.patch(`${this.url}/${id}/renvoyer`, {});
   }
 
-  validerBulletin(id: number): void {
-    const bulletin = this.bulletins.find(b => b.id === id);
-    if (bulletin) {
-      bulletin.statut = 'valide';
-    }
+  marquerImprime(id: number): Observable<{ imprime_le: string; nombre_impressions: number }> {
+    return this.http.patch<{ imprime_le: string; nombre_impressions: number }>(`${this.url}/${id}/imprimer`, {});
   }
 }

@@ -9,15 +9,15 @@
 <div class="stats">
   <div class="stat glass">
     <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-    <div><div class="num">318</div><div class="lbl">Patients au total</div></div>
+    <div><div class="num">{{ patients().length }}</div><div class="lbl">Patients au total</div></div>
   </div>
   <div class="stat glass">
     <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
-    <div><div class="num">12</div><div class="lbl">Enregistrés aujourd'hui</div></div>
+    <div><div class="num">—</div><div class="lbl">Enregistrés aujourd'hui</div></div>
   </div>
   <div class="stat glass">
     <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
-    <div><div class="num">8</div><div class="lbl">Bulletins à créer</div></div>
+    <div><div class="num">—</div><div class="lbl">Bulletins à créer</div></div>
   </div>
 </div>
 
@@ -31,7 +31,7 @@
   </div>
 
   <table>
-    <thead><tr><th>Patient</th><th>N° Labo</th><th>Type</th><th>Pavillon</th><th>Date</th><th></th></tr></thead>
+    <thead><tr><th>Patient</th><th>N° Dossier</th><th>Type</th><th>Pavillon</th><th>Date</th><th></th></tr></thead>
     <tbody>
         @for (patient of patients(); track patient.id) {
           <tr>
@@ -40,13 +40,13 @@
                 <div class="av" [style.background]="'#4A7FA7'">{{ patient.prenom[0] }}{{ patient.nom[0] }}</div>
                 <div>
                   <b>{{ patient.prenom }} {{ patient.nom }}</b>
-                  <span>{{ patient.age }} ans</span>
+                  <span>{{ patient.age }}</span>
                 </div>
               </div>
             </td>
-            <td>{{ patient.numeroDossier }}</td>
+            <td>{{ patient.numero_dossier ?? '—' }}</td>
             <td>
-              @if (patient.typePatient === 'interne') {
+              @if (patient.type_patient === 'interne') {
                 <span class="tag int">Interne</span>
               } @else {
                 <span class="tag ext">Externe</span>
@@ -59,14 +59,18 @@
                 <span class="pav none">—</span>
               }
             </td>
-            <td>{{ patient.dateEnregistrement }}</td>
+            <td>{{ patient.date_enregistrement }}</td>
             <td>
               <div class="act">
-                <button title="Voir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button title="Voir" [routerLink]="['/secretaire/patient', patient.id]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                 <button class="add" title="Ajouter un examen" [routerLink]="['/secretaire/nouveau-bulletin', patient.id]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
               </div>
             </td>
           </tr>
+        } @empty {
+          @if (erreur()) {
+            <tr><td colspan="6" class="vide">{{ erreur() }}</td></tr>
+          }
         }
       </tbody>
   </table>

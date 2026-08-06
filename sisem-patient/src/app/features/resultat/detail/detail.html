@@ -7,7 +7,9 @@
     </button>
   </div>
 
-  @if (resultat) {
+  @if (chargement()) {
+    <div class="introuvable">Chargement…</div>
+  } @else if (resultat(); as r) {
     <div class="document">
 
       <div class="doc-head">
@@ -26,15 +28,15 @@
       <div class="bloc-identite">
         <div class="col">
           <div class="ligne"><span class="lbl">Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
-          <div class="ligne"><span class="lbl">N° Dossier (Labo)</span><b>{{ resultat.numeroLabo }}</b></div>
+          <div class="ligne"><span class="lbl">N° Dossier (Labo)</span><b>{{ r.numeroLabo }}</b></div>
         </div>
         <div class="col">
-          <div class="ligne"><span class="lbl">Date du résultat</span><b>{{ resultat.dateResultat }}</b></div>
+          <div class="ligne"><span class="lbl">Date du résultat</span><b>{{ r.dateResultat }}</b></div>
           <div class="ligne"><span class="lbl">Statut</span><b class="statut-ok">Compte-rendu complet</b></div>
         </div>
       </div>
 
-      <div class="examen-titre">{{ resultat.examenNom }}</div>
+      <div class="examen-titre">{{ r.examenNom }}</div>
 
       <table class="tableau">
         <thead>
@@ -47,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (analyse of resultat.analyses; track analyse.nom) {
+          @for (analyse of r.analyses; track analyse.nom) {
             <tr>
               <td class="param">{{ analyse.nom }}</td>
               <td class="valeur" [class.anormal]="statutValeur(analyse.valeur, analyse.valeurReference) === 'anormal'">{{ analyse.valeur }}</td>
@@ -65,10 +67,10 @@
         </tbody>
       </table>
 
-      @if (resultat.commentaire) {
+      @if (r.commentaire) {
         <div class="note">
           <span class="note-lbl">Interprétation du biologiste</span>
-          <p>{{ resultat.commentaire }}</p>
+          <p>{{ r.commentaire }}</p>
         </div>
       }
 

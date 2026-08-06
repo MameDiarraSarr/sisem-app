@@ -13,36 +13,40 @@
     </div>
   </div>
 
-  @if (bulletin) {
+  @if (bulletin(); as b) {
     <div class="info-card glass">
-      <div class="info"><span class="lbl">N° Labo</span><b>{{ bulletin.numeroLabo }}</b></div>
-      <div class="info"><span class="lbl">Patient</span><b>{{ bulletin.patientNom }}</b></div>
-      <div class="info"><span class="lbl">Examen</span><b>{{ bulletin.nomExamen }}</b></div>
+      <div class="info"><span class="lbl">N° Labo</span><b>{{ b.numero_labo }}</b></div>
+      <div class="info"><span class="lbl">Patient</span><b>{{ b.patient.nom_complet }}</b></div>
+      <div class="info"><span class="lbl">Indication</span><b>{{ b.indication_examen }}</b></div>
       <div class="info"><span class="lbl">Statut</span><b class="valide">✓ Validé</b></div>
     </div>
-  }
 
-  <div class="form-card glass">
-    <div class="section-title">Résultats des analyses</div>
+    <div class="form-card glass">
+      <div class="section-title">Résultats des analyses</div>
 
-    <table>
-      <thead><tr><th>Analyse</th><th>Unité</th><th>Référence</th></tr></thead>
-      <tbody>
-        @for (analyse of analyses; track analyse.nom) {
-          <tr>
-            <td><b>{{ analyse.nom }}</b></td>
-            <td class="unite">{{ analyse.unite }}</td>
-            <td class="ref">{{ analyse.valeurReference }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+      @for (examen of b.examens; track examen.examen_demande_id) {
+        <h4 class="nom-examen">{{ examen.nom_examen }}</h4>
+        <table>
+          <thead><tr><th>Analyse</th><th>Valeur</th><th>Unité</th><th>Référence</th></tr></thead>
+          <tbody>
+            @for (analyse of examen.analyses; track analyse.analyse_reference_id) {
+              <tr>
+                <td><b>{{ analyse.nom_analyse }}</b></td>
+                <td class="valeur">{{ analyse.valeur_resultat ?? '—' }}</td>
+                <td class="unite">{{ analyse.unite }}</td>
+                <td class="ref">{{ analyse.valeur_normale }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
 
-    <div class="actions">
-      <button class="btn-primary" (click)="imprimer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-        Imprimer
-      </button>
+      <div class="actions">
+        <button class="btn-primary" (click)="imprimer()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+          Imprimer
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </div>

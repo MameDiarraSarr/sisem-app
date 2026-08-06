@@ -85,3 +85,29 @@
 
 .aucun { text-align: center; padding: 30px; }
 .aucun p { color: #4A7FA7; margin-bottom: 20px; font-size: 15px; }
+
+.examens-choisis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.examens-choisis .puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #4A7FA7;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+}
+.examens-choisis .retirer {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+}

@@ -9,11 +9,15 @@ class BulletinExamen extends Model
     protected $fillable = [
         'numero_labo', 'patient_id', 'pavillon_id', 'medecin_id',
         'indication_examen', 'traitement_en_cours', 'date_enregistrement', 'statut',
+        'imprime_le', 'nombre_impressions',
     ];
 
     protected function casts(): array
     {
-        return ['date_enregistrement' => 'date'];
+        return [
+            'date_enregistrement' => 'date',
+            'imprime_le' => 'datetime',
+        ];
     }
 
     public function patient()

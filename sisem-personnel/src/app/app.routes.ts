@@ -21,6 +21,10 @@ import { NouveauBulletin } from './features/secretaire/nouveau-bulletin/nouveau-
 import { Dashboard as MajorDashboard } from './features/major/dashboard/dashboard';
 import { Medecins as MajorMedecins } from './features/major/medecins/medecins';
 import { DetailConsultation as MajorDetailConsultation } from './features/major/detail-consultation/detail-consultation';
+import { Profil } from './features/profil/profil';
+import { DetailPatient } from './features/secretaire/detail-patient/detail-patient'; 
+import { Resultat } from './features/secretaire/resultat/resultat';
+import { ModifierPatient } from './features/secretaire/modifier-patient/modifier-patient';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -34,8 +38,11 @@ export const routes: Routes = [
       { path: '', component: Dashboard },
       { path: 'nouveau-patient', component: NouveauPatient },
       { path: 'examens', component: Examens },
-      { path: 'nouveau-bulletin', component: NouveauBulletin },
       { path: 'nouveau-bulletin/:patientId', component: NouveauBulletin },
+      { path: 'profil', component: Profil },
+      { path: 'patient/:id', component: DetailPatient },
+      { path: 'resultat/:id', component: Resultat },
+      { path: 'patient/:id/modifier', component: ModifierPatient },
     ]
   },
 
@@ -46,6 +53,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: TechnicienDashboard },
       { path: 'saisie/:id', component: SaisieResultats },
+      { path: 'profil', component: Profil },
     ]
   },
 
@@ -57,6 +65,7 @@ export const routes: Routes = [
       { path: '', component: BiologisteDashboard },
       { path: 'detail/:id', component: DetailResultats },
       { path: 'historique', component: Historique },
+      { path: 'profil', component: Profil },
     ]
   },
 
@@ -67,6 +76,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: MedecinDashboard },
       { path: 'consultation/:id', component: DetailConsultation },
+      { path: 'profil', component: Profil },
     ]
   },
 
@@ -80,6 +90,7 @@ export const routes: Routes = [
       { path: 'nouveau-compte', component: NouveauCompte },
       { path: 'affectations', component: Affectations },
       { path: 'modifier-compte/:id', component: ModifierCompte },
+      { path: 'profil', component: Profil },
     ]
   },
 
@@ -91,6 +102,7 @@ export const routes: Routes = [
       { path: '', component: MajorDashboard },
       { path: 'medecins', component: MajorMedecins },
       { path: 'consultation/:id', component: MajorDetailConsultation },
+      { path: 'profil', component: Profil },
     ]
   },
 ];

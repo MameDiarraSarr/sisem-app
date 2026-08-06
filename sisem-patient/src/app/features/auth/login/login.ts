@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
@@ -13,23 +13,32 @@ export class Login {
 
   telephone = '';
   motDePasse = '';
-  erreur = '';
+  erreur = signal('');
+  chargement = signal(false);
 
   private auth = inject(Auth);
   private router = inject(Router);
 
   seConnecter(): void {
     if (!this.telephone || !this.motDePasse) {
-      this.erreur = 'Veuillez remplir tous les champs.';
+      this.erreur.set('Veuillez remplir tous les champs.');
       return;
     }
 
-    const reussi = this.auth.connexion(this.telephone, this.motDePasse);
+    this.erreur.set('');
+    this.chargement.set(true);
 
-    if (reussi) {
-      this.router.navigate(['/accueil']);
-    } else {
-      this.erreur = 'Numéro ou mot de passe incorrect.';
-    }
+    this.auth.connexion(this.telephone, this.motDePasse).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.router.navigate(['/accueil']);
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(
+          err.error?.message ?? 'Numéro ou mot de passe incorrect.'
+        );
+      },
+    });
   }
 }

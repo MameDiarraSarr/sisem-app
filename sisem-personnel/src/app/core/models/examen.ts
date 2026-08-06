@@ -1,13 +1,12 @@
-// Une analyse de référence (ex: Hémoglobine, avec sa norme)
 export interface AnalyseReference {
-  nom: string;
-  unite: string;
-  valeurReference: string;
+  id: number;
+  nom_analyse: string;
+  valeur_normale: string;
+  unite: string | null;
 }
 
-// Un examen du catalogue (ex: Hémogramme) et ses analyses
 export interface Examen {
   id: number;
-  nom: string;
+  nom_examen: string;
   analyses: AnalyseReference[];
 }

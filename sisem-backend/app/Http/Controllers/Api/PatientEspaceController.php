@@ -8,26 +8,52 @@ use Illuminate\Http\Request;
 
 class PatientEspaceController extends Controller
 {
-    // La liste des bulletins validés du patient connecté
+    // La liste des résultats validés du patient connecté,
+    // aplatie en examens individuels (un examen = une "ligne" côté patient)
     public function mesResultats(Request $request)
     {
         $patient = $request->user();
 
         $bulletins = BulletinExamen::where('patient_id', $patient->id)
             ->where('statut', 'valide')
-            ->with(['medecin.user', 'examenDemandes.examen'])
+            ->with([
+                'medecin.user',
+                'examenDemandes.examen.analyses',
+                'examenDemandes.resultats.analyseReference',
+            ])
             ->orderByDesc('date_enregistrement')
             ->get();
 
-        return response()->json($bulletins->map(fn ($b) => [
-            'id' => $b->id,
-            'numero_labo' => $b->numero_labo,
-            'date' => $b->date_enregistrement->format('d/m/Y'),
-            'medecin' => $b->medecin
+        $resultats = [];
+
+        foreach ($bulletins as $b) {
+            $medecin = $b->medecin
                 ? 'Dr. ' . $b->medecin->user->prenom . ' ' . $b->medecin->user->nom
-                : null,
-            'examens' => $b->examenDemandes->map(fn ($ed) => $ed->examen->nom_examen),
-        ]));
+                : null;
+
+            foreach ($b->examenDemandes as $ed) {
+                $valeurs = $ed->resultats->keyBy('analyse_reference_id');
+
+                $resultats[] = [
+                    'id' => $ed->id,                       // id de l'examen demandé (unique par examen)
+                    'patientId' => $patient->id,
+                    'numeroLabo' => $b->numero_labo,
+                    'examenNom' => $ed->examen->nom_examen,
+                    'medecinPrescripteur' => $medecin,
+                    'dateResultat' => $b->date_enregistrement->format('d/m/Y'),
+                    'statut' => 'valide',
+                    'commentaire' => '',                    // pas d'interprétation stockée en base
+                    'analyses' => $ed->examen->analyses->map(fn ($a) => [
+                        'nom' => $a->nom_analyse,
+                        'valeur' => (string) ($valeurs->get($a->id)?->valeur_resultat ?? ''),
+                        'unite' => $a->unite,
+                        'valeurReference' => $a->valeur_normale,
+                    ])->values(),
+                ];
+            }
+        }
+
+        return response()->json($resultats);
     }
 
     // Le détail d'un bulletin — uniquement s'il appartient au patient et s'il est validé

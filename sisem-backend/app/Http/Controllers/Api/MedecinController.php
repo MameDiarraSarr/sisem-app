@@ -33,26 +33,59 @@ class MedecinController extends Controller
         ]));
     }
 
-    // Le major liste les médecins affectés à son pavillon
+    // Le major liste les médecins de son pavillon (affectations actives ET inactives, pour pouvoir réintégrer)
     public function medecinsDeMonPavillon(Request $request)
     {
         $major = $request->user();
 
-        // Médecins ayant une affectation active dans le pavillon du major
-        $medecins = Medecin::with(['user', 'pavillons'])
+        $medecins = Medecin::with(['user', 'affectations'])
             ->whereHas('affectations', function ($q) use ($major) {
-                $q->where('pavillon_id', $major->pavillon_id)
-                  ->where('statut', 'active');
+                $q->where('pavillon_id', $major->pavillon_id);
             })
             ->get();
 
-        return response()->json($medecins->map(fn ($m) => [
-            'id' => $m->id,
-            'nom_complet' => 'Dr. ' . $m->user->prenom . ' ' . $m->user->nom,
-            'prenom' => $m->user->prenom,
-            'nom' => $m->user->nom,
-            'specialite' => $m->specialite,
-            'statut_compte' => $m->user->statut,
-        ]));
+        return response()->json($medecins->map(function ($m) use ($major) {
+            // Le statut de l'affectation DANS le pavillon du major
+            $affectation = $m->affectations
+                ->where('pavillon_id', $major->pavillon_id)
+                ->sortByDesc('id')
+                ->first();
+
+            return [
+                'id' => $m->id,
+                'nom_complet' => 'Dr. ' . $m->user->prenom . ' ' . $m->user->nom,
+                'prenom' => $m->user->prenom,
+                'nom' => $m->user->nom,
+                'specialite' => $m->specialite,
+                // Statut de l'AFFECTATION (active/inactive), pas du compte
+                'statut_affectation' => $affectation?->statut ?? 'inactive',
+            ];
+        }));
     }
+
+    public function basculerStatutMedecin(Request $request, Medecin $medecin)
+    {
+        $major = $request->user();
+
+        $affectation = $medecin->affectations()
+            ->where('pavillon_id', $major->pavillon_id)
+            ->latest('id')
+            ->first();
+
+        if (! $affectation) {
+            return response()->json([
+                'message' => 'Ce médecin n\'est pas affecté à votre pavillon.',
+            ], 403);
+        }
+
+        $affectation->update([
+            'statut' => $affectation->statut === 'active' ? 'inactive' : 'active',
+        ]);
+
+        return response()->json([
+            'message' => 'Affectation du médecin mise à jour.',
+            'statut' => $affectation->statut,
+        ]);
+    }
+    
 }

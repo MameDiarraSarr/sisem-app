@@ -15,14 +15,27 @@
   </div>
 
   <table>
-    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen</th><th>Date</th><th></th></tr></thead>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Pavillon</th><th>Examen</th><th>Date</th><th></th></tr></thead>
     <tbody>
       @for (bulletin of bulletins(); track bulletin.id) {
         <tr>
-          <td><b>{{ bulletin.numeroLabo }}</b></td>
-          <td>{{ bulletin.patientNom }}</td>
-          <td>{{ bulletin.nomExamen }}</td>
-          <td>{{ bulletin.dateEnregistrement }}</td>
+          <td><b>{{ bulletin.numero_labo }}</b></td>
+          <td>{{ bulletin.patient.nom_complet }}</td>
+          <td>
+            @if (bulletin.pavillon) {
+              <span class="pav">{{ bulletin.pavillon }}</span>
+            } @else {
+              <span class="pav none">Externe</span>
+            }
+          </td>
+          <td>
+            @if (bulletin.examens.length === 1) {
+              {{ bulletin.examens[0].nom_examen }}
+            } @else {
+              {{ bulletin.examens.length }} examens
+            }
+          </td>
+          <td>{{ bulletin.date_enregistrement }}</td>
           <td>
             <button class="btn-consulter" [routerLink]="['/medecin/consultation', bulletin.id]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -31,7 +44,9 @@
           </td>
         </tr>
       } @empty {
-        <tr><td colspan="5" class="vide">Aucun résultat disponible pour le moment.</td></tr>
+        @if (charge()) {
+          <tr><td colspan="6" class="vide">Aucun résultat disponible pour le moment.</td></tr>
+        }
       }
     </tbody>
   </table>

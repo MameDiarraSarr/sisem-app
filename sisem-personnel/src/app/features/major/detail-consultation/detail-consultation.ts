@@ -1,8 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { BulletinService } from '../../../core/services/bulletin';
-import { ExamenService } from '../../../core/services/examen';
-import { AnalyseReference } from '../../../core/models/examen';
+import { Bulletin } from '../../../core/models/bulletin';
 
 @Component({
   selector: 'app-major-detail-consultation',
@@ -10,23 +9,21 @@ import { AnalyseReference } from '../../../core/models/examen';
   templateUrl: './detail-consultation.html',
   styleUrl: './detail-consultation.scss',
 })
-export class DetailConsultation {
+export class DetailConsultation implements OnInit {
 
   private route = inject(ActivatedRoute);
   private bulletinService = inject(BulletinService);
-  private examenService = inject(ExamenService);
 
-  bulletin = this.bulletinService.getBulletins().find(
-    b => b.id === Number(this.route.snapshot.paramMap.get('id'))
-  );
+  bulletin = signal<Bulletin | null>(null);
+  erreur = signal<string | null>(null);
 
-  // Les analyses de l'examen (dynamique via le catalogue)
-  analyses = this.chargerAnalyses();
+  private id = Number(this.route.snapshot.paramMap.get('id'));
 
-  private chargerAnalyses(): AnalyseReference[] {
-    if (!this.bulletin) return [];
-    const examen = this.examenService.getExamen(this.bulletin.examenId);
-    return examen ? examen.analyses : [];
+  ngOnInit(): void {
+    this.bulletinService.getBulletin(this.id).subscribe({
+      next: (b) => this.bulletin.set(b),
+      error: () => this.erreur.set('Bulletin introuvable.'),
+    });
   }
 
   imprimer(): void {

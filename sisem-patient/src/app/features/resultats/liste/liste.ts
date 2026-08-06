@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
 import { ResultatService } from '../../../core/services/resultat';
 import { ResultatPatient } from '../../../core/models/resultat';
@@ -10,47 +10,57 @@ import jsPDF from 'jspdf';
   templateUrl: './liste.html',
   styleUrl: './liste.scss',
 })
-export class Liste {
+export class Liste implements OnInit {
 
   private auth = inject(Auth);
   private resultatService = inject(ResultatService);
+  private cdr = inject(ChangeDetectorRef);
 
   patient = this.auth.patientConnecte();
 
-  // Sections dépliables (indépendantes)
-  sectionRecents = signal(true);      // ouverte par défaut
+  sectionRecents = signal(true);
   sectionAnterieurs = signal(false);
-
-  // Quel résultat est déplié (dans l'une ou l'autre section)
   detailOuvertId = signal<number | null>(null);
-
-  // Recherche (dans les antérieurs)
   recherche = signal('');
+  chargement = signal(true);
 
-  // Tous les résultats, du plus récent au plus ancien
-  private tous: ResultatPatient[] = (this.patient
-    ? this.resultatService.getResultatsParPatient(this.patient.id)
-    : []
-  ).sort((a, b) => this.enDate(b.dateResultat) - this.enDate(a.dateResultat));
+  private tousSignal = signal<ResultatPatient[]>([]);
+  private get tous(): ResultatPatient[] { return this.tousSignal(); }
 
-  // "18/06/2026" → timestamp comparable
+  ngOnInit(): void {
+    this.resultatService.getMesResultats().subscribe({
+      next: (resultats) => {
+        const tries = resultats.sort(
+          (a, b) => this.enDate(b.dateResultat) - this.enDate(a.dateResultat)
+        );
+        this.tousSignal.set(tries);
+        this.chargement.set(false);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.chargement.set(false);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   private enDate(s: string): number {
     const [j, m, a] = s.split('/').map(Number);
     return new Date(a, m - 1, j).getTime();
   }
 
-  // Les résultats de la date la plus récente
   resultatsRecents = computed(() => {
-    if (this.tous.length === 0) return [];
-    const dateRecente = this.tous[0].dateResultat;
-    return this.tous.filter(r => r.dateResultat === dateRecente);
+    const tous = this.tousSignal();
+    if (tous.length === 0) return [];
+    const dateRecente = tous[0].dateResultat;
+    return tous.filter(r => r.dateResultat === dateRecente);
   });
 
-  // Tous les autres, filtrés par la recherche
   resultatsAnterieurs = computed(() => {
-    if (this.tous.length === 0) return [];
-    const dateRecente = this.tous[0].dateResultat;
-    const anterieurs = this.tous.filter(r => r.dateResultat !== dateRecente);
+    const tous = this.tousSignal();
+    if (tous.length === 0) return [];
+    const dateRecente = tous[0].dateResultat;
+    const anterieurs = tous.filter(r => r.dateResultat !== dateRecente);
 
     const terme = this.recherche().toLowerCase().trim();
     if (!terme) return anterieurs;
@@ -75,11 +85,23 @@ export class Liste {
 
   statutValeur(valeur: string, reference: string): 'normal' | 'anormal' | 'qualitatif' {
     const val = parseFloat(valeur.replace(',', '.'));
-    if (isNaN(val)) return 'qualitatif';
     const bornes = reference.split('-').map(b => parseFloat(b.trim().replace(',', '.')));
-    if (bornes.length !== 2 || bornes.some(isNaN)) return 'qualitatif';
-    const [min, max] = bornes;
-    return (val >= min && val <= max) ? 'normal' : 'anormal';
+
+    // Cas numérique : référence du type "135 - 145"
+    if (!isNaN(val) && bornes.length === 2 && !bornes.some(isNaN)) {
+      const [min, max] = bornes;
+      return (val >= min && val <= max) ? 'normal' : 'anormal';
+    }
+
+    // Cas qualitatif : référence texte (ex. "Négatif")
+    const normaliser = (s: string) =>
+      s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    if (valeur && reference) {
+      return normaliser(valeur) === normaliser(reference) ? 'normal' : 'anormal';
+    }
+
+    return 'qualitatif';
   }
 
   telechargerPdf(id: number): void {
@@ -118,18 +140,28 @@ export class Liste {
     doc.text(r.examenNom, 24, y + 1);
 
     y += 14; doc.setFontSize(9); doc.setTextColor(...blueMid); doc.setFont('helvetica', 'bold');
-    doc.text('PARAMETRE', 22, y); doc.text('RESULTAT', 90, y); doc.text('UNITE', 125, y); doc.text('REFERENCE', 155, y);
+    doc.text('PARAMETRE', 22, y); doc.text('RESULTAT', 82, y); doc.text('UNITE', 112, y); doc.text('REFERENCE', 138, y); doc.text('ETAT', 172, y);
     y += 3; doc.setDrawColor(200, 210, 220); doc.line(20, y, 190, y);
     y += 7; doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
 
     for (const a of r.analyses) {
       const statut = this.statutValeur(a.valeur, a.valeurReference);
-      doc.setTextColor(40, 40, 40); doc.text(a.nom, 22, y);
+
+      doc.setTextColor(40, 40, 40); doc.setFont('helvetica', 'normal');
+      doc.text(a.nom, 22, y);
+
+      doc.setFont('helvetica', 'bold');
       if (statut === 'anormal') { doc.setTextColor(192, 57, 43); } else { doc.setTextColor(10, 25, 49); }
-      doc.setFont('helvetica', 'bold'); doc.text(a.valeur, 90, y);
+      doc.text(a.valeur, 82, y);
+
       doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
-      doc.text(a.unite, 125, y); doc.text(a.valeurReference, 155, y);
-      y += 8; doc.setDrawColor(235, 240, 245); doc.line(20, y - 3, 190, y - 3);
+      doc.text(a.unite, 112, y); doc.text(a.valeurReference, 138, y);
+
+      if (statut === 'anormal') { doc.setTextColor(192, 57, 43); doc.text('Hors norme', 172, y); }
+      else if (statut === 'normal') { doc.setTextColor(39, 130, 80); doc.text('Normal', 172, y); }
+      else { doc.setTextColor(150, 150, 150); doc.text('—', 172, y); }
+
+      y += 8;
     }
 
     if (r.commentaire) {

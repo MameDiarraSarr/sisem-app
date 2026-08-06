@@ -1,11 +1,12 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { BulletinService } from '../../../core/services/bulletin';
+import { BulletinService, NouveauBulletinDto } from '../../../core/services/bulletin';
 import { PatientService } from '../../../core/services/patient';
-import { PersonnelService } from '../../../core/services/personnel';
+import { PersonnelService, Medecin } from '../../../core/services/personnel';
 import { ExamenService } from '../../../core/services/examen';
-import { Bulletin } from '../../../core/models/bulletin';
+import { Patient } from '../../../core/models/patient';
+import { Examen } from '../../../core/models/examen';
 
 @Component({
   selector: 'app-nouveau-bulletin',
@@ -13,7 +14,7 @@ import { Bulletin } from '../../../core/models/bulletin';
   templateUrl: './nouveau-bulletin.html',
   styleUrl: './nouveau-bulletin.scss',
 })
-export class NouveauBulletin {
+export class NouveauBulletin implements OnInit {
 
   private bulletinService = inject(BulletinService);
   private patientService = inject(PatientService);
@@ -22,31 +23,82 @@ export class NouveauBulletin {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  patients = this.patientService.getPatients();
-  private tousMedecins = this.personnelService.getMedecins();
-  private tousExamens = this.examenService.getExamens();
-
   patientId = this.route.snapshot.paramMap.get('patientId') ?? '';
 
   numeroLabo = '';
   indication = '';
   traitementEnCours = '';
 
-  patientChoisi = computed(() => {
-    return this.patients.find(p => p.id === Number(this.patientId));
-  });
+  chargement = signal(false);
+  chargementPatient = signal(true);
+  erreur = signal<string | null>(null);
 
-  // Autocomplétion EXAMEN
+  private patientCourant = signal<Patient | null>(null);
+  private tousMedecins = signal<Medecin[]>([]);
+  private tousExamens = signal<Examen[]>([]);
+
+  ngOnInit(): void {
+    if (this.patientId) {
+      this.patientService.getPatient(Number(this.patientId)).subscribe({
+        next: (p) => {
+          this.patientCourant.set(p);
+          this.chargementPatient.set(false);
+        },
+        error: () => {
+          this.erreur.set('Patient introuvable.');
+          this.chargementPatient.set(false);
+        },
+      });
+    } else {
+      this.chargementPatient.set(false);
+    }
+
+    this.personnelService.getMedecins().subscribe({
+      next: (liste) => this.tousMedecins.set(liste),
+    });
+
+    this.examenService.getExamens().subscribe({
+      next: (liste) => this.tousExamens.set(liste),
+    });
+  }
+
+  patientChoisi = computed(() => this.patientCourant());
+
+  patientEstInterne(): boolean {
+    return this.patientChoisi()?.type_patient === 'interne';
+  }
+
+  // Autocomplétion EXAMEN (plusieurs examens possibles par bulletin)
   rechercheExamen = signal('');
-  examenChoisiId = signal<number | null>(null);
-  examenChoisiNom = signal('');
+  examensChoisis = signal<{ id: number; nom: string }[]>([]);
   listeExamenVisible = signal(false);
 
   examensFiltres = computed(() => {
     const terme = this.rechercheExamen().toLowerCase().trim();
-    if (!terme) return this.tousExamens;
-    return this.tousExamens.filter(e => e.nom.toLowerCase().includes(terme));
+    // On n'affiche pas les examens déjà choisis
+    const dejaChoisis = this.examensChoisis().map(e => e.id);
+    const disponibles = this.tousExamens().filter(e => !dejaChoisis.includes(e.id));
+    if (!terme) return disponibles;
+    return disponibles.filter(e => e.nom_examen.toLowerCase().includes(terme));
   });
+
+  onRechercheExamen(valeur: string): void {
+    this.rechercheExamen.set(valeur);
+    this.listeExamenVisible.set(true);
+  }
+
+  choisirExamen(id: number, nom: string): void {
+    // Évite d'ajouter deux fois le même examen
+    if (!this.examensChoisis().some(e => e.id === id)) {
+      this.examensChoisis.update(liste => [...liste, { id, nom }]);
+    }
+    this.rechercheExamen.set('');
+    this.listeExamenVisible.set(false);
+  }
+
+  retirerExamen(id: number): void {
+    this.examensChoisis.update(liste => liste.filter(e => e.id !== id));
+  }
 
   // Autocomplétion MÉDECIN
   rechercheMedecin = signal('');
@@ -55,28 +107,12 @@ export class NouveauBulletin {
 
   medecinsFiltres = computed(() => {
     const terme = this.rechercheMedecin().toLowerCase().trim();
-    if (!terme) return this.tousMedecins;
-    return this.tousMedecins.filter(m =>
+    if (!terme) return this.tousMedecins();
+    return this.tousMedecins().filter(m =>
       m.prenom.toLowerCase().includes(terme) ||
       m.nom.toLowerCase().includes(terme)
     );
   });
-
-  patientEstInterne(): boolean {
-    return this.patientChoisi()?.typePatient === 'interne';
-  }
-
-  onRechercheExamen(valeur: string): void {
-    this.rechercheExamen.set(valeur);
-    this.examenChoisiId.set(null);
-    this.listeExamenVisible.set(true);
-  }
-  choisirExamen(id: number, nom: string): void {
-    this.examenChoisiId.set(id);
-    this.examenChoisiNom.set(nom);
-    this.rechercheExamen.set(nom);
-    this.listeExamenVisible.set(false);
-  }
 
   onRechercheMedecin(valeur: string): void {
     this.rechercheMedecin.set(valeur);
@@ -90,30 +126,32 @@ export class NouveauBulletin {
   }
 
   enregistrer(): void {
-    if (!this.patientId || !this.numeroLabo || !this.examenChoisiId() || !this.indication) {
-      alert('Veuillez remplir les champs obligatoires (examen inclus).');
+    if (!this.patientId || !this.numeroLabo || this.examensChoisis().length === 0 || !this.indication) {
+      this.erreur.set('Veuillez remplir les champs obligatoires (au moins un examen).');
       return;
     }
 
-    const patient = this.patientChoisi();
-    if (!patient) return;
+    this.erreur.set(null);
+    this.chargement.set(true);
 
-    const nouveauBulletin: Bulletin = {
-      id: Date.now(),
-      numeroLabo: this.numeroLabo,
-      patientNom: `${patient.prenom} ${patient.nom}`,
-      pavillon: patient.pavillon,
-      examenId: this.examenChoisiId()!,
-      nomExamen: this.examenChoisiNom(),
-      indication: this.indication,
-      traitementEnCours: this.traitementEnCours || null,
-      medecinPrescripteurId: patient.typePatient === 'interne' ? this.medecinChoisiId() : null,
-      dateEnregistrement: new Date().toLocaleDateString('fr-FR'),
-      statut: 'enregistre',
+    const dto: NouveauBulletinDto = {
+      numero_labo: this.numeroLabo,
+      patient_id: Number(this.patientId),
+      medecin_id: this.patientEstInterne() ? this.medecinChoisiId() : null,
+      indication_examen: this.indication,
+      traitement_en_cours: this.traitementEnCours || null,
+      examens: this.examensChoisis().map(e => e.id),
     };
 
-    this.bulletinService.ajouterBulletin(nouveauBulletin);
-    alert('Bulletin créé ! Il apparaît dans la liste des examens (statut Enregistré).');
-    this.router.navigate(['/secretaire/examens']);
+    this.bulletinService.ajouterBulletin(dto).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.router.navigate(['/secretaire/examens']);
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(err.error?.message ?? 'Erreur lors de la création du bulletin.');
+      },
+    });
   }
 }

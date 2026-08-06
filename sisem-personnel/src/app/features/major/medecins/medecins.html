@@ -1,7 +1,7 @@
 <div class="topbar">
   <div>
     <h1>Médecins du pavillon</h1>
-    <p class="sub">Gérez les médecins de {{ pavillon }}</p>
+    <p class="sub">Médecins de {{ pavillon }}</p>
   </div>
 </div>
 
@@ -12,34 +12,36 @@
   </div>
 
   <table>
-    <thead><tr><th>Médecin</th><th>Email</th><th>Action</th></tr></thead>
+    <thead><tr><th>Médecin</th><th>Spécialité</th><th>Statut</th><th>Action</th></tr></thead>
     <tbody>
       @for (medecin of medecins(); track medecin.id) {
         <tr>
           <td>
             <div class="p">
               <div class="av">{{ medecin.prenom[0] }}{{ medecin.nom[0] }}</div>
-              <div><b>Dr. {{ medecin.prenom }} {{ medecin.nom }}</b><span>{{ medecin.telephone }}</span></div>
+              <div><b>{{ medecin.nom_complet }}</b></div>
             </div>
           </td>
-          <td>{{ medecin.email }}</td>
+          <td>{{ medecin.specialite ?? '—' }}</td>
           <td>
-            @if (medecin.statut === 'actif') {
+            @if (medecin.statut_affectation === 'active') {
               <span class="badge-on">Actif</span>
             } @else {
-              <span class="badge-off">Inactif</span>
+              <span class="badge-off">Retiré</span>
             }
           </td>
           <td>
-            @if (medecin.statut === 'actif') {
-              <button class="btn-toggle off" (click)="basculerStatut(medecin.id)">Désactiver</button>
+            @if (medecin.statut_affectation === 'active') {
+              <button class="btn-toggle off" (click)="basculerStatut(medecin.id)">Retirer</button>
             } @else {
-              <button class="btn-toggle on" (click)="basculerStatut(medecin.id)">Activer</button>
+              <button class="btn-toggle on" (click)="basculerStatut(medecin.id)">Réintégrer</button>
             }
           </td>
         </tr>
       } @empty {
-        <tr><td colspan="4" class="vide">Aucun médecin affecté à votre pavillon.</td></tr>
+        @if (charge()) {
+          <tr><td colspan="4" class="vide">Aucun médecin affecté à votre pavillon.</td></tr>
+        }
       }
     </tbody>
   </table>

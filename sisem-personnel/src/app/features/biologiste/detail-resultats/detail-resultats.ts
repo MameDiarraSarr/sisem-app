@@ -1,13 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { BulletinService } from '../../../core/services/bulletin';
-
-interface LigneAnalyse {
-  nom: string;
-  valeur: string;
-  unite: string;
-  reference: string;
-}
+import { Bulletin } from '../../../core/models/bulletin';
 
 @Component({
   selector: 'app-detail-resultats',
@@ -15,35 +9,50 @@ interface LigneAnalyse {
   templateUrl: './detail-resultats.html',
   styleUrl: './detail-resultats.scss',
 })
-export class DetailResultats {
+export class DetailResultats implements OnInit {
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private bulletinService = inject(BulletinService);
 
-  // Le bulletin examiné
-  bulletin = this.bulletinService.getBulletins().find(
-    b => b.id === Number(this.route.snapshot.paramMap.get('id'))
-  );
+  bulletin = signal<Bulletin | null>(null);
+  chargement = signal(false);
+  erreur = signal<string | null>(null);
 
-  // ⚠️ Résultats fictifs (viendront du backend plus tard)
-  analyses: LigneAnalyse[] = [
-    { nom: 'Hémoglobine', valeur: '13.5', unite: 'g/dL', reference: '12 - 16' },
-    { nom: 'Globules blancs', valeur: '7200', unite: '/mm³', reference: '4000 - 10000' },
-    { nom: 'Plaquettes', valeur: '250000', unite: '/mm³', reference: '150000 - 400000' },
-    { nom: 'Hématocrite', valeur: '41', unite: '%', reference: '37 - 47' },
-  ];
+  private id = Number(this.route.snapshot.paramMap.get('id'));
+
+  ngOnInit(): void {
+    this.bulletinService.getBulletin(this.id).subscribe({
+      next: (b) => this.bulletin.set(b),
+      error: () => this.erreur.set('Bulletin introuvable.'),
+    });
+  }
 
   valider(): void {
-    if (this.bulletin) {
-      this.bulletinService.validerBulletin(this.bulletin.id);
-      alert('Résultats validés ! Le bulletin passe au statut "validé" (violet).');
-      this.router.navigate(['/biologiste']);
-    }
+    this.chargement.set(true);
+    this.bulletinService.validerBulletin(this.id).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.router.navigate(['/biologiste']);
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(err.error?.message ?? 'Erreur lors de la validation.');
+      },
+    });
   }
 
   renvoyer(): void {
-    alert('Le bulletin est renvoyé au technicien pour correction.');
-    this.router.navigate(['/biologiste']);
+    this.chargement.set(true);
+    this.bulletinService.renvoyerBulletin(this.id).subscribe({
+      next: () => {
+        this.chargement.set(false);
+        this.router.navigate(['/biologiste']);
+      },
+      error: (err) => {
+        this.chargement.set(false);
+        this.erreur.set(err.error?.message ?? 'Erreur lors du renvoi.');
+      },
+    });
   }
 }

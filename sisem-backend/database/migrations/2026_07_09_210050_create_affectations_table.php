@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('pavillon_id')->constrained('pavillons')->cascadeOnDelete();
             $table->date('date_debut');
             $table->date('date_fin')->nullable();
-            $table->enum('statut', ['active', 'terminee'])->default('active');
+            $table->enum('statut', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

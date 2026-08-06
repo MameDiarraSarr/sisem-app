@@ -9,22 +9,24 @@
     </button>
     <div>
       <h1>Nouveau bulletin</h1>
-      <p class="sub">Ajoutez un examen pour ce patient</p>
+      <p class="sub">Ajoutez un ou plusieurs examens pour ce patient</p>
     </div>
   </div>
 
   <div class="form-card glass">
 
-    @if (patientChoisi()) {
+    @if (chargementPatient()) {
+      <div class="aucun"><p>Chargement...</p></div>
+    } @else if (patientChoisi()) {
       <div class="patient-banner">
         <div class="av">{{ patientChoisi()!.prenom[0] }}{{ patientChoisi()!.nom[0] }}</div>
         <div>
           <b>{{ patientChoisi()!.prenom }} {{ patientChoisi()!.nom }}</b>
-          <span>{{ patientChoisi()!.age }} ans · {{ patientChoisi()!.typePatient }}@if (patientChoisi()!.pavillon) { · {{ patientChoisi()!.pavillon }} }</span>
+          <span>{{ patientChoisi()!.age }} · {{ patientChoisi()!.type_patient }}@if (patientChoisi()!.pavillon) { · {{ patientChoisi()!.pavillon }} }</span>
         </div>
       </div>
 
-      <div class="section-title">Détails de l'examen</div>
+      <div class="section-title">Détails du bulletin</div>
       <div class="grid">
         <div class="field">
           <label>N° Labo <span class="opt">(donné par l'accueil)</span></label>
@@ -32,7 +34,7 @@
         </div>
 
         <div class="field autocomplete">
-          <label>Examen demandé</label>
+          <label>Ajouter un examen</label>
           <input
             type="text"
             placeholder="Tapez le nom de l'examen..."
@@ -43,8 +45,8 @@
           @if (listeExamenVisible() && examensFiltres().length > 0) {
             <ul class="suggestions">
               @for (examen of examensFiltres(); track examen.id) {
-                <li (click)="choisirExamen(examen.id, examen.nom)">
-                  <span class="nom">{{ examen.nom }}</span>
+                <li (click)="choisirExamen(examen.id, examen.nom_examen)">
+                  <span class="nom">{{ examen.nom_examen }}</span>
                   <span class="pav">{{ examen.analyses.length }} analyse(s)</span>
                 </li>
               }
@@ -76,7 +78,7 @@
                 @for (medecin of medecinsFiltres(); track medecin.id) {
                   <li (click)="choisirMedecin(medecin.id, 'Dr. ' + medecin.prenom + ' ' + medecin.nom)">
                     <span class="nom">Dr. {{ medecin.prenom }} {{ medecin.nom }}</span>
-                    <span class="pav">{{ medecin.pavillon }}</span>
+                    <span class="pav">{{ medecin.specialite }}</span>
                   </li>
                 }
               </ul>
@@ -85,9 +87,28 @@
         }
       </div>
 
+      <!-- Liste des examens ajoutés au bulletin -->
+      @if (examensChoisis().length > 0) {
+        <div class="section-title">Examens du bulletin ({{ examensChoisis().length }})</div>
+        <div class="examens-choisis">
+          @for (examen of examensChoisis(); track examen.id) {
+            <span class="puce">
+              {{ examen.nom }}
+              <button type="button" class="retirer" (click)="retirerExamen(examen.id)" title="Retirer">×</button>
+            </span>
+          }
+        </div>
+      }
+
+      @if (erreur()) {
+        <p class="message-erreur">{{ erreur() }}</p>
+      }
+
       <div class="actions">
         <button class="btn-ghost" routerLink="/secretaire">Annuler</button>
-        <button class="btn-primary" (click)="enregistrer()">Créer le bulletin</button>
+        <button class="btn-primary" (click)="enregistrer()" [disabled]="chargement()">
+          {{ chargement() ? 'Création...' : 'Créer le bulletin' }}
+        </button>
       </div>
     } @else {
       <div class="aucun">

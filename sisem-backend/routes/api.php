@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\AffectationController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\MotDePasseController;
 use App\Http\Controllers\Api\ProfilController;
+use App\Http\Controllers\Api\PavillonController;
 
 // ── Personnel (connexion par email) ──
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
@@ -47,6 +48,7 @@ Route::middleware(['auth:sanctum', 'patient'])->group(function () {
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/examens', [ExamenController::class, 'index']);
     Route::get('/examens/{examen}', [ExamenController::class, 'show']);
+    Route::get('/pavillons', [PavillonController::class, 'index']);
 });
 
 // ── Patients ──
@@ -72,6 +74,9 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 
     Route::patch('/bulletins/{bulletin}/renvoyer', [BulletinExamenController::class, 'renvoyer'])
         ->middleware('role:biologiste');
+
+    Route::patch('/bulletins/{bulletin}/imprimer', [BulletinExamenController::class, 'marquerImprime'])
+        ->middleware('role:secretaire,admin');
 });
 
 // ── Saisie des résultats (technicien) ──
@@ -88,6 +93,7 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Major : médecins de son pavillon ──
 Route::middleware(['auth:sanctum', 'personnel', 'role:major'])->group(function () {
     Route::get('/major/medecins', [MedecinController::class, 'medecinsDeMonPavillon']);
+    Route::patch('/major/medecins/{medecin}/statut', [MedecinController::class, 'basculerStatutMedecin']);
 });
 
 // ── Gestion du personnel (admin) ──

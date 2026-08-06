@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PersonnelService } from '../../../core/services/personnel';
+import { MembrePersonnel } from '../../../core/models/membre-personnel';
 
 @Component({
   selector: 'app-admin-personnel',
@@ -9,21 +10,31 @@ import { PersonnelService } from '../../../core/services/personnel';
   templateUrl: './personnel.html',
   styleUrl: './personnel.scss',
 })
-export class Personnel {
+export class Personnel implements OnInit {
   private personnelService = inject(PersonnelService);
 
   recherche = signal('');
-  filtreRole = signal('');     // '' = tous
-  filtreStatut = signal('');   // '' = tous
-  private version = signal(0);
+  filtreRole = signal('');
+  filtreStatut = signal('');
+
+  private tousMembres = signal<MembrePersonnel[]>([]);
+
+  ngOnInit(): void {
+    this.charger();
+  }
+
+  private charger(): void {
+    this.personnelService.getPersonnel().subscribe({
+      next: (liste) => this.tousMembres.set(liste),
+    });
+  }
 
   membres = computed(() => {
-    this.version();
     const terme = this.recherche().toLowerCase().trim();
     const role = this.filtreRole();
     const statut = this.filtreStatut();
 
-    return this.personnelService.getPersonnel().filter(m => {
+    return this.tousMembres().filter(m => {
       const correspondRecherche = !terme ||
         m.prenom.toLowerCase().includes(terme) ||
         m.nom.toLowerCase().includes(terme) ||
@@ -43,7 +54,8 @@ export class Personnel {
   }
 
   basculerStatut(id: number): void {
-    this.personnelService.basculerStatut(id);
-    this.version.update(v => v + 1);
+    this.personnelService.basculerStatut(id).subscribe({
+      next: () => this.charger(), // recharge pour refléter le nouveau statut
+    });
   }
 }

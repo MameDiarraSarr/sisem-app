@@ -1,0 +1,59 @@
+<div class="topbar">
+  <div>
+    <h1>Mon profil</h1>
+    <p class="sub">Consultez et modifiez vos informations</p>
+  </div>
+</div>
+
+@if (profil(); as p) {
+  <div class="panel glass">
+    <div class="section-title">Informations personnelles</div>
+    <div class="grid">
+      <div class="field">
+        <label>Prénom</label>
+        <input type="text" [value]="p.prenom" disabled>
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" [value]="p.nom" disabled>
+      </div>
+      <div class="field">
+        <label>Rôle</label>
+        <input type="text" [value]="p.role" disabled>
+      </div>
+      <div class="field">
+        <label>Matricule</label>
+        <input type="text" [value]="p.matricule ?? '—'" disabled>
+      </div>
+    </div>
+
+    <div class="section-title">Coordonnées (modifiables)</div>
+    <div class="grid">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" name="email">
+      </div>
+      <div class="field">
+        <label>Téléphone</label>
+        <input type="text" [(ngModel)]="telephone" name="telephone">
+      </div>
+      <div class="field full">
+        <label>Adresse</label>
+        <input type="text" [(ngModel)]="adresse" name="adresse">
+      </div>
+    </div>
+
+    @if (message()) {
+      <p class="message-succes">{{ message() }}</p>
+    }
+    @if (erreur()) {
+      <p class="message-erreur">{{ erreur() }}</p>
+    }
+
+    <div class="actions">
+      <button class="btn-primary" (click)="enregistrer()" [disabled]="enregistrement()">
+        {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+}

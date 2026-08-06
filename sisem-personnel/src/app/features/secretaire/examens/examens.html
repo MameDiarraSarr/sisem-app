@@ -3,7 +3,7 @@
     <h1>Examens</h1>
     <p class="sub">Suivez tous les bulletins d'examens</p>
   </div>
-  <button class="btn-primary" routerLink="/secretaire/nouveau-bulletin">
+  <button class="btn-primary" routerLink="/secretaire">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
     Nouveau bulletin
   </button>
@@ -19,18 +19,41 @@
   </div>
 
   <table>
-    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen demandé</th><th>Date</th><th>Statut</th></tr></thead>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen demandé</th><th>Date</th><th>Statut</th><th></th></tr></thead>
     <tbody>
       @for (bulletin of bulletins(); track bulletin.id) {
         <tr>
-          <td><b>{{ bulletin.numeroLabo }}</b></td>
-          <td>{{ bulletin.patientNom }}</td>
-          <td>{{ bulletin.nomExamen }}</td>
-          <td>{{ bulletin.dateEnregistrement }}</td>
-          <td><span class="statut" [class]="bulletin.statut">{{ statutLibelle(bulletin.statut) }}</span></td>
+          <td><b>{{ bulletin.numero_labo }}</b></td>
+          <td>{{ bulletin.patient.nom_complet }}</td>
+          <td>
+            @if (bulletin.examens.length === 1) {
+              {{ bulletin.examens[0].nom_examen }}
+            } @else {
+              {{ bulletin.examens.length }} examens
+            }
+          </td>
+          <td>{{ bulletin.date_enregistrement }}</td>
+          <td>
+            <span class="statut" [class]="bulletin.statut">{{ statutLibelle(bulletin.statut) }}</span>
+            @if (bulletin.imprime_le) {
+              <span class="badge-imprime" title="Imprimé le {{ bulletin.imprime_le }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+                Imprimé
+              </span>
+            }
+          </td>
+          <td>
+            @if (bulletin.statut === 'valide') {
+              <button class="btn-voir" [routerLink]="['/secretaire/resultat', bulletin.id]" title="Voir / Imprimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            }
+          </td>
         </tr>
       } @empty {
-        <tr><td colspan="5" class="vide">Aucun examen enregistré.</td></tr>
+        @if (charge()) {
+          <tr><td colspan="6" class="vide">Aucun examen enregistré.</td></tr>
+        }
       }
     </tbody>
   </table>

@@ -50,3 +50,18 @@ tbody tr:hover { background: rgba(74,127,167,.06); }
 .statut.valide { background: rgba(139,92,246,.13); color: #6D3FD1; border: 1px solid rgba(139,92,246,.28); }
 
 .vide { text-align: center; color: #8FA6BC; padding: 30px; font-style: italic; }
+.btn-voir {
+  width: 36px; height: 36px; border-radius: 9px; border: none;
+  background: #4A7FA7; color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  svg { width: 17px; height: 17px; }
+  &:hover { background: #1A3D63; }
+}
+
+.badge-imprime {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-left: 8px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(46,125,50,0.12); color: #2e7d32;
+  font-size: 0.72rem; font-weight: 600;
+  svg { width: 12px; height: 12px; }
+}

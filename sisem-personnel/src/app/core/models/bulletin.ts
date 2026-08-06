@@ -1,13 +1,37 @@
+export interface AnalyseResultat {
+  analyse_reference_id: number;
+  nom_analyse: string;
+  valeur_normale: string;
+  unite: string;
+  valeur_resultat: string | null;
+}
+
+export interface BulletinExamenLigne {
+  examen_demande_id: number;
+  examen_id: number;
+  nom_examen: string;
+  analyses?: AnalyseResultat[];   // présent seulement dans le détail (show)
+}
+
 export interface Bulletin {
   id: number;
-  numeroLabo: string;
-  patientNom: string;
-  pavillon: string | null;       // pavillon du patient (pour filtrer le major)
-  examenId: number;
-  nomExamen: string;
-  indication: string;
-  traitementEnCours: string | null;
-  medecinPrescripteurId: number | null;
-  dateEnregistrement: string;
+  numero_labo: string;
+  patient: {
+    id: number;
+    nom_complet: string;
+    numero_dossier: string | null;
+    type_patient: 'interne' | 'externe';
+  };
+  pavillon: string | null;
+  medecin: {
+    id: number;
+    nom_complet: string;
+  } | null;
+  indication_examen: string;
+  traitement_en_cours: string | null;
+  date_enregistrement: string;
   statut: 'enregistre' | 'saisi' | 'valide';
+  examens: BulletinExamenLigne[];
+  imprime_le: string | null;
+  nombre_impressions: number;
 }

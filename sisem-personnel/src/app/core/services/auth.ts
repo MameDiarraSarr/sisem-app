@@ -1,51 +1,70 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Utilisateur {
+  id: number;
   email: string;
   role: 'secretaire' | 'technicien' | 'biologiste' | 'major' | 'medecin' | 'admin';
+  prenom: string;
   nom: string;
-  pavillon?: string | null;   // pour le major (et médecin)
+  pavillon?: string | null;
+  mot_de_passe_temporaire: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+interface ReponseConnexion {
+  token: string;
+  utilisateur: Utilisateur;
+}
+
+@Injectable({ providedIn: 'root' })
 export class Auth {
+  private http = inject(HttpClient);
+  private readonly url = environment.apiUrl;
 
   utilisateurConnecte = signal<Utilisateur | null>(null);
 
-  // ⚠️ Comptes de test temporaires — à remplacer par le backend Laravel
-  private comptesTest = [
-    { email: 'secretaire@albertroyer.sn', motDePasse: 'test123', role: 'secretaire' as const, nom: 'Marième Fall', pavillon: null },
-    { email: 'technicien@albertroyer.sn', motDePasse: 'test123', role: 'technicien' as const, nom: 'Ousmane Sow', pavillon: null },
-    { email: 'biologiste@albertroyer.sn', motDePasse: 'test123', role: 'biologiste' as const, nom: 'Fatou Diallo', pavillon: null },
-    { email: 'medecin@albertroyer.sn', motDePasse: 'test123', role: 'medecin' as const, nom: 'Dr. Aliou Ndiaye', pavillon: 'Pavillon M' },
-    { email: 'major@albertroyer.sn', motDePasse: 'test123', role: 'major' as const, nom: 'Awa Sène', pavillon: 'Pavillon M' },
-    { email: 'admin@albertroyer.sn', motDePasse: 'test123', role: 'admin' as const, nom: 'Awa Diop', pavillon: null },
-  ];
-
-  connexion(email: string, motDePasse: string): boolean {
-    const compte = this.comptesTest.find(
-      c => c.email === email && c.motDePasse === motDePasse
-    );
-
-    if (compte) {
-      this.utilisateurConnecte.set({
-        email: compte.email,
-        role: compte.role,
-        nom: compte.nom,
-        pavillon: compte.pavillon,
-      });
-      return true;
+  constructor() {
+    // Restaure la session au rechargement de la page
+    const stocke = localStorage.getItem('utilisateur');
+    if (stocke) {
+      this.utilisateurConnecte.set(JSON.parse(stocke));
     }
-    return false;
+  }
+
+  connexion(email: string, motDePasse: string): Observable<ReponseConnexion> {
+    return this.http
+      .post<ReponseConnexion>(`${this.url}/personnel/connexion`, {
+        email,
+        password: motDePasse,
+      })
+      .pipe(
+        tap((reponse) => {
+          localStorage.setItem('token', reponse.token);
+          localStorage.setItem('utilisateur', JSON.stringify(reponse.utilisateur));
+          this.utilisateurConnecte.set(reponse.utilisateur);
+        })
+      );
   }
 
   deconnexion(): void {
+    this.http
+      .post(`${this.url}/personnel/deconnexion`, {})
+      .subscribe({ complete: () => this.nettoyer(), error: () => this.nettoyer() });
+  }
+
+  private nettoyer(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('utilisateur');
     this.utilisateurConnecte.set(null);
   }
 
   estConnecte(): boolean {
     return this.utilisateurConnecte() !== null;
+  }
+
+  get token(): string | null {
+    return localStorage.getItem('token');
   }
 }

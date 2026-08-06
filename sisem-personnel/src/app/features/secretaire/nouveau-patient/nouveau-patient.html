@@ -28,8 +28,14 @@
         <input type="text" placeholder="Diop" [(ngModel)]="nom" name="nom">
       </div>
       <div class="field">
-        <label>Date de naissance</label>
-        <input type="date" [(ngModel)]="dateNaissance" name="dateNaissance">
+        <label>Âge</label>
+        <div class="age-groupe">
+          <input type="number" min="0" placeholder="8" [(ngModel)]="ageValeur" name="ageValeur" class="age-nombre">
+          <select [(ngModel)]="ageUnite" name="ageUnite" class="age-unite">
+            <option value="ans">ans</option>
+            <option value="mois">mois</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <label>Sexe</label>
@@ -61,8 +67,6 @@
       </div>
     </div>
 
-    
-
     <div class="section-title">Type de patient</div>
     <div class="grid">
       <div class="field">
@@ -73,28 +77,29 @@
           <option value="externe">Externe</option>
         </select>
       </div>
-      <div class="field">
-        <label>Pavillon <span class="opt">(si interne)</span></label>
-        <select [(ngModel)]="pavillon" name="pavillon">
-          <option value="">Sélectionner</option>
-          <option value="M">Pavillon M</option>
-          <option value="N">Pavillon N</option>
-          <option value="O">Pavillon O</option>
-          <option value="K">Pavillon K</option>
-          <option value="USAD">USAD</option>
-          <option value="SAU">SAU</option>
-          <option value="Dermato">Dermato</option>
-          <option value="Esther">Esther</option>
-          <option value="Chirurgie">Chirurgie</option>
-          <option value="ChirPed">Chir Ped</option>
-        </select>
-      </div>
+      @if (typePatient === 'interne') {
+        <div class="field">
+          <label>Pavillon</label>
+          <select [(ngModel)]="pavillonId" name="pavillonId">
+            <option value="">Sélectionner</option>
+            @for (p of pavillons(); track p.id) {
+              <option [value]="p.id">{{ p.nom }}</option>
+            }
+          </select>
+        </div>
+      }
     </div>
+
+    @if (erreur()) {
+      <p class="message-erreur">{{ erreur() }}</p>
+    }
 
     <!-- Boutons -->
     <div class="actions">
       <button class="btn-ghost" routerLink="/secretaire">Annuler</button>
-      <button class="btn-primary" (click)="enregistrer()">Enregistrer le patient</button>
+      <button class="btn-primary" (click)="enregistrer()" [disabled]="chargement()">
+        {{ chargement() ? 'Enregistrement...' : 'Enregistrer le patient' }}
+      </button>
     </div>
 
   </div>

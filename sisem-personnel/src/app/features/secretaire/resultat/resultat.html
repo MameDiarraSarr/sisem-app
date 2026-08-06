@@ -1,0 +1,75 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrapper">
+  <div class="form-head no-print">
+    <button class="back" (click)="retour()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="head-txt">
+      <h1>Résultat d'examen</h1>
+      <p class="sub">Résultats validés — prêts à imprimer</p>
+    </div>
+    <button class="btn-imprimer" (click)="imprimer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Imprimer
+    </button>
+  </div>
+
+  @if (bulletin(); as b) {
+    <div class="feuille glass">
+
+      <div class="entete">
+        <div class="hopital">
+          <b>Hôpital d'Enfants Albert Royer</b>
+          <span>Système de Suivi des Examens Médicaux</span>
+        </div>
+        <div class="labo">N° Labo : <b>{{ b.numero_labo }}</b></div>
+      </div>
+
+      <div class="bloc-infos">
+        <div class="info"><span class="lbl">Patient</span><b>{{ b.patient.nom_complet }}</b></div>
+        @if (b.patient.numero_dossier) {
+          <div class="info"><span class="lbl">N° Dossier</span><b>{{ b.patient.numero_dossier }}</b></div>
+        }
+        @if (b.pavillon) {
+          <div class="info"><span class="lbl">Pavillon</span><b>{{ b.pavillon }}</b></div>
+        }
+        @if (b.medecin) {
+          <div class="info"><span class="lbl">Médecin prescripteur</span><b>{{ b.medecin.nom_complet }}</b></div>
+        }
+        @if (b.indication_examen) {
+          <div class="info"><span class="lbl">Indication</span><b>{{ b.indication_examen }}</b></div>
+        }
+        @if (b.traitement_en_cours) {
+          <div class="info"><span class="lbl">Traitement en cours</span><b>{{ b.traitement_en_cours }}</b></div>
+        }
+        <div class="info"><span class="lbl">Date</span><b>{{ b.date_enregistrement }}</b></div>
+        
+      </div>
+
+      <div class="section-title">Résultats des analyses</div>
+
+      @for (examen of b.examens; track examen.examen_demande_id) {
+        <h4 class="nom-examen">{{ examen.nom_examen }}</h4>
+        <table>
+          <thead><tr><th>Analyse</th><th>Résultat</th><th>Unité</th><th>Valeur de référence</th></tr></thead>
+          <tbody>
+            @for (analyse of examen.analyses; track analyse.analyse_reference_id) {
+              <tr>
+                <td><b>{{ analyse.nom_analyse }}</b></td>
+                <td class="valeur">{{ analyse.valeur_resultat ?? '—' }}</td>
+                <td class="unite">{{ analyse.unite }}</td>
+                <td class="ref">{{ analyse.valeur_normale }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+    </div>
+  } @else if (erreur()) {
+    <div class="feuille glass"><p class="vide">{{ erreur() }}</p></div>
+  }
+</div>

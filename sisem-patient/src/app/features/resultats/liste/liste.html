@@ -1,6 +1,6 @@
 <div class="page">
   <div class="hello">
-    <h1>Bonjour {{ patient?.prenom }} 👋</h1>
+    <h1>Bonjour {{ patient?.prenom }}</h1>
     <p>Consultez vos résultats d'examens</p>
   </div>
 
@@ -36,7 +36,7 @@
                   <div class="prescripteur">Prescrit par <b>{{ r.medecinPrescripteur }}</b></div>
                 }
                 <table>
-                  <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th></th></tr></thead>
+                  <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th>Etat</th></tr></thead>
                   <tbody>
                     @for (a of r.analyses; track a.nom) {
                       <tr>
