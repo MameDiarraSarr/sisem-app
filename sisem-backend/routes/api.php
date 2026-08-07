@@ -35,7 +35,6 @@ Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     Route::post('/patient/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
     Route::get('/patient/profil', [ProfilController::class, 'afficher']);
     Route::put('/patient/profil', [ProfilController::class, 'modifier']);
-    
 
     Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
     Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
@@ -82,7 +81,6 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Saisie des résultats (technicien) ──
 Route::middleware(['auth:sanctum', 'personnel', 'role:technicien'])->group(function () {
     Route::post('/bulletins/{bulletin}/resultats', [ResultatController::class, 'saisir']);
-    
 });
 
 // ── Médecins (autocomplétion prescripteur) ──
@@ -101,6 +99,7 @@ Route::middleware(['auth:sanctum', 'personnel', 'role:admin'])->group(function (
     Route::get('/personnel', [PersonnelController::class, 'index']);
     Route::post('/personnel', [PersonnelController::class, 'store']);
     Route::patch('/personnel/{user}/statut', [PersonnelController::class, 'changerStatut']);
+    Route::get('/personnel/{user}', [PersonnelController::class, 'show']);
     Route::put('/personnel/{user}', [PersonnelController::class, 'update']);
 });
 

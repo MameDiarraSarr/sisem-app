@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Patient;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -17,9 +17,11 @@ class AuthPatientController extends Controller
             'mot_de_passe' => ['required', 'string'],
         ]);
 
-        $patient = Patient::where('telephone', $donnees['telephone'])->first();
+        // On cherche l'utilisateur par téléphone (table utilisateurs), puis le patient lié
+        $utilisateur = Utilisateur::where('telephone', $donnees['telephone'])->first();
+        $patient = $utilisateur?->patient;
 
-        if (! $patient || ! Hash::check($donnees['mot_de_passe'], $patient->mot_de_passe)) {
+        if (! $patient || ! Hash::check($donnees['mot_de_passe'], $utilisateur->mot_de_passe)) {
             throw ValidationException::withMessages([
                 'telephone' => ['Numéro ou mot de passe incorrect.'],
             ]);
@@ -57,7 +59,6 @@ class AuthPatientController extends Controller
             'nom' => $patient->nom,
             'telephone' => $patient->telephone,
             'numero_dossier' => $patient->numero_dossier,
-            
         ]);
     }
 }

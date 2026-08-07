@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
@@ -18,14 +15,11 @@ return new class extends Migration
             $table->string('message');
             $table->string('lien')->nullable();
             $table->boolean('lu')->default(false);
-            $table->boolean('envoye')->default(false);   // passé à true quand l'envoi WhatsApp réussira
+            $table->boolean('envoye')->default(false);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('notifications');

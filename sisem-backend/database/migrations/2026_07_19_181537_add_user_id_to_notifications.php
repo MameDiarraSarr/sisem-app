@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('notifications', function (Blueprint $table) {
             // Destinataire personnel (cloche). Le patient_id devient nullable :
             // une notification vise SOIT un patient, SOIT un membre du personnel.
-            $table->foreignId('user_id')->nullable()->after('id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->after('id')->constrained('personnels')->cascadeOnDelete();
         });
     }
 

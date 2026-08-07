@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -17,9 +17,11 @@ class AuthPersonnelController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', $donnees['email'])->first();
+        // On cherche l'utilisateur par email (table utilisateurs), puis le personnel lié
+        $utilisateur = Utilisateur::where('email', $donnees['email'])->first();
+        $user = $utilisateur?->personnel;
 
-        if (! $user || ! Hash::check($donnees['password'], $user->password)) {
+        if (! $user || ! Hash::check($donnees['password'], $utilisateur->mot_de_passe)) {
             throw ValidationException::withMessages([
                 'email' => ['Email ou mot de passe incorrect.'],
             ]);

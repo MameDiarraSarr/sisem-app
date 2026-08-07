@@ -76,3 +76,22 @@
 
 /* ===== zone de contenu (où s'affichent les pages) ===== */
 .main { position: relative; z-index: 1; flex: 1; height: 100vh; overflow-y: auto; }
+
+@media print {
+  .sidebar,
+  .bg,
+  .blob {
+    display: none !important;
+  }
+
+  .main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
+
+  :host {
+    background: #fff !important;
+  }
+}

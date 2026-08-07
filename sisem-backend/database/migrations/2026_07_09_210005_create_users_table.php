@@ -6,27 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        // Classe mère : attributs communs à TOUS les utilisateurs (personnel + patients)
+        Schema::create('utilisateurs', function (Blueprint $table) {
             $table->id();
-            $table->string('matricule')->unique();
             $table->string('prenom');
             $table->string('nom');
             $table->date('date_naissance')->nullable();
             $table->enum('sexe', ['M', 'F'])->nullable();
-            $table->string('telephone')->nullable();
-            $table->string('email')->unique();
+            $table->string('telephone')->nullable()->unique();
+            $table->string('email')->nullable()->unique();
             $table->string('adresse')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('mot_de_passe');
+            $table->boolean('mot_de_passe_temporaire')->default(true);
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        // Personnel : hérite d'utilisateurs via une clé primaire PARTAGÉE (personnels.id = utilisateurs.id)
+        Schema::create('personnels', function (Blueprint $table) {
+            $table->unsignedBigInteger('id')->primary();
+            $table->foreign('id')->references('id')->on('utilisateurs')->cascadeOnDelete();
+            $table->string('matricule')->unique();
             $table->enum('role', ['admin', 'secretaire', 'technicien', 'biologiste', 'medecin', 'major']);
             $table->enum('statut', ['actif', 'inactif'])->default('actif');
             $table->foreignId('pavillon_id')->nullable()->constrained('pavillons')->nullOnDelete();
-            $table->rememberToken();
             $table->timestamps();
         });
 
@@ -46,13 +52,11 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('personnels');
+        Schema::dropIfExists('utilisateurs');
     }
 };

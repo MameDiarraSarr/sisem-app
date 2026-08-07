@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Hospitalisation;
@@ -18,10 +19,12 @@ class PatientController extends Controller
         $patients = Patient::with('hospitalisationActive.pavillon')
             ->when($recherche, function ($query, $terme) {
                 $query->where(function ($q) use ($terme) {
-                    $q->where('prenom', 'ilike', "%{$terme}%")
-                      ->orWhere('nom', 'ilike', "%{$terme}%")
-                      ->orWhere('numero_dossier', 'ilike', "%{$terme}%")
-                      ->orWhere('telephone', 'ilike', "%{$terme}%");
+                    $q->where('numero_dossier', 'ilike', "%{$terme}%")
+                      ->orWhereHas('utilisateur', function ($u) use ($terme) {
+                          $u->where('prenom', 'ilike', "%{$terme}%")
+                            ->orWhere('nom', 'ilike', "%{$terme}%")
+                            ->orWhere('telephone', 'ilike', "%{$terme}%");
+                      });
                 });
             })
             ->orderByDesc('id')
@@ -42,13 +45,11 @@ class PatientController extends Controller
         $donnees = $request->validate([
             'prenom' => ['required', 'string', 'max:100'],
             'nom' => ['required', 'string', 'max:100'],
-            // Soit une date de naissance, soit un âge (l'un des deux requis, vérifié plus bas)
             'date_naissance' => ['nullable', 'date', 'before:today'],
             'age_valeur' => ['nullable', 'integer', 'min:0', 'max:120'],
             'age_unite' => ['nullable', Rule::in(['ans', 'mois'])],
-            // Le sexe est obligatoire
             'sexe' => ['required', Rule::in(['M', 'F'])],
-            'telephone' => ['required', 'string', 'max:20', 'unique:patients,telephone'],
+            'telephone' => ['required', 'string', 'max:20', 'unique:utilisateurs,telephone'],
             'email' => ['nullable', 'email', 'max:150'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'ville' => ['nullable', 'string', 'max:100'],
@@ -56,24 +57,20 @@ class PatientController extends Controller
             'pavillon_id' => ['nullable', 'exists:pavillons,id'],
         ]);
 
-        // Il faut soit la date de naissance, soit l'âge
         if (empty($donnees['date_naissance']) && empty($donnees['age_valeur'])) {
             return response()->json([
                 'message' => 'Veuillez indiquer la date de naissance ou l\'âge du patient.',
             ], 422);
         }
 
-        // Si seul l'âge est fourni, on en déduit une date de naissance approximative
         if (empty($donnees['date_naissance']) && ! empty($donnees['age_valeur'])) {
             $donnees['date_naissance'] = ($donnees['age_unite'] ?? 'ans') === 'mois'
                 ? now()->subMonths($donnees['age_valeur'])->toDateString()
                 : now()->subYears($donnees['age_valeur'])->toDateString();
         }
 
-        // Ces deux champs ne sont pas des colonnes de la table
         unset($donnees['age_valeur'], $donnees['age_unite']);
 
-        // Un patient interne doit être rattaché à un pavillon
         $pavillonId = null;
         if ($donnees['type_patient'] === 'interne') {
             if (empty($donnees['pavillon_id'])) {
@@ -83,19 +80,34 @@ class PatientController extends Controller
             }
             $pavillonId = $donnees['pavillon_id'];
         }
-
-        // Le pavillon ne se stocke plus sur le patient : il devient une hospitalisation datée
         unset($donnees['pavillon_id']);
 
-        $donnees['numero_dossier'] = $donnees['type_patient'] === 'interne'
+        $numeroDossier = $donnees['type_patient'] === 'interne'
             ? $this->genererNumeroDossier()
             : null;
-        $donnees['mot_de_passe'] = $donnees['telephone']; // provisoire, à changer à la 1re connexion
 
-        $patient = DB::transaction(function () use ($donnees, $pavillonId) {
-            $patient = Patient::create($donnees);
+        $patient = DB::transaction(function () use ($donnees, $pavillonId, $numeroDossier) {
+            // 1. L'utilisateur (identité + identifiants de connexion)
+            $utilisateur = Utilisateur::create([
+                'prenom' => $donnees['prenom'],
+                'nom' => $donnees['nom'],
+                'date_naissance' => $donnees['date_naissance'],
+                'sexe' => $donnees['sexe'],
+                'telephone' => $donnees['telephone'],
+                'email' => $donnees['email'] ?? null,
+                'adresse' => $donnees['adresse'] ?? null,
+                'mot_de_passe' => $donnees['telephone'], // provisoire, à changer à la 1re connexion
+            ]);
 
-            // Si interne : on ouvre une hospitalisation active dans son pavillon
+            // 2. Le patient lié (même id, clé partagée)
+            $patient = Patient::create([
+                'id' => $utilisateur->id,
+                'numero_dossier' => $numeroDossier,
+                'type_patient' => $donnees['type_patient'],
+                'ville' => $donnees['ville'] ?? null,
+            ]);
+
+            // 3. Si interne : hospitalisation active dans son pavillon
             if ($pavillonId) {
                 Hospitalisation::create([
                     'patient_id' => $patient->id,
@@ -122,13 +134,12 @@ class PatientController extends Controller
             'age_valeur' => ['nullable', 'integer', 'min:0', 'max:120'],
             'age_unite' => ['nullable', Rule::in(['ans', 'mois'])],
             'sexe' => ['required', Rule::in(['M', 'F'])],
-            'telephone' => ['required', 'string', 'max:20', Rule::unique('patients', 'telephone')->ignore($patient->id)],
+            'telephone' => ['required', 'string', 'max:20', Rule::unique('utilisateurs', 'telephone')->ignore($patient->id)],
             'email' => ['nullable', 'email', 'max:150'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'ville' => ['nullable', 'string', 'max:100'],
         ]);
 
-        // Si l'âge est fourni (et pas la date), on recalcule la date de naissance
         if (empty($donnees['date_naissance']) && ! empty($donnees['age_valeur'])) {
             $donnees['date_naissance'] = ($donnees['age_unite'] ?? 'ans') === 'mois'
                 ? now()->subMonths($donnees['age_valeur'])->toDateString()
@@ -137,7 +148,25 @@ class PatientController extends Controller
 
         unset($donnees['age_valeur'], $donnees['age_unite']);
 
-        $patient->update($donnees);
+        DB::transaction(function () use ($patient, $donnees) {
+            // Champs communs → table utilisateurs
+            $patient->utilisateur->update([
+                'prenom' => $donnees['prenom'],
+                'nom' => $donnees['nom'],
+                'date_naissance' => $donnees['date_naissance'] ?? $patient->utilisateur->date_naissance,
+                'sexe' => $donnees['sexe'],
+                'telephone' => $donnees['telephone'],
+                'email' => $donnees['email'] ?? null,
+                'adresse' => $donnees['adresse'] ?? null,
+            ]);
+
+            // Champs propres au patient → table patients
+            $patient->update([
+                'ville' => $donnees['ville'] ?? null,
+            ]);
+        });
+
+        $patient->refresh();
         $patient->load('hospitalisationActive.pavillon');
 
         return response()->json($this->formater($patient));
@@ -145,8 +174,6 @@ class PatientController extends Controller
 
     private function genererNumeroDossier(): string
     {
-        // On ignore les externes (numero_dossier null) et on lit le dernier
-        // numéro réellement attribué, pas le dernier id.
         $dernier = Patient::whereNotNull('numero_dossier')
             ->orderByDesc('numero_dossier')
             ->value('numero_dossier');

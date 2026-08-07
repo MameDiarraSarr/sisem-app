@@ -6,31 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // Patient : hérite d'utilisateurs via une clé primaire PARTAGÉE (patients.id = utilisateurs.id)
         Schema::create('patients', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->primary();
+            $table->foreign('id')->references('id')->on('utilisateurs')->cascadeOnDelete();
             $table->string('numero_dossier')->nullable()->unique();
-            $table->string('prenom');
-            $table->string('nom');
-            $table->date('date_naissance')->nullable();
-            $table->enum('sexe', ['M', 'F'])->nullable();
-            $table->string('telephone')->unique();
-            $table->string('email')->nullable();
-            $table->string('adresse')->nullable();
-            $table->string('ville')->nullable();
-            $table->string('mot_de_passe');
             $table->enum('type_patient', ['interne', 'externe']);
+            $table->string('ville')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('patients');

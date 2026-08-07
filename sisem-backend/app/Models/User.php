@@ -10,22 +10,43 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+    protected $table = 'personnels';
+
+    // Pas d'auto-incrément : l'id vient d'utilisateurs (clé partagée)
+    public $incrementing = false;
+
     protected $fillable = [
-        'matricule', 'prenom', 'nom', 'date_naissance', 'sexe',
-        'telephone', 'email', 'adresse', 'password', 'role', 'statut', 'pavillon_id',
-        'mot_de_passe_temporaire',
+        'id', 'matricule', 'role', 'statut', 'pavillon_id',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    // Attributs communs récupérés depuis utilisateurs (pour $user->prenom, etc.)
+    protected $with = ['utilisateur'];
 
-    protected function casts(): array
+    protected $appends = [
+        'prenom', 'nom', 'date_naissance', 'sexe',
+        'telephone', 'email', 'adresse', 'mot_de_passe_temporaire',
+    ];
+
+    // Lien vers la table mère
+    public function utilisateur()
     {
-        return [
-            'date_naissance' => 'date',
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'mot_de_passe_temporaire' => 'boolean',
-        ];
+        return $this->belongsTo(Utilisateur::class, 'id');
+    }
+
+    // Accesseurs : $user->prenom va chercher dans utilisateurs
+    public function getPrenomAttribute() { return $this->utilisateur?->prenom; }
+    public function getNomAttribute() { return $this->utilisateur?->nom; }
+    public function getDateNaissanceAttribute() { return $this->utilisateur?->date_naissance; }
+    public function getSexeAttribute() { return $this->utilisateur?->sexe; }
+    public function getTelephoneAttribute() { return $this->utilisateur?->telephone; }
+    public function getEmailAttribute() { return $this->utilisateur?->email; }
+    public function getAdresseAttribute() { return $this->utilisateur?->adresse; }
+    public function getMotDePasseTemporaireAttribute() { return $this->utilisateur?->mot_de_passe_temporaire; }
+
+    // Authentification : le mot de passe est dans utilisateurs
+    public function getAuthPassword()
+    {
+        return $this->utilisateur?->mot_de_passe;
     }
 
     public function pavillon()

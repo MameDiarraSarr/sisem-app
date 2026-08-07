@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -19,6 +19,7 @@ export class ModifierCompte implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   private id = Number(this.route.snapshot.paramMap.get('id'));
 
@@ -37,7 +38,10 @@ export class ModifierCompte implements OnInit {
   ngOnInit(): void {
     // Charge les pavillons pour le menu déroulant
     this.http.get<Pavillon[]>(`${environment.apiUrl}/pavillons`).subscribe({
-      next: (liste) => this.pavillons.set(liste),
+      next: (liste) => {
+        this.pavillons.set(liste);
+        this.cdr.markForCheck();
+      },
     });
 
     // Charge le personnel puis retrouve le membre à modifier
@@ -52,6 +56,7 @@ export class ModifierCompte implements OnInit {
           this.role = membre.role;
           this.pavillonId = membre.pavillon_id ? String(membre.pavillon_id) : '';
         }
+        this.cdr.markForCheck();
       },
     });
   }

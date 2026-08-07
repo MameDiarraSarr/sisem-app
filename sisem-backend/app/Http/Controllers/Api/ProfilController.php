@@ -48,20 +48,33 @@ class ProfilController extends Controller
 
         if ($u instanceof Patient) {
             $donnees = $request->validate([
-                'telephone' => ['required', 'string', 'max:20', Rule::unique('patients', 'telephone')->ignore($u->id)],
+                'telephone' => ['required', 'string', 'max:20', Rule::unique('utilisateurs', 'telephone')->ignore($u->id)],
                 'email' => ['nullable', 'email', 'max:150'],
                 'adresse' => ['nullable', 'string', 'max:255'],
                 'ville' => ['nullable', 'string', 'max:100'],
             ]);
+
+            // La ville est propre au patient, le reste va dans utilisateurs
+            $u->update(['ville' => $donnees['ville'] ?? $u->ville]);
+            $u->utilisateur->update([
+                'telephone' => $donnees['telephone'],
+                'email' => $donnees['email'] ?? null,
+                'adresse' => $donnees['adresse'] ?? null,
+            ]);
         } else {
             $donnees = $request->validate([
-                'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($u->id)],
+                'email' => ['required', 'email', 'max:150', Rule::unique('utilisateurs', 'email')->ignore($u->id)],
                 'telephone' => ['nullable', 'string', 'max:20'],
                 'adresse' => ['nullable', 'string', 'max:255'],
             ]);
-        }
 
-        $u->update($donnees);
+            // Tous ces champs sont dans utilisateurs
+            $u->utilisateur->update([
+                'email' => $donnees['email'],
+                'telephone' => $donnees['telephone'] ?? null,
+                'adresse' => $donnees['adresse'] ?? null,
+            ]);
+        }
 
         return response()->json(['message' => 'Profil mis à jour.']);
     }

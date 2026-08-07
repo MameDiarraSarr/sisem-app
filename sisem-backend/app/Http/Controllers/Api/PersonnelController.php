@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Medecin;
 use App\Models\User;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class PersonnelController extends Controller
 {
@@ -17,10 +19,12 @@ class PersonnelController extends Controller
         $personnel = User::with('pavillon')
             ->when($recherche, function ($query, $terme) {
                 $query->where(function ($q) use ($terme) {
-                    $q->where('prenom', 'ilike', "%{$terme}%")
-                      ->orWhere('nom', 'ilike', "%{$terme}%")
-                      ->orWhere('matricule', 'ilike', "%{$terme}%")
-                      ->orWhere('email', 'ilike', "%{$terme}%");
+                    $q->where('matricule', 'ilike', "%{$terme}%")
+                      ->orWhereHas('utilisateur', function ($u) use ($terme) {
+                          $u->where('prenom', 'ilike', "%{$terme}%")
+                            ->orWhere('nom', 'ilike', "%{$terme}%")
+                            ->orWhere('email', 'ilike', "%{$terme}%");
+                      });
                 });
             })
             ->orderByDesc('id')
@@ -34,7 +38,7 @@ class PersonnelController extends Controller
         $donnees = $request->validate([
             'prenom' => ['required', 'string', 'max:100'],
             'nom' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'unique:users,email'],
+            'email' => ['required', 'email', 'unique:utilisateurs,email'],
             'telephone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', Rule::in(['admin', 'secretaire', 'technicien', 'biologiste', 'medecin', 'major'])],
             'pavillon_id' => ['nullable', 'exists:pavillons,id'],
@@ -48,19 +52,35 @@ class PersonnelController extends Controller
             ], 422);
         }
 
-        $donnees['matricule'] = $this->genererMatricule($donnees['role']);
-        $donnees['password'] = 'test123'; // provisoire, changé à la 1re connexion
-        $donnees['statut'] = 'actif';
-
-        $user = User::create($donnees);
-
-        // Si c'est un médecin, on crée sa fiche liée
-        if ($donnees['role'] === 'medecin') {
-            Medecin::create([
-                'user_id' => $user->id,
-                'specialite' => $donnees['specialite'] ?? null,
+        $user = DB::transaction(function () use ($donnees) {
+            // 1. L'utilisateur (identité + identifiants de connexion)
+            $utilisateur = Utilisateur::create([
+                'prenom' => $donnees['prenom'],
+                'nom' => $donnees['nom'],
+                'email' => $donnees['email'],
+                'telephone' => $donnees['telephone'] ?? null,
+                'mot_de_passe' => 'test123', // provisoire, changé à la 1re connexion
             ]);
-        }
+
+            // 2. Le personnel lié (même id, clé partagée)
+            $user = User::create([
+                'id' => $utilisateur->id,
+                'matricule' => $this->genererMatricule($donnees['role']),
+                'role' => $donnees['role'],
+                'statut' => 'actif',
+                'pavillon_id' => $donnees['pavillon_id'] ?? null,
+            ]);
+
+            // 3. Si c'est un médecin, on crée sa fiche liée
+            if ($donnees['role'] === 'medecin') {
+                Medecin::create([
+                    'user_id' => $user->id,
+                    'specialite' => $donnees['specialite'] ?? null,
+                ]);
+            }
+
+            return $user;
+        });
 
         $user->load('pavillon');
 
@@ -72,7 +92,7 @@ class PersonnelController extends Controller
         $donnees = $request->validate([
             'prenom' => ['required', 'string', 'max:100'],
             'nom' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['required', 'email', Rule::unique('utilisateurs', 'email')->ignore($user->id)],
             'telephone' => ['nullable', 'string', 'max:20'],
             'pavillon_id' => ['nullable', 'exists:pavillons,id'],
             'specialite' => ['nullable', 'string', 'max:150'],
@@ -85,19 +105,27 @@ class PersonnelController extends Controller
             ], 422);
         }
 
-        $user->update([
-            'prenom' => $donnees['prenom'],
-            'nom' => $donnees['nom'],
-            'email' => $donnees['email'],
-            'telephone' => $donnees['telephone'] ?? null,
-            'pavillon_id' => $donnees['pavillon_id'] ?? null,
-        ]);
+        DB::transaction(function () use ($user, $donnees) {
+            // Champs communs → utilisateurs
+            $user->utilisateur->update([
+                'prenom' => $donnees['prenom'],
+                'nom' => $donnees['nom'],
+                'email' => $donnees['email'],
+                'telephone' => $donnees['telephone'] ?? null,
+            ]);
 
-        // Si médecin, mettre à jour sa spécialité
-        if ($user->role === 'medecin' && array_key_exists('specialite', $donnees)) {
-            $user->medecin?->update(['specialite' => $donnees['specialite']]);
-        }
+            // Champ propre au personnel → personnels
+            $user->update([
+                'pavillon_id' => $donnees['pavillon_id'] ?? null,
+            ]);
 
+            // Si médecin, mettre à jour sa spécialité
+            if ($user->role === 'medecin' && array_key_exists('specialite', $donnees)) {
+                $user->medecin?->update(['specialite' => $donnees['specialite']]);
+            }
+        });
+
+        $user->refresh();
         $user->load('pavillon');
 
         return response()->json($this->formater($user));
