@@ -77,17 +77,16 @@ export class Detail implements OnInit {
     doc.setFillColor(...navy);
     doc.rect(0, 0, 210, 4, 'F');
 
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setTextColor(...navy);
     doc.setFont('helvetica', 'bold');
-    doc.text('SISEM', 20, y);
+    doc.text('Hôpital d\'Enfants Albert Royer', 20, y);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.setFont('helvetica', 'normal');
-    doc.text('Laboratoire - Hopital d\'Enfants Albert Royer', 20, y + 6);
-    doc.text('Compte-rendu d\'analyses medicales', 20, y + 11);
-    doc.text('Edite le ' + this.dateEdition, 150, y);
+    doc.text('Système de Suivi des Examens Médicaux', 20, y + 6);
+    doc.text('Édité le ' + this.dateEdition, 150, y);
 
     y += 22;
     doc.setDrawColor(...blueMid);
@@ -102,7 +101,7 @@ export class Detail implements OnInit {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(60, 60, 60);
     doc.text('N Dossier : ' + r.numeroLabo, 20, y + 6);
-    doc.text('Date du resultat : ' + r.dateResultat, 120, y + 6);
+    doc.text('Date du rséultat : ' + r.dateResultat, 120, y + 6);
 
     y += 16;
     doc.setFillColor(...navy);
@@ -163,7 +162,7 @@ export class Detail implements OnInit {
       doc.setTextColor(...blueMid);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text('INTERPRETATION DU BIOLOGISTE', 24, y);
+      doc.text('INTERPRÉTATION DU BIOLOGISTE', 24, y);
       doc.setTextColor(50, 50, 50);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);

@@ -3,6 +3,7 @@ import { Auth } from '../../../core/services/auth';
 import { ResultatService } from '../../../core/services/resultat';
 import { ResultatPatient } from '../../../core/models/resultat';
 import jsPDF from 'jspdf';
+import { enregistrerPolice } from '../../../core/police-pdf';
 
 @Component({
   selector: 'app-liste',
@@ -110,18 +111,18 @@ export class Liste implements OnInit {
     const p = this.patient;
 
     const doc = new jsPDF();
+    enregistrerPolice(doc);
     const navy: [number, number, number] = [26, 61, 99];
     const blueMid: [number, number, number] = [74, 127, 167];
     let y = 20;
 
     doc.setFillColor(...navy);
     doc.rect(0, 0, 210, 4, 'F');
-    doc.setFontSize(18); doc.setTextColor(...navy); doc.setFont('helvetica', 'bold');
-    doc.text('SISEM', 20, y);
+    doc.setFontSize(16); doc.setTextColor(...navy); doc.setFont('helvetica', 'bold');
+    doc.text('Hôpital d\'Enfants Albert Royer', 20, y);
     doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.setFont('helvetica', 'normal');
-    doc.text('Laboratoire - Hopital d\'Enfants Albert Royer', 20, y + 6);
-    doc.text('Compte-rendu d\'analyses medicales', 20, y + 11);
-    doc.text('Edite le ' + new Date().toLocaleDateString('fr-FR'), 150, y);
+    doc.text('Système de Suivi des Examens Médicaux', 20, y + 6);
+    doc.text('Édité le ' + new Date().toLocaleDateString('fr-FR'), 150, y);
 
     y += 22; doc.setDrawColor(...blueMid); doc.setLineWidth(0.5); doc.line(20, y, 190, y);
     y += 10;
@@ -129,7 +130,7 @@ export class Liste implements OnInit {
     doc.text('Patient : ' + (p?.prenom ?? '') + ' ' + (p?.nom ?? ''), 20, y);
     doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
     doc.text('N Dossier : ' + r.numeroLabo, 20, y + 6);
-    doc.text('Date du resultat : ' + r.dateResultat, 120, y + 6);
+    doc.text('Date du rséultat : ' + r.dateResultat, 120, y + 6);
     if (r.medecinPrescripteur) {
       doc.text('Prescripteur : ' + r.medecinPrescripteur, 20, y + 12);
       y += 6;
@@ -167,16 +168,15 @@ export class Liste implements OnInit {
     if (r.commentaire) {
       y += 6; doc.setFillColor(246, 250, 253); doc.rect(20, y - 5, 170, 16, 'F');
       doc.setTextColor(...blueMid); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-      doc.text('INTERPRETATION DU BIOLOGISTE', 24, y);
+      doc.text('INTERPRÉTATION DU BIOLOGISTE', 24, y);
       doc.setTextColor(50, 50, 50); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
       doc.text(r.commentaire, 24, y + 6); y += 16;
     }
 
     y += 12; doc.setDrawColor(220, 225, 230); doc.line(20, y, 190, y);
     y += 6; doc.setFontSize(9); doc.setTextColor(120, 120, 120);
-    doc.text('Compte-rendu valide par le biologiste responsable.', 20, y);
     doc.setFontSize(8); doc.setTextColor(150, 150, 150);
-    doc.text('Document genere par SISEM - Ne pas se substituer a l\'avis de votre medecin.', 20, y + 5);
+    doc.text('Document généré  par SISEM - Ne pas se substituer a l\'avis de votre médecin.', 20, y + 5);
 
     doc.save('resultat-' + r.examenNom + '-' + r.numeroLabo.replace(/\//g, '-') + '.pdf');
   }
