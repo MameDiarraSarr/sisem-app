@@ -1,0 +1,33 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="wrap">
+  <div class="card">
+    <h1>Changez votre mot de passe</h1>
+    <p class="sub">Pour votre sécurité, veuillez définir un nouveau mot de passe personnel avant de continuer.</p>
+
+    <div class="field">
+      <label>Mot de passe actuel</label>
+      <input type="password" placeholder="••••••••" [(ngModel)]="ancien" name="ancien">
+    </div>
+
+    <div class="field">
+      <label>Nouveau mot de passe</label>
+      <input type="password" placeholder="••••••••" [(ngModel)]="nouveau" name="nouveau">
+    </div>
+
+    <div class="field">
+      <label>Confirmez le nouveau mot de passe</label>
+      <input type="password" placeholder="••••••••" [(ngModel)]="confirmation" name="confirmation" (keyup.enter)="changer()">
+    </div>
+
+    @if (erreur()) {
+      <div class="erreur">{{ erreur() }}</div>
+    }
+
+    <button class="btn" (click)="changer()" [disabled]="chargement()">
+      {{ chargement() ? 'Enregistrement…' : 'Valider' }}
+    </button>
+  </div>
+</div>

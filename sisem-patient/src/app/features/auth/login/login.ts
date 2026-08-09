@@ -31,7 +31,12 @@ export class Login {
     this.auth.connexion(this.telephone, this.motDePasse).subscribe({
       next: () => {
         this.chargement.set(false);
-        this.router.navigate(['/accueil']);
+        // Mot de passe encore temporaire (= le téléphone) → forcer le changement
+        if (this.auth.motDePasseTemporaire()) {
+          this.router.navigate(['/changer-mot-de-passe']);
+        } else {
+          this.router.navigate(['/accueil']);
+        }
       },
       error: (err) => {
         this.chargement.set(false);
