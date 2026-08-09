@@ -46,7 +46,7 @@
           <div class="info"><span class="lbl">Traitement en cours</span><b>{{ b.traitement_en_cours }}</b></div>
         }
         <div class="info"><span class="lbl">Date</span><b>{{ b.date_enregistrement }}</b></div>
-        
+
       </div>
 
       <div class="section-title">Résultats des analyses</div>
@@ -54,7 +54,7 @@
       @for (examen of b.examens; track examen.examen_demande_id) {
         <h4 class="nom-examen">{{ examen.nom_examen }}</h4>
         <table>
-          <thead><tr><th>Analyse</th><th>Résultat</th><th>Unité</th><th>Valeur de référence</th></tr></thead>
+          <thead><tr><th>Analyse</th><th>Résultat</th><th>Unité</th><th>Valeur de référence</th><th>État</th></tr></thead>
           <tbody>
             @for (analyse of examen.analyses; track analyse.analyse_reference_id) {
               <tr>
@@ -62,6 +62,13 @@
                 <td class="valeur">{{ analyse.valeur_resultat ?? '—' }}</td>
                 <td class="unite">{{ analyse.unite }}</td>
                 <td class="ref">{{ analyse.valeur_normale }}</td>
+                <td>
+                  @switch (statutValeur(analyse.valeur_resultat ?? '', analyse.valeur_normale)) {
+                    @case ('normal') { <span class="etat normal">Normal</span> }
+                    @case ('anormal') { <span class="etat anormal">Hors norme</span> }
+                    @default { <span class="etat neutre">—</span> }
+                  }
+                </td>
               </tr>
             }
           </tbody>

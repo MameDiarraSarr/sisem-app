@@ -79,3 +79,8 @@ tbody td { padding: 12px; border-bottom: 1px solid rgba(74,127,167,0.08); color:
     backdrop-filter: none; -webkit-backdrop-filter: none; padding: 20px;
   }
 }
+
+.etat { font-weight: 700; font-size: 13px; }
+.etat.normal { color: #2FA968; }
+.etat.anormal { color: #C0392B; }
+.etat.neutre { color: #8FA6BC; }

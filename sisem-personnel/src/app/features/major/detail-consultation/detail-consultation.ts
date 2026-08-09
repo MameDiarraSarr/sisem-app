@@ -29,4 +29,25 @@ export class DetailConsultation implements OnInit {
   imprimer(): void {
     window.print();
   }
+
+  statutValeur(valeur: string, reference: string): 'normal' | 'anormal' | 'qualitatif' {
+    const val = parseFloat(String(valeur).replace(',', '.'));
+    const bornes = String(reference).split('-').map(b => parseFloat(b.trim().replace(',', '.')));
+
+    // Cas numérique : référence du type "135 - 145"
+    if (!isNaN(val) && bornes.length === 2 && !bornes.some(isNaN)) {
+      const [min, max] = bornes;
+      return (val >= min && val <= max) ? 'normal' : 'anormal';
+    }
+
+    // Cas qualitatif : référence texte (ex. "Négatif")
+    const normaliser = (s: string) =>
+      String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    if (valeur && reference) {
+      return normaliser(valeur) === normaliser(reference) ? 'normal' : 'anormal';
+    }
+
+    return 'qualitatif';
+  }
 }
