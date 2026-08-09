@@ -25,10 +25,12 @@ import { Profil } from './features/profil/profil';
 import { DetailPatient } from './features/secretaire/detail-patient/detail-patient'; 
 import { Resultat } from './features/secretaire/resultat/resultat';
 import { ModifierPatient } from './features/secretaire/modifier-patient/modifier-patient';
+import { ChangerMotDePasse } from './features/changer-mot-de-passe/changer-mot-de-passe';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
+  { path: 'changer-mot-de-passe', component: ChangerMotDePasse, canActivate: [authGuard] },
 
   {
     path: 'secretaire',

@@ -14,7 +14,6 @@ export class Login {
   email = '';
   motDePasse = '';
 
-  // État pour l'affichage (chargement / erreur)
   chargement = signal(false);
   erreur = signal<string | null>(null);
 
@@ -28,11 +27,15 @@ export class Login {
     this.auth.connexion(this.email, this.motDePasse).subscribe({
       next: () => {
         this.chargement.set(false);
-        this.redirigerSelonRole();
+        // Mot de passe encore temporaire (test123) → forcer le changement
+        if (this.auth.utilisateurConnecte()?.mot_de_passe_temporaire) {
+          this.router.navigate(['/changer-mot-de-passe']);
+        } else {
+          this.redirigerSelonRole();
+        }
       },
       error: (err) => {
         this.chargement.set(false);
-        // 422 = identifiants invalides ; sinon message générique
         if (err.status === 422 || err.status === 401) {
           this.erreur.set('Email ou mot de passe incorrect.');
         } else {
