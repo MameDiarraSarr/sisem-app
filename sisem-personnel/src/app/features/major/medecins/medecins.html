@@ -27,14 +27,14 @@
             @if (medecin.statut_affectation === 'active') {
               <span class="badge-on">Actif</span>
             } @else {
-              <span class="badge-off">Retiré</span>
+              <span class="badge-off">Inactif</span>
             }
           </td>
           <td>
             @if (medecin.statut_affectation === 'active') {
-              <button class="btn-toggle off" (click)="basculerStatut(medecin.id)">Retirer</button>
+              <button class="btn-toggle off" (click)="basculerStatut(medecin.id)">Désactiver</button>
             } @else {
-              <button class="btn-toggle on" (click)="basculerStatut(medecin.id)">Réintégrer</button>
+              <button class="btn-toggle on" (click)="basculerStatut(medecin.id)">Activer</button>
             }
           </td>
         </tr>

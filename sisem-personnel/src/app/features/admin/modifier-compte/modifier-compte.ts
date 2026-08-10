@@ -55,6 +55,7 @@ export class ModifierCompte implements OnInit {
           this.telephone = membre.telephone ?? '';
           this.role = membre.role;
           this.pavillonId = membre.pavillon_id ? String(membre.pavillon_id) : '';
+          this.specialite = membre.specialite ?? '';
         }
         this.cdr.markForCheck();
       },
@@ -62,7 +63,7 @@ export class ModifierCompte implements OnInit {
   }
 
   besoinPavillon(): boolean {
-    return this.role === 'major' || this.role === 'medecin';
+    return this.role === 'major';
   }
 
   enregistrer(): void {

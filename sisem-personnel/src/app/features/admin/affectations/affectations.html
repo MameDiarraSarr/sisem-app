@@ -12,14 +12,14 @@
   </div>
 
   <div class="form-affectation">
-    <select class="select-pav" [(ngModel)]="medecinId" name="medecinId">
+    <select class="select-pav" [(ngModel)]="medecinId" name="medecinId" (ngModelChange)="erreur.set(null)">
       <option value="">Choisir un médecin</option>
       @for (m of medecins(); track m.id) {
-        <option [value]="m.id">{{ m.nom_complet }}</option>
+        <option [value]="m.id.toString()">{{ m.nom_complet }}</option>
       }
     </select>
 
-    <select class="select-pav" [(ngModel)]="pavillonId" name="pavillonId">
+    <select class="select-pav" [(ngModel)]="pavillonId" name="pavillonId" (ngModelChange)="erreur.set(null)">
       <option value="">Choisir un pavillon</option>
       @for (p of pavillons(); track p.id) {
         <option [value]="p.id">{{ p.nom }}</option>
@@ -43,7 +43,7 @@
   </div>
 
   <table>
-    <thead><tr><th>Médecin</th><th>Spécialité</th><th>Pavillon</th><th>Depuis le</th></tr></thead>
+    <thead><tr><th>Médecin</th><th>Spécialité</th><th>Pavillon</th><th>Depuis le</th><th>Action</th></tr></thead>
     <tbody>
       @for (a of affectations(); track a.id) {
         <tr>
@@ -51,10 +51,20 @@
           <td>{{ a.specialite ?? '—' }}</td>
           <td><span class="pav">{{ a.pavillon }}</span></td>
           <td>{{ a.date_debut }}</td>
+          <td><button class="btn-toggle off" (click)="demanderRetrait(a.id)">Retirer</button></td>
         </tr>
       } @empty {
-        <tr><td colspan="4" class="vide">Aucune affectation active.</td></tr>
+        <tr><td colspan="5" class="vide">Aucune affectation active.</td></tr>
       }
     </tbody>
   </table>
 </div>
+
+@if (affectationARetirer() !== null) {
+  <app-confirmation
+    titre="Retirer l'affectation"
+    message="Voulez-vous vraiment retirer cette affectation ?"
+    (confirme)="confirmerRetrait()"
+    (annule)="annulerRetrait()">
+  </app-confirmation>
+}

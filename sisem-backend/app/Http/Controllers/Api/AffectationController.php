@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Affectation;
+use App\Models\Medecin;
 use Illuminate\Http\Request;
 
 class AffectationController extends Controller
@@ -30,6 +31,14 @@ class AffectationController extends Controller
             'pavillon_id' => ['required', 'exists:pavillons,id'],
         ]);
 
+        // Le compte du médecin doit être actif pour pouvoir l'affecter
+        $medecin = Medecin::with('user')->find($donnees['medecin_id']);
+        if (! $medecin->user || $medecin->user->statut !== 'actif') {
+            return response()->json([
+                'message' => 'Ce médecin a un compte bloqué : il faut d\'abord le réactiver avant de l\'affecter.',
+            ], 422);
+        }
+
         // Éviter le doublon d'affectation active
         $existe = Affectation::where('medecin_id', $donnees['medecin_id'])
             ->where('pavillon_id', $donnees['pavillon_id'])
@@ -50,5 +59,12 @@ class AffectationController extends Controller
         ]);
 
         return response()->json(['message' => 'Affectation créée.', 'id' => $affectation->id], 201);
+    }
+
+    public function retirer(Affectation $affectation)
+    {
+        $affectation->update(['statut' => 'inactive', 'date_fin' => now()]);
+
+        return response()->json(['message' => 'Affectation retirée.']);
     }
 }

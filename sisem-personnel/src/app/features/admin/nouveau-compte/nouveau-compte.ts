@@ -38,7 +38,9 @@ export class NouveauCompte implements OnInit {
   }
 
   besoinPavillon(): boolean {
-    return this.role === 'major' || this.role === 'medecin';
+    // Seul le major est rattaché à un pavillon sur son compte.
+    // Le médecin s'affecte via l'écran Affectations.
+    return this.role === 'major';
   }
 
   enregistrer(): void {
@@ -64,10 +66,17 @@ export class NouveauCompte implements OnInit {
       specialite: this.role === 'medecin' ? (this.specialite || null) : null,
     };
 
+    const etaitMedecin = this.role === 'medecin';
+
     this.personnelService.ajouterMembre(donnees).subscribe({
-      next: () => {
+      next: (membre) => {
         this.chargement.set(false);
-        this.router.navigate(['/admin/personnel']);
+        if (etaitMedecin) {
+          // On arrive sur Affectations avec le médecin déjà sélectionné
+          this.router.navigate(['/admin/affectations'], { queryParams: { medecin: membre.id } });
+        } else {
+          this.router.navigate(['/admin/personnel']);
+        }
       },
       error: (err) => {
         this.chargement.set(false);

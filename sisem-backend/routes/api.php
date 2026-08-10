@@ -107,4 +107,5 @@ Route::middleware(['auth:sanctum', 'personnel', 'role:admin'])->group(function (
 Route::middleware(['auth:sanctum', 'personnel', 'role:admin,major'])->group(function () {
     Route::get('/affectations', [AffectationController::class, 'index']);
     Route::post('/affectations', [AffectationController::class, 'store']);
+    Route::patch('/affectations/{affectation}/retirer', [AffectationController::class, 'retirer']);
 });

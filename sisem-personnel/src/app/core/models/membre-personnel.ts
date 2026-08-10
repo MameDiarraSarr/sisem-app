@@ -9,4 +9,5 @@ export interface MembrePersonnel {
   pavillon: string | null;      // nom du pavillon
   pavillon_id: number | null;   // id, pour les formulaires
   statut: 'actif' | 'inactif';
+  specialite: string | null;    // spécialité, pour les médecins
 }

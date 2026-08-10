@@ -19,8 +19,14 @@
 .topbar .sub { font-size: 13.5px; color: #4A7FA7; margin-top: 3px; }
 
 .panel { border-radius: 22px; padding: 26px; }
+.panel + .panel { margin-top: 24px; }
 .panel-head { margin-bottom: 20px; }
 .panel-head h3 { font-size: 17px; font-weight: 700; color: #0A1931; }
+
+/* Formulaire d'affectation : espace entre médecin / pavillon / bouton */
+.form-affectation {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
+}
 
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; color: #4A7FA7; font-weight: 700; padding: 11px 10px; border-bottom: 1px solid rgba(74,127,167,.18); }
@@ -39,10 +45,31 @@ tbody tr:hover { background: rgba(74,127,167,.06); }
 .pav.none { color: #B3CFE5; font-weight: 500; font-style: italic; }
 
 .select-pav {
-  padding: 10px 14px; border: 1.5px solid rgba(74,127,167,.25); border-radius: 10px;
+  padding: 11px 14px; border: 1.5px solid rgba(74,127,167,.25); border-radius: 10px;
   font-family: inherit; font-size: 13.5px; color: #0A1931; background: rgba(255,255,255,.8);
-  cursor: pointer; transition: .2s; min-width: 150px;
+  cursor: pointer; transition: .2s; min-width: 180px;
 }
 .select-pav:focus { outline: none; border-color: #4A7FA7; box-shadow: 0 0 0 4px rgba(74,127,167,.12); }
+
+/* Bouton Affecter : bleu du thème */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 24px; border: none; border-radius: 10px;
+  background: linear-gradient(135deg, #1A3D63, #4A7FA7); color: #fff;
+  font-family: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(26,61,99,.22); transition: transform .15s, box-shadow .25s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(26,61,99,.3); }
+.btn-primary:disabled { opacity: .6; cursor: default; transform: none; box-shadow: none; }
+
+/* Bouton Retirer : rouge doux */
+.btn-toggle.off {
+  padding: 8px 16px; border: none; border-radius: 9px;
+  background: rgba(192,57,43,.1); color: #C0392B;
+  font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer; transition: .2s;
+}
+.btn-toggle.off:hover { background: rgba(192,57,43,.18); }
+
+.message-erreur { margin-top: 14px; color: #C0392B; font-size: 13.5px; font-weight: 500; }
 
 .vide { text-align: center; color: #8FA6BC; padding: 30px; font-style: italic; }

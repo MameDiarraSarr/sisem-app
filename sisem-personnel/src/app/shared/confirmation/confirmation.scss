@@ -1,0 +1,22 @@
+.overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10, 25, 49, .25);
+  display: flex; justify-content: center; align-items: flex-start;
+  padding-top: 80px;
+}
+.boite {
+  width: 100%; max-width: 320px; padding: 20px 22px; border-radius: 14px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.7); box-shadow: 0 8px 28px rgba(26,61,99,.18);
+  text-align: left;
+}
+.boite h3 { font-size: 1rem; font-weight: 700; color: #0A1931; margin: 0 0 6px; }
+.boite p { font-size: .85rem; color: #4A7FA7; margin: 0 0 18px; line-height: 1.45; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; }
+.actions button {
+  padding: 8px 18px; border-radius: 9px; font-family: inherit; font-weight: 600; font-size: .85rem; cursor: pointer; border: none;
+}
+.btn-non { background: #EAF2F8; color: #1A3D63; }
+.btn-non:hover { background: #dce8f2; }
+.btn-oui { background: #C0392B; color: #fff; }
+.btn-oui:hover { filter: brightness(1.05); }

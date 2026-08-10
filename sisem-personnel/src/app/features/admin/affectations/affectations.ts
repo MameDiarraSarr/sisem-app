@@ -1,7 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { Confirmation } from '../../../shared/confirmation/confirmation';
 
 interface AffectationVue {
   id: number;
@@ -15,12 +17,14 @@ interface Pavillon { id: number; nom: string; }
 
 @Component({
   selector: 'app-admin-affectations',
-  imports: [FormsModule],
+  imports: [FormsModule, Confirmation],
   templateUrl: './affectations.html',
   styleUrl: './affectations.scss',
 })
 export class Affectations implements OnInit {
   private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
   private readonly url = environment.apiUrl;
 
   affectations = signal<AffectationVue[]>([]);
@@ -32,19 +36,41 @@ export class Affectations implements OnInit {
   chargement = signal(false);
   erreur = signal<string | null>(null);
 
+  affectationARetirer = signal<number | null>(null);
+
   ngOnInit(): void {
     this.charger();
+
     this.http.get<Medecin[]>(`${this.url}/medecins`).subscribe({
-      next: (l) => this.medecins.set(l),
+      next: (l) => {
+        this.medecins.set(l);
+        // Si on arrive depuis la création d'un médecin, on le pré-sélectionne
+        const medecinParam = this.route.snapshot.queryParamMap.get('medecin');
+        if (medecinParam) {
+          this.medecinId = medecinParam;
+        }
+        this.cdr.markForCheck();
+      },
     });
+
     this.http.get<Pavillon[]>(`${this.url}/pavillons`).subscribe({
-      next: (l) => this.pavillons.set(l),
+      next: (l) => {
+        this.pavillons.set(l);
+        this.cdr.markForCheck();
+      },
     });
   }
 
   private charger(): void {
     this.http.get<AffectationVue[]>(`${this.url}/affectations`).subscribe({
-      next: (l) => this.affectations.set(l),
+      next: (l) => {
+        this.affectations.set(l);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.erreur.set(err.error?.message ?? 'Erreur lors du chargement des affectations.');
+        this.cdr.markForCheck();
+      },
     });
   }
 
@@ -64,12 +90,36 @@ export class Affectations implements OnInit {
         this.chargement.set(false);
         this.medecinId = '';
         this.pavillonId = '';
-        this.charger(); // rafraîchit la liste
+        this.charger();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.chargement.set(false);
         this.erreur.set(err.error?.message ?? 'Erreur lors de l\'affectation.');
+        this.cdr.markForCheck();
       },
     });
+  }
+
+  demanderRetrait(id: number): void {
+    this.affectationARetirer.set(id);
+  }
+
+  confirmerRetrait(): void {
+    const id = this.affectationARetirer();
+    if (id === null) return;
+    this.affectationARetirer.set(null);
+
+    this.http.patch(`${this.url}/affectations/${id}/retirer`, {}).subscribe({
+      next: () => this.charger(),
+      error: (err) => {
+        this.erreur.set(err.error?.message ?? 'Erreur lors du retrait.');
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  annulerRetrait(): void {
+    this.affectationARetirer.set(null);
   }
 }

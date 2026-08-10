@@ -16,7 +16,7 @@ class PersonnelController extends Controller
     {
         $recherche = $request->query('recherche');
 
-        $personnel = User::with('pavillon')
+        $personnel = User::with('pavillon', 'medecin')
             ->when($recherche, function ($query, $terme) {
                 $query->where(function ($q) use ($terme) {
                     $q->where('matricule', 'ilike', "%{$terme}%")
@@ -53,7 +53,6 @@ class PersonnelController extends Controller
         }
 
         $user = DB::transaction(function () use ($donnees) {
-            // 1. L'utilisateur (identité + identifiants de connexion)
             $utilisateur = Utilisateur::create([
                 'prenom' => $donnees['prenom'],
                 'nom' => $donnees['nom'],
@@ -62,21 +61,25 @@ class PersonnelController extends Controller
                 'mot_de_passe' => 'test123', // provisoire, changé à la 1re connexion
             ]);
 
-            // 2. Le personnel lié (même id, clé partagée)
+            // Le pavillon_id du compte ne sert qu'au major.
+            // Pour un médecin, le pavillon se gère uniquement via les affectations.
+            $pavillonCompte = $donnees['role'] === 'major' ? ($donnees['pavillon_id'] ?? null) : null;
+
             $user = User::create([
                 'id' => $utilisateur->id,
                 'matricule' => $this->genererMatricule($donnees['role']),
                 'role' => $donnees['role'],
                 'statut' => 'actif',
-                'pavillon_id' => $donnees['pavillon_id'] ?? null,
+                'pavillon_id' => $pavillonCompte,
             ]);
 
-            // 3. Si c'est un médecin, on crée sa fiche liée
             if ($donnees['role'] === 'medecin') {
-                Medecin::create([
+                $medecin = Medecin::create([
                     'user_id' => $user->id,
                     'specialite' => $donnees['specialite'] ?? null,
                 ]);
+                $user->medecin_id_cree = $medecin->id; // pour la redirection vers Affectations
+                // Pas d'affectation ici : l'admin sera redirigé vers l'écran Affectations.
             }
 
             return $user;
@@ -84,7 +87,10 @@ class PersonnelController extends Controller
 
         $user->load('pavillon');
 
-        return response()->json($this->formater($user), 201);
+        $reponse = $this->formater($user);
+        $reponse['medecin_id'] = $user->medecin_id_cree ?? null;
+
+        return response()->json($reponse, 201);
     }
 
     public function update(Request $request, User $user)
@@ -114,10 +120,10 @@ class PersonnelController extends Controller
                 'telephone' => $donnees['telephone'] ?? null,
             ]);
 
-            // Champ propre au personnel → personnels
-            $user->update([
-                'pavillon_id' => $donnees['pavillon_id'] ?? null,
-            ]);
+            // Le pavillon_id du compte ne concerne que le major (pour un médecin, il reste inchangé/null)
+            if ($user->role === 'major') {
+                $user->update(['pavillon_id' => $donnees['pavillon_id'] ?? null]);
+            }
 
             // Si médecin, mettre à jour sa spécialité
             if ($user->role === 'medecin' && array_key_exists('specialite', $donnees)) {
@@ -166,6 +172,7 @@ class PersonnelController extends Controller
             'statut' => $u->statut,
             'pavillon' => $u->pavillon?->nom,
             'pavillon_id' => $u->pavillon_id,
+            'specialite' => $u->medecin?->specialite,
         ];
     }
 }

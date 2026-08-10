@@ -1,0 +1,10 @@
+<div class="overlay" (click)="annule.emit()">
+  <div class="boite glass" (click)="$event.stopPropagation()">
+    <h3>{{ titre() }}</h3>
+    <p>{{ message() }}</p>
+    <div class="actions">
+      <button class="btn-non" (click)="annule.emit()">Non</button>
+      <button class="btn-oui" (click)="confirme.emit()">Oui</button>
+    </div>
+  </div>
+</div>

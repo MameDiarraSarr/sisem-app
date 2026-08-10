@@ -19,5 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Les requêtes API non authentifiées reçoivent un 401 JSON
+        // (au lieu d'une redirection vers une route "login" inexistante → 500)
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Non authentifié.'], 401);
+            }
+        });
     })->create();
