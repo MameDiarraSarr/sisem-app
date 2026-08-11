@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('numero_dossier')->nullable()->unique();
             $table->enum('type_patient', ['interne', 'externe']);
             $table->string('ville')->nullable();
+            $table->foreignId('pavillon_id')->nullable()->constrained('pavillons')->nullOnDelete();
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class Patient extends Authenticatable
     public $incrementing = false;
 
     protected $fillable = [
-        'id', 'numero_dossier', 'type_patient', 'ville',
+        'id', 'numero_dossier', 'type_patient', 'ville', 'pavillon_id',
     ];
 
     protected $with = ['utilisateur'];
@@ -49,13 +49,9 @@ class Patient extends Authenticatable
         return $this->hasMany(BulletinExamen::class);
     }
 
-    public function hospitalisations()
+    // Le pavillon du patient (direct, comme dans le diagramme simplifié)
+    public function pavillon()
     {
-        return $this->hasMany(Hospitalisation::class);
-    }
-
-    public function hospitalisationActive()
-    {
-        return $this->hasOne(Hospitalisation::class)->whereNull('date_fin')->latestOfMany();
+        return $this->belongsTo(Pavillon::class);
     }
 }

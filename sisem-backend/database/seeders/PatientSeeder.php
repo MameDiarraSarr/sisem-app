@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Patient;
 use App\Models\Pavillon;
-use App\Models\Hospitalisation;
 use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
 
@@ -31,32 +30,28 @@ class PatientSeeder extends Seeder
                 'numero_dossier' => $p['numero_dossier'],
                 'type_patient' => $p['type_patient'],
                 'ville' => $p['ville'],
+                'pavillon_id' => $p['pavillon_id'] ?? null,
             ]);
         };
 
-        $amadou = $creerPatient(
+        // Patient interne → rattaché directement à un pavillon
+        $creerPatient(
             [
                 'prenom' => 'Amadou', 'nom' => 'Diop',
                 'date_naissance' => '2018-03-12', 'sexe' => 'M',
                 'telephone' => '771234567', 'adresse' => 'Sicap Liberté 6',
             ],
-            ['numero_dossier' => 'DOS-0001', 'type_patient' => 'interne', 'ville' => 'Dakar']
+            ['numero_dossier' => 'DOS-0001', 'type_patient' => 'interne', 'ville' => 'Dakar', 'pavillon_id' => $pavillonM->id]
         );
 
-        Hospitalisation::create([
-            'patient_id' => $amadou->id,
-            'pavillon_id' => $pavillonM->id,
-            'date_debut' => now(),
-            'date_fin' => null,
-        ]);
-
+        // Patient externe → pas de pavillon
         $creerPatient(
             [
                 'prenom' => 'Fatou', 'nom' => 'Ndiaye',
                 'date_naissance' => '2021-07-04', 'sexe' => 'F',
                 'telephone' => '772345678', 'adresse' => 'Grand Yoff',
             ],
-            ['numero_dossier' => null, 'type_patient' => 'externe', 'ville' => 'Dakar']
+            ['numero_dossier' => null, 'type_patient' => 'externe', 'ville' => 'Dakar', 'pavillon_id' => null]
         );
     }
 }
