@@ -15,9 +15,8 @@ use App\Http\Controllers\Api\MotDePasseController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\PavillonController;
 
-// ── Personnel (connexion par email) ──
-Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
 
+Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::post('/personnel/deconnexion', [AuthPersonnelController::class, 'deconnexion']);
     Route::get('/personnel/moi', [AuthPersonnelController::class, 'moi']);
@@ -25,25 +24,18 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/personnel/profil', [ProfilController::class, 'afficher']);
     Route::put('/personnel/profil', [ProfilController::class, 'modifier']);
 });
-
-// ── Patient (connexion par téléphone) ──
 Route::post('/patient/connexion', [AuthPatientController::class, 'connexion']);
-
 Route::middleware(['auth:sanctum', 'patient'])->group(function () {
     Route::post('/patient/deconnexion', [AuthPatientController::class, 'deconnexion']);
     Route::get('/patient/moi', [AuthPatientController::class, 'moi']);
     Route::post('/patient/changer-mot-de-passe', [MotDePasseController::class, 'changer']);
     Route::get('/patient/profil', [ProfilController::class, 'afficher']);
     Route::put('/patient/profil', [ProfilController::class, 'modifier']);
-
     Route::get('/patient/resultats', [PatientEspaceController::class, 'mesResultats']);
     Route::get('/patient/resultats/{bulletin}', [PatientEspaceController::class, 'detailResultat']);
-
     Route::get('/patient/notifications', [PatientEspaceController::class, 'mesNotifications']);
     Route::patch('/patient/notifications/{notification}/lue', [PatientEspaceController::class, 'marquerLue']);
 });
-
-// ── Catalogue d'examens (tout le personnel) ──
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/examens', [ExamenController::class, 'index']);
     Route::get('/examens/{examen}', [ExamenController::class, 'show']);

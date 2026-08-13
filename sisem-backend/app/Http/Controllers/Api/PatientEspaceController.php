@@ -31,18 +31,13 @@ class PatientEspaceController extends Controller
                 ? 'Dr. ' . $b->medecin->user->prenom . ' ' . $b->medecin->user->nom
                 : null;
 
+            // Chaque examen du bulletin devient une SECTION de la feuille
+            $examens = [];
             foreach ($b->examenDemandes as $ed) {
                 $valeurs = $ed->resultats->keyBy('analyse_reference_id');
 
-                $resultats[] = [
-                    'id' => $ed->id,                       // id de l'examen demandé (unique par examen)
-                    'patientId' => $patient->id,
-                    'numeroLabo' => $b->numero_labo,
+                $examens[] = [
                     'examenNom' => $ed->examen->nom_examen,
-                    'medecinPrescripteur' => $medecin,
-                    'dateResultat' => $b->date_enregistrement->format('d/m/Y'),
-                    'statut' => 'valide',
-                    'commentaire' => '',                    // pas d'interprétation stockée en base
                     'analyses' => $ed->examen->analyses->map(fn ($a) => [
                         'nom' => $a->nom_analyse,
                         'valeur' => (string) ($valeurs->get($a->id)?->valeur_resultat ?? ''),
@@ -51,6 +46,18 @@ class PatientEspaceController extends Controller
                     ])->values(),
                 ];
             }
+
+            // UN seul résultat par BULLETIN (une seule feuille avec tous les examens)
+            $resultats[] = [
+                'id' => $b->id,                        // id du bulletin
+                'patientId' => $patient->id,
+                'numeroLabo' => $b->numero_labo,
+                'medecinPrescripteur' => $medecin,
+                'dateResultat' => $b->date_enregistrement->format('d/m/Y'),
+                'statut' => 'valide',
+                'commentaire' => '',
+                'examens' => $examens,
+            ];
         }
 
         return response()->json($resultats);

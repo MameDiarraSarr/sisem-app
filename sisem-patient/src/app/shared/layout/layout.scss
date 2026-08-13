@@ -22,6 +22,49 @@
 .logo .mk svg { width: 21px; height: 21px; }
 .logo .bn { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #0A1931; }
 
+/* CLOCHE de notifications */
+.cloche-zone { position: relative; margin-left: auto; margin-right: 12px; }
+.cloche {
+  position: relative; background: none; border: none; cursor: pointer;
+  color: #1A3D63; padding: 8px; border-radius: 10px; transition: .2s;
+  display: grid; place-items: center;
+}
+.cloche:hover { background: rgba(74,127,167,.1); }
+.cloche svg { width: 23px; height: 23px; }
+.badge {
+  position: absolute; top: 0; right: 0;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: #C0392B; color: #fff;
+  font-size: 11px; font-weight: 700; line-height: 18px;
+  border-radius: 9px; text-align: center;
+  box-shadow: 0 2px 6px rgba(192,57,43,.4);
+}
+
+.panneau-notifs {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 320px; max-height: 400px; overflow-y: auto;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(74,127,167,.15);
+  border-radius: 16px; box-shadow: 0 12px 36px rgba(26,61,99,.18);
+  z-index: 30; overflow: hidden;
+}
+.panneau-tete {
+  padding: 14px 18px; font-size: 14px; font-weight: 700; color: #0A1931;
+  border-bottom: 1px solid rgba(74,127,167,.12);
+}
+.notif-item {
+  display: block; width: 100%; text-align: left;
+  padding: 13px 18px; border: none; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; color: #4A7FA7; line-height: 1.4;
+  border-bottom: 1px solid rgba(74,127,167,.08); transition: .15s;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: rgba(74,127,167,.08); }
+.notif-item.non-lu { color: #0A1931; font-weight: 600; background: rgba(74,127,167,.06); }
+.notif-vide { padding: 24px 18px; text-align: center; color: #8FA6BC; font-size: 13px; font-style: italic; }
+
 /* Liens */
 .nav { display: flex; align-items: center; gap: 8px; }
 .nav-item {
@@ -43,8 +86,6 @@
 
 .contenu { position: relative; z-index: 1; min-height: calc(100vh - 73px); }
 
-
-
 /* RESPONSIVE — menu hamburger en dessous de 768px */
 @media (max-width: 768px) {
   .hamburger { display: block; }
@@ -62,4 +103,7 @@
   }
   .nav.ouvert { transform: translateY(0); opacity: 1; pointer-events: auto; }
   .nav-item { justify-content: flex-start; padding: 14px 16px; }
+
+  .cloche-zone { margin-left: auto; margin-right: 8px; }
+  .panneau-notifs { width: 280px; }
 }

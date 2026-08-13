@@ -4,6 +4,7 @@ import { ResultatService } from '../../../core/services/resultat';
 import { ResultatPatient } from '../../../core/models/resultat';
 import jsPDF from 'jspdf';
 import { enregistrerPolice } from '../../../core/police-pdf';
+import { logoBase64 } from '../../../core/logo-base64';
 
 @Component({
   selector: 'app-liste',
@@ -66,7 +67,7 @@ export class Liste implements OnInit {
     const terme = this.recherche().toLowerCase().trim();
     if (!terme) return anterieurs;
     return anterieurs.filter(r =>
-      r.examenNom.toLowerCase().includes(terme) ||
+      r.examens.some(e => e.examenNom.toLowerCase().includes(terme)) ||
       r.numeroLabo.toLowerCase().includes(terme) ||
       r.dateResultat.toLowerCase().includes(terme) ||
       (r.medecinPrescripteur ?? '').toLowerCase().includes(terme)
@@ -82,6 +83,11 @@ export class Liste implements OnInit {
 
   onRecherche(valeur: string): void {
     this.recherche.set(valeur);
+  }
+
+  // Noms des examens d'un bulletin, pour la colonne "Examens" de l'historique
+  nomsExamens(r: ResultatPatient): string {
+    return r.examens.map(e => e.examenNom).join(', ');
   }
 
   statutValeur(valeur: string, reference: string): 'normal' | 'anormal' | 'qualitatif' {
@@ -116,68 +122,76 @@ export class Liste implements OnInit {
     const blueMid: [number, number, number] = [74, 127, 167];
     let y = 20;
 
-    doc.setFillColor(...navy);
-    doc.rect(0, 0, 210, 4, 'F');
-    doc.setFontSize(16); doc.setTextColor(...navy); doc.setFont('helvetica', 'bold');
-    doc.text('Hôpital d\'Enfants Albert Royer', 20, y);
-    doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.setFont('helvetica', 'normal');
-    doc.text('Système de Suivi des Examens Médicaux', 20, y + 6);
-    doc.text('Édité le ' + new Date().toLocaleDateString('fr-FR'), 150, y);
+    
 
-    y += 22; doc.setDrawColor(...blueMid); doc.setLineWidth(0.5); doc.line(20, y, 190, y);
+    // Logo HER en haut à gauche
+    doc.addImage(logoBase64, 'PNG', 20, y - 5, 20, 20);
+
+    doc.setFontSize(13); doc.setTextColor(...navy); doc.setFont('Roboto', 'bold');
+    doc.text('Système de Suivi des Examens Médicaux (SISEM)', 45, y);
+    doc.setFontSize(9); doc.setTextColor(100, 100, 100); doc.setFont('Roboto', 'normal');
+    doc.text('LABORATOIRE — HÔPITAL D\'ENFANTS ALBERT ROYER', 45, y + 5);
+    doc.text('Tel: 33-859-47-47', 45, y + 10);
+
+    y += 24; doc.setDrawColor(...blueMid); doc.setLineWidth(0.5); doc.line(20, y, 190, y);
     y += 10;
-    doc.setFontSize(11); doc.setTextColor(...navy); doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11); doc.setTextColor(...navy); doc.setFont('Roboto', 'bold');
     doc.text('Patient : ' + (p?.prenom ?? '') + ' ' + (p?.nom ?? ''), 20, y);
-    doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60);
+    doc.setFont('Roboto', 'normal'); doc.setTextColor(60, 60, 60);
     doc.text('N Dossier : ' + r.numeroLabo, 20, y + 6);
-    doc.text('Date du rséultat : ' + r.dateResultat, 120, y + 6);
+    doc.text('Date du résultat : ' + r.dateResultat, 120, y + 6);
     if (r.medecinPrescripteur) {
       doc.text('Prescripteur : ' + r.medecinPrescripteur, 20, y + 12);
       y += 6;
     }
+    y += 16;
 
-    y += 16; doc.setFillColor(...navy); doc.rect(20, y - 5, 170, 9, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-    doc.text(r.examenNom, 24, y + 1);
+    // Une SECTION par examen
+    for (const examen of r.examens) {
+      if (y > 250) { doc.addPage(); y = 20; }
 
-    y += 14; doc.setFontSize(9); doc.setTextColor(...blueMid); doc.setFont('helvetica', 'bold');
-    doc.text('PARAMETRE', 22, y); doc.text('RESULTAT', 82, y); doc.text('UNITE', 112, y); doc.text('REFERENCE', 138, y); doc.text('ETAT', 172, y);
-    y += 3; doc.setDrawColor(200, 210, 220); doc.line(20, y, 190, y);
-    y += 7; doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      // Dégradé du bandeau titre : du bleu foncé (26,61,99) au bleu moyen (74,127,167)
+      const bandes = 60, largeurBande = 170 / bandes;
+      for (let i = 0; i < bandes; i++) {
+        const t = i / (bandes - 1);
+        const rr = Math.round(26 + (74 - 26) * t);
+        const gg = Math.round(61 + (127 - 61) * t);
+        const bb = Math.round(99 + (167 - 99) * t);
+        doc.setFillColor(rr, gg, bb);
+        doc.rect(20 + i * largeurBande, y - 5, largeurBande + 0.5, 9, 'F');
+      }
+      doc.setTextColor(255, 255, 255); doc.setFont('Roboto', 'bold'); doc.setFontSize(11);
+      doc.text(examen.examenNom, 24, y + 1);
 
-    for (const a of r.analyses) {
-      const statut = this.statutValeur(a.valeur, a.valeurReference);
+      y += 13;
+      y += 3; doc.setFont('Roboto', 'normal'); doc.setFontSize(10);
 
-      doc.setTextColor(40, 40, 40); doc.setFont('helvetica', 'normal');
-      doc.text(a.nom, 22, y);
+      for (const a of examen.analyses) {
+        if (y > 275) { doc.addPage(); y = 20; }
+        const anormal = this.statutValeur(a.valeur, a.valeurReference) === 'anormal';
 
-      doc.setFont('helvetica', 'bold');
-      if (statut === 'anormal') { doc.setTextColor(192, 57, 43); } else { doc.setTextColor(10, 25, 49); }
-      doc.text(a.valeur, 82, y);
+        doc.setTextColor(40, 40, 40); doc.setFont('Roboto', 'normal');
+        doc.text(a.nom, 22, y);
 
-      doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
-      doc.text(a.unite, 112, y); doc.text(a.valeurReference, 138, y);
+        // Valeur : gras seulement si hors norme, sinon normal
+        doc.setFont('Roboto', anormal ? 'bold' : 'normal');
+        doc.setTextColor(10, 25, 49);
+        doc.text(a.valeur, 82, y);
 
-      if (statut === 'anormal') { doc.setTextColor(192, 57, 43); doc.text('Hors norme', 172, y); }
-      else if (statut === 'normal') { doc.setTextColor(39, 130, 80); doc.text('Normal', 172, y); }
-      else { doc.setTextColor(150, 150, 150); doc.text('—', 172, y); }
+        doc.setFont('Roboto', 'normal'); doc.setTextColor(120, 120, 120);
+        doc.text(a.unite, 112, y); doc.text('(' + a.valeurReference + ')', 138, y);
 
-      y += 8;
+        y += 8;
+      }
+      y += 10; // espace entre deux examens
     }
 
-    if (r.commentaire) {
-      y += 6; doc.setFillColor(246, 250, 253); doc.rect(20, y - 5, 170, 16, 'F');
-      doc.setTextColor(...blueMid); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-      doc.text('INTERPRÉTATION DU BIOLOGISTE', 24, y);
-      doc.setTextColor(50, 50, 50); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-      doc.text(r.commentaire, 24, y + 6); y += 16;
-    }
-
-    y += 12; doc.setDrawColor(220, 225, 230); doc.line(20, y, 190, y);
-    y += 6; doc.setFontSize(9); doc.setTextColor(120, 120, 120);
+    y += 10; doc.setDrawColor(220, 225, 230); doc.line(20, y, 190, y);
+    y += 7; doc.setFontSize(9); doc.setTextColor(90, 106, 121);
+    doc.text('Compte-rendu validé par le biologiste responsable.', 20, y);
     doc.setFontSize(8); doc.setTextColor(150, 150, 150);
-    doc.text('Document généré  par SISEM - Ne pas se substituer a l\'avis de votre médecin.', 20, y + 5);
+    doc.text('Document généré par SISEM - Ne pas se substituer à l\'avis de votre médecin.', 20, y + 5);
 
-    doc.save('resultat-' + r.examenNom + '-' + r.numeroLabo.replace(/\//g, '-') + '.pdf');
+    doc.save('resultat-' + r.numeroLabo.replace(/\//g, '-') + '.pdf');
   }
 }

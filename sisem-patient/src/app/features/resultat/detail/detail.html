@@ -14,10 +14,11 @@
 
       <div class="doc-head">
         <div class="labo">
-          <div class="labo-logo">SISEM</div>
+          <img src="logo.png" alt="Logo HER" class="logo-her">
           <div>
-            <b>Laboratoire — Hôpital d'Enfants Albert Royer</b>
-            <span>Compte-rendu d'analyses médicales</span>
+            <b>Système de Suivi des Examens Médicaux (SISEM)</b>
+            <span>LABORATOIRE — HÔPITAL D'ENFANTS ALBERT ROYER</span>
+            <span>Tel: 33-859-47-47</span>
           </div>
         </div>
         <div class="edition">Édité le {{ dateEdition }}</div>
@@ -32,40 +33,28 @@
         </div>
         <div class="col">
           <div class="ligne"><span class="lbl">Date du résultat</span><b>{{ r.dateResultat }}</b></div>
-          <div class="ligne"><span class="lbl">Statut</span><b class="statut-ok">Compte-rendu complet</b></div>
+          @if (r.medecinPrescripteur) {
+            <div class="ligne"><span class="lbl">Prescripteur</span><b>{{ r.medecinPrescripteur }}</b></div>
+          }
         </div>
       </div>
 
-      <div class="examen-titre">{{ r.examenNom }}</div>
+      @for (examen of r.examens; track examen.examenNom) {
+        <div class="examen-titre">{{ examen.examenNom }}</div>
 
-      <table class="tableau">
-        <thead>
-          <tr>
-            <th>Paramètre</th>
-            <th>Résultat</th>
-            <th>Unité</th>
-            <th>Valeurs de référence</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (analyse of r.analyses; track analyse.nom) {
-            <tr>
-              <td class="param">{{ analyse.nom }}</td>
-              <td class="valeur" [class.anormal]="statutValeur(analyse.valeur, analyse.valeurReference) === 'anormal'">{{ analyse.valeur }}</td>
-              <td class="unite">{{ analyse.unite }}</td>
-              <td class="ref">{{ analyse.valeurReference }}</td>
-              <td class="indic">
-                @switch (statutValeur(analyse.valeur, analyse.valeurReference)) {
-                  @case ('normal') { <span class="pastille normal">Normal</span> }
-                  @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
-                  @default { <span class="pastille neutre">—</span> }
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+        <table class="tableau">
+          <tbody>
+            @for (analyse of examen.analyses; track analyse.nom) {
+              <tr>
+                <td class="param">{{ analyse.nom }}</td>
+                <td class="valeur" [class.anormal]="statutValeur(analyse.valeur, analyse.valeurReference) === 'anormal'">{{ analyse.valeur }}</td>
+                <td class="unite">{{ analyse.unite }}</td>
+                <td class="ref">({{ analyse.valeurReference }})</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
 
       @if (r.commentaire) {
         <div class="note">

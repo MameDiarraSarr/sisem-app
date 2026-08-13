@@ -5,14 +5,19 @@ export interface AnalyseResultat {
   valeurReference: string;
 }
 
+// Un examen dans la feuille : son nom + ses analyses
+export interface ExamenResultat {
+  examenNom: string;
+  analyses: AnalyseResultat[];
+}
+
 export interface ResultatPatient {
-  id: number;
+  id: number;                            // id du bulletin
   patientId: number;
   numeroLabo: string;
-  examenNom: string;
-  medecinPrescripteur: string | null;  // nom affiché (le backend le résoudra depuis l'id)
+  medecinPrescripteur: string | null;
   dateResultat: string;
   statut: 'valide';
-  analyses: AnalyseResultat[];
   commentaire: string;
+  examens: ExamenResultat[];             // tous les examens du bulletin (la feuille)
 }

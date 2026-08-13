@@ -34,15 +34,15 @@
 .bloc-identite b { font-size: 14.5px; color: #0A1931; }
 .statut-ok { color: #1e874b !important; }
 
-.examen-titre { font-size: 16px; font-weight: 700; color: #fff; background: #1A3D63; padding: 11px 18px; border-radius: 8px; margin-bottom: 4px; }
+.examen-titre { font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #1A3D63, #4A7FA7); padding: 11px 18px; border-radius: 8px; margin-bottom: 4px; }
 
 .tableau { width: 100%; border-collapse: collapse; margin-top: 14px; }
 .tableau th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: #4A7FA7; font-weight: 700; padding: 11px 10px; border-bottom: 2px solid #E1E9F0; }
 .tableau td { padding: 13px 10px; font-size: 14px; border-bottom: 1px solid #EEF3F7; color: #2a2a2a; }
 .tableau tr:last-child td { border-bottom: none; }
 .param { font-weight: 600; color: #0A1931; }
-.valeur { font-weight: 700; color: #0A1931; font-size: 15px; }
-.valeur.anormal { color: #C0392B; }
+.valeur { font-weight: 500; color: #0A1931; font-size: 15px; }
+.valeur.anormal { font-weight: 800; }
 .unite { color: #7a8a99; font-size: 13px; }
 .ref { color: #5a6a79; font-size: 13px; }
 
@@ -79,3 +79,4 @@
 }
 .bas .btn-download:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(26,61,99,.45); }
 .bas .btn-download svg { width: 20px; height: 20px; }
+.labo .logo-her { width: 54px; height: 54px; object-fit: contain; flex-shrink: 0; }

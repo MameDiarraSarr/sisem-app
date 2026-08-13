@@ -23,8 +23,8 @@
           <div class="item" [class.ouvert]="detailOuvertId() === r.id">
             <button class="item-tete" (click)="basculerDetail(r.id)">
               <div class="i-infos">
-                <b>{{ r.examenNom }}</b>
-                <span>N° {{ r.numeroLabo }} · {{ r.dateResultat }}</span>
+                <b>Compte-rendu · N° {{ r.numeroLabo }}</b>
+                <span>{{ r.dateResultat }}</span>
               </div>
               <div class="badge">Disponible</div>
               <svg class="fleche-item" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -32,29 +32,42 @@
 
             @if (detailOuvertId() === r.id) {
               <div class="item-corps">
-                @if (r.medecinPrescripteur) {
-                  <div class="prescripteur">Prescrit par <b>{{ r.medecinPrescripteur }}</b></div>
+                <div class="doc-entete">
+                  <img src="logo.png" alt="Logo HER" class="logo-her">
+                  <div>
+                    <b>Système de Suivi des Examens Médicaux (SISEM)</b>
+                    <span>LABORATOIRE — HÔPITAL D'ENFANTS ALBERT ROYER</span>
+                    <span>Tel: 33-859-47-47</span>
+                  </div>
+                </div>
+                <div class="doc-separator"></div>
+
+                <div class="doc-identite">
+                  <div><span>Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
+                  <div><span>N° Dossier</span><b>{{ r.numeroLabo }}</b></div>
+                  <div><span>Date du résultat</span><b>{{ r.dateResultat }}</b></div>
+                  @if (r.medecinPrescripteur) {
+                    <div><span>Prescripteur</span><b>{{ r.medecinPrescripteur }}</b></div>
+                  }
+                </div>
+
+                @for (examen of r.examens; track examen.examenNom) {
+                  <div class="examen-section">
+                    <h4 class="examen-titre">{{ examen.examenNom }}</h4>
+                    <table>
+                      <tbody>
+                        @for (a of examen.analyses; track a.nom) {
+                          <tr>
+                            <td class="param">{{ a.nom }}</td>
+                            <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
+                            <td class="unite">{{ a.unite }}</td>
+                            <td class="ref">({{ a.valeurReference }})</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                 }
-                <table>
-                  <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th>Etat</th></tr></thead>
-                  <tbody>
-                    @for (a of r.analyses; track a.nom) {
-                      <tr>
-                        <td class="param">{{ a.nom }}</td>
-                        <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
-                        <td class="unite">{{ a.unite }}</td>
-                        <td class="ref">{{ a.valeurReference }}</td>
-                        <td>
-                          @switch (statutValeur(a.valeur, a.valeurReference)) {
-                            @case ('normal') { <span class="pastille normal">Normal</span> }
-                            @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
-                            @default { <span class="pastille neutre">—</span> }
-                          }
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
 
                 @if (r.commentaire) {
                   <div class="note">
@@ -62,6 +75,11 @@
                     <p>{{ r.commentaire }}</p>
                   </div>
                 }
+
+                <div class="doc-signature">
+                  <p>Compte-rendu validé par le biologiste responsable.</p>
+                  <p class="mention">Document généré par SISEM — Ne pas se substituer à l'avis de votre médecin.</p>
+                </div>
 
                 <button class="btn-pdf" (click)="telechargerPdf(r.id)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -100,13 +118,13 @@
 
         <table class="tab-hist">
           <thead>
-            <tr><th>Référence</th><th>Examen</th><th>Prescripteur</th><th>Date</th><th></th></tr>
+            <tr><th>Référence</th><th>Examens</th><th>Prescripteur</th><th>Date</th><th></th></tr>
           </thead>
           <tbody>
             @for (r of resultatsAnterieurs(); track r.id) {
               <tr class="ligne" [class.active]="detailOuvertId() === r.id" (click)="basculerDetail(r.id)">
                 <td class="reference">{{ r.numeroLabo }}</td>
-                <td>{{ r.examenNom }}</td>
+                <td>{{ nomsExamens(r) }}</td>
                 <td class="presc">{{ r.medecinPrescripteur ?? '—' }}</td>
                 <td class="date">{{ r.dateResultat }}</td>
                 <td class="chev">
@@ -117,32 +135,43 @@
               @if (detailOuvertId() === r.id) {
                 <tr class="ligne-detail">
                   <td colspan="5">
-                    <!-- Même carte que les résultats récents -->
                     <div class="item ouvert">
                       <div class="item-corps">
-                        @if (r.medecinPrescripteur) {
-                          <div class="prescripteur">Prescrit par <b>{{ r.medecinPrescripteur }}</b></div>
+                        <div class="doc-entete">
+                          <div class="labo-logo">SISEM</div>
+                          <div>
+                            <b>Laboratoire — Hôpital d'Enfants Albert Royer</b>
+                            <span>Compte-rendu d'analyses médicales</span>
+                          </div>
+                        </div>
+                        <div class="doc-separator"></div>
+
+                        <div class="doc-identite">
+                          <div><span>Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
+                          <div><span>N° Dossier</span><b>{{ r.numeroLabo }}</b></div>
+                          <div><span>Date du résultat</span><b>{{ r.dateResultat }}</b></div>
+                          @if (r.medecinPrescripteur) {
+                            <div><span>Prescripteur</span><b>{{ r.medecinPrescripteur }}</b></div>
+                          }
+                        </div>
+
+                        @for (examen of r.examens; track examen.examenNom) {
+                          <div class="examen-section">
+                            <h4 class="examen-titre">{{ examen.examenNom }}</h4>
+                            <table>
+                              <tbody>
+                                @for (a of examen.analyses; track a.nom) {
+                                  <tr>
+                                    <td class="param">{{ a.nom }}</td>
+                                    <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
+                                    <td class="unite">{{ a.unite }}</td>
+                                    <td class="ref">({{ a.valeurReference }})</td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
                         }
-                        <table>
-                          <thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Référence</th><th></th></tr></thead>
-                          <tbody>
-                            @for (a of r.analyses; track a.nom) {
-                              <tr>
-                                <td class="param">{{ a.nom }}</td>
-                                <td class="valeur" [class.anormal]="statutValeur(a.valeur, a.valeurReference) === 'anormal'">{{ a.valeur }}</td>
-                                <td class="unite">{{ a.unite }}</td>
-                                <td class="ref">{{ a.valeurReference }}</td>
-                                <td>
-                                  @switch (statutValeur(a.valeur, a.valeurReference)) {
-                                    @case ('normal') { <span class="pastille normal">Normal</span> }
-                                    @case ('anormal') { <span class="pastille anormal">Hors norme</span> }
-                                    @default { <span class="pastille neutre">—</span> }
-                                  }
-                                </td>
-                              </tr>
-                            }
-                          </tbody>
-                        </table>
 
                         @if (r.commentaire) {
                           <div class="note">
@@ -150,6 +179,11 @@
                             <p>{{ r.commentaire }}</p>
                           </div>
                         }
+
+                        <div class="doc-signature">
+                          <p>Compte-rendu validé par le biologiste responsable.</p>
+                          <p class="mention">Document généré par SISEM — Ne pas se substituer à l'avis de votre médecin.</p>
+                        </div>
 
                         <button class="btn-pdf" (click)="telechargerPdf(r.id)">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -160,8 +194,6 @@
                   </td>
                 </tr>
               }
-            } @empty {
-              <tr><td colspan="5" class="rien">Aucun résultat antérieur.</td></tr>
             }
           </tbody>
         </table>
