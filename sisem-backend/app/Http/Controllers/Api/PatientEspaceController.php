@@ -121,6 +121,7 @@ class PatientEspaceController extends Controller
             'message' => $n->message,
             'lien' => $n->lien,
             'lu' => $n->lu,
+            'bulletinExamenId' => $n->bulletin_examen_id,
             'date' => $n->created_at->format('d/m/Y H:i'),
         ]));
     }

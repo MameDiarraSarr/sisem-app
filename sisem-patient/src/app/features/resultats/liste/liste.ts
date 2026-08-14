@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, ChangeDetectorRef, OnInit } from '
 import { Auth } from '../../../core/services/auth';
 import { ResultatService } from '../../../core/services/resultat';
 import { ResultatPatient } from '../../../core/models/resultat';
+import { NotificationService } from '../../../core/services/notification';
 import jsPDF from 'jspdf';
 import { enregistrerPolice } from '../../../core/police-pdf';
 import { logoBase64 } from '../../../core/logo-base64';
@@ -16,6 +17,7 @@ export class Liste implements OnInit {
 
   private auth = inject(Auth);
   private resultatService = inject(ResultatService);
+  private notifService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
   patient = this.auth.patientConnecte();
@@ -78,7 +80,12 @@ export class Liste implements OnInit {
   basculerAnterieurs(): void { this.sectionAnterieurs.update(v => !v); }
 
   basculerDetail(id: number): void {
-    this.detailOuvertId.set(this.detailOuvertId() === id ? null : id);
+    const ouvrir = this.detailOuvertId() !== id;
+    this.detailOuvertId.set(ouvrir ? id : null);
+    // Quand on OUVRE un résultat, on marque lue la notification liée à ce bulletin
+    if (ouvrir) {
+      this.notifService.marquerLuePourBulletin(id);
+    }
   }
 
   onRecherche(valeur: string): void {
@@ -121,8 +128,6 @@ export class Liste implements OnInit {
     const navy: [number, number, number] = [26, 61, 99];
     const blueMid: [number, number, number] = [74, 127, 167];
     let y = 20;
-
-    
 
     // Logo HER en haut à gauche
     doc.addImage(logoBase64, 'PNG', 20, y - 5, 20, 20);

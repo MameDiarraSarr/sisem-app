@@ -20,27 +20,14 @@ export class Layout implements OnInit {
   patient = this.auth.patientConnecte();
 
   menuOuvert = signal(false);
-
-  // Notifications
-  notifications = signal<NotificationPatient[]>([]);
   panneauNotifsOuvert = signal(false);
 
+  // Notifications : lues depuis le service partagé (état commun avec la liste)
+  notifications = this.notifService.notifications;
+  nombreNonLues = this.notifService.nombreNonLues;
+
   ngOnInit(): void {
-    this.chargerNotifications();
-  }
-
-  private chargerNotifications(): void {
-    this.notifService.mesNotifications().subscribe({
-      next: (liste) => {
-        this.notifications.set(liste);
-        this.cdr.markForCheck();
-      },
-    });
-  }
-
-  // Nombre de notifications non lues (pour le badge)
-  nombreNonLues(): number {
-    return this.notifications().filter(n => !n.lu).length;
+    this.notifService.charger();
   }
 
   basculerPanneauNotifs(): void {
@@ -48,21 +35,9 @@ export class Layout implements OnInit {
   }
 
   ouvrirNotification(notif: NotificationPatient): void {
-    // Marquer comme lue
-    if (!notif.lu) {
-      this.notifService.marquerLue(notif.id).subscribe({
-        next: () => {
-          notif.lu = true;
-          this.notifications.set([...this.notifications()]);
-          this.cdr.markForCheck();
-        },
-      });
-    }
     this.panneauNotifsOuvert.set(false);
-    // Aller vers le résultat concerné si un lien existe
-    if (notif.lien) {
-      this.router.navigateByUrl(notif.lien);
-    }
+    // On amène vers la liste ; c'est en dépliant le résultat que la notif sera marquée lue
+    this.router.navigate(['/accueil']);
   }
 
   basculerMenu(): void {
