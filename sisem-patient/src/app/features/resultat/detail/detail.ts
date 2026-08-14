@@ -91,13 +91,16 @@ export class Detail implements OnInit {
     doc.setFontSize(11); doc.setTextColor(...navy); doc.setFont('Roboto', 'bold');
     doc.text('Patient : ' + (p?.prenom ?? '') + ' ' + (p?.nom ?? ''), 20, y);
     doc.setFont('Roboto', 'normal'); doc.setTextColor(60, 60, 60);
-    doc.text('N Dossier : ' + r.numeroLabo, 20, y + 6);
-    doc.text('Date du résultat : ' + r.dateResultat, 120, y + 6);
+    const sexeLisible = r.sexe === 'M' ? 'Masculin' : r.sexe === 'F' ? 'Féminin' : '—';
+    doc.text('N° Dossier : ' + (r.numeroDossier ?? '—'), 20, y + 6);
+    doc.text('Âge : ' + (r.age ?? '—'), 120, y + 6);
+    doc.text('Sexe : ' + sexeLisible, 20, y + 12);
+    doc.text('Date du résultat : ' + r.dateResultat, 120, y + 12);
     if (r.medecinPrescripteur) {
-      doc.text('Prescripteur : ' + r.medecinPrescripteur, 20, y + 12);
+      doc.text('Prescrit par : ' + r.medecinPrescripteur, 20, y + 18);
       y += 6;
     }
-    y += 16;
+    y += 22;
 
     // Une SECTION par examen
     for (const examen of r.examens) {

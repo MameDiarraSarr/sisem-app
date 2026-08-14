@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 class PatientEspaceController extends Controller
 {
-    // La liste des résultats validés du patient connecté,
-    // aplatie en examens individuels (un examen = une "ligne" côté patient)
     public function mesResultats(Request $request)
     {
         $patient = $request->user();
@@ -51,7 +49,11 @@ class PatientEspaceController extends Controller
             $resultats[] = [
                 'id' => $b->id,                        // id du bulletin
                 'patientId' => $patient->id,
+                'numeroDossier' => $patient->numero_dossier,
                 'numeroLabo' => $b->numero_labo,
+                'sexe' => $patient->sexe,
+                'age' => $this->calculerAge($patient->date_naissance),
+                'adresse' => $patient->adresse,
                 'medecinPrescripteur' => $medecin,
                 'dateResultat' => $b->date_enregistrement->format('d/m/Y'),
                 'statut' => 'valide',
@@ -131,4 +133,19 @@ class PatientEspaceController extends Controller
 
         return response()->json(['message' => 'Notification lue.']);
     }
+
+    // En pédiatrie : mois avant 1 an, années ensuite
+    private function calculerAge(?\Illuminate\Support\Carbon $naissance): ?string
+    {
+        if (! $naissance) {
+            return null;
+        }
+        $mois = (int) $naissance->diffInMonths(now());
+        if ($mois < 12) {
+            return $mois . ' mois';
+        }
+        $ans = (int) $naissance->diffInYears(now());
+        return $ans . ($ans > 1 ? ' ans' : ' an');
+    }
 }
+

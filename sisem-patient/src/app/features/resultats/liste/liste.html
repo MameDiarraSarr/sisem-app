@@ -44,10 +44,13 @@
 
                 <div class="doc-identite">
                   <div><span>Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
-                  <div><span>N° Dossier</span><b>{{ r.numeroLabo }}</b></div>
+                  <div><span>N° dossier</span><b>{{ r.numeroDossier ?? '—' }}</b></div>
+                  <div><span>Âge</span><b>{{ r.age ?? '—' }}</b></div>
+                  <div><span>Sexe</span><b>{{ r.sexe === 'M' ? 'M' : r.sexe === 'F' ? 'F' : '—' }}</b></div>
+                  <div><span>Adresse</span><b>{{ r.adresse ?? '—' }}</b></div>
                   <div><span>Date du résultat</span><b>{{ r.dateResultat }}</b></div>
                   @if (r.medecinPrescripteur) {
-                    <div><span>Prescripteur</span><b>{{ r.medecinPrescripteur }}</b></div>
+                    <div><span>Prescrit par</span><b>{{ r.medecinPrescripteur }}</b></div>
                   }
                 </div>
 
@@ -148,10 +151,12 @@
 
                         <div class="doc-identite">
                           <div><span>Patient</span><b>{{ patient?.prenom }} {{ patient?.nom }}</b></div>
-                          <div><span>N° Dossier</span><b>{{ r.numeroLabo }}</b></div>
+                          <div><span>N° dossier</span><b>{{ r.numeroDossier ?? '—' }}</b></div>
+                          <div><span>Âge</span><b>{{ r.age ?? '—' }}</b></div>
+                          <div><span>Sexe</span><b>{{ r.sexe === 'M' ? 'Masculin' : r.sexe === 'F' ? 'Féminin' : '—' }}</b></div>
                           <div><span>Date du résultat</span><b>{{ r.dateResultat }}</b></div>
                           @if (r.medecinPrescripteur) {
-                            <div><span>Prescripteur</span><b>{{ r.medecinPrescripteur }}</b></div>
+                            <div><span>Prescrit par</span><b>{{ r.medecinPrescripteur }}</b></div>
                           }
                         </div>
 

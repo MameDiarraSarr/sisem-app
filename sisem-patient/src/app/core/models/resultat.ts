@@ -14,7 +14,11 @@ export interface ExamenResultat {
 export interface ResultatPatient {
   id: number;                            // id du bulletin
   patientId: number;
+  numeroDossier: string | null;          // code patient
   numeroLabo: string;
+  sexe: string | null;
+  age: string | null;
+  adresse: string | null;
   medecinPrescripteur: string | null;
   dateResultat: string;
   statut: 'valide';

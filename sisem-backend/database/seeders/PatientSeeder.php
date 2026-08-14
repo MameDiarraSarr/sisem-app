@@ -51,7 +51,7 @@ class PatientSeeder extends Seeder
                 'date_naissance' => '2021-07-04', 'sexe' => 'F',
                 'telephone' => '772345678', 'adresse' => 'Grand Yoff',
             ],
-            ['numero_dossier' => null, 'type_patient' => 'externe', 'ville' => 'Dakar', 'pavillon_id' => null]
+            ['numero_dossier' => 'DOS-0002', 'type_patient' => 'externe', 'ville' => 'Dakar', 'pavillon_id' => null]
         );
     }
 }

@@ -82,9 +82,7 @@ class PatientController extends Controller
         }
         unset($donnees['pavillon_id']);
 
-        $numeroDossier = $donnees['type_patient'] === 'interne'
-            ? $this->genererNumeroDossier()
-            : null;
+        $numeroDossier = $this->genererNumeroDossier();
 
         $patient = DB::transaction(function () use ($donnees, $pavillonId, $numeroDossier) {
             // 1. L'utilisateur (identité + identifiants de connexion)
