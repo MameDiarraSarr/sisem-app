@@ -81,7 +81,8 @@
 
 .ligne { cursor: pointer; transition: background .2s; }
 .ligne:hover { background: rgba(74,127,167,.06); }
-.ligne.active { background: rgba(74,127,167,.1); }
+.ligne.active { background: rgba(74,127,167,.16); box-shadow: inset 3px 0 0 #1A3D63; }
+.ligne.active td { color: #0A1931; font-weight: 600; }
 .ligne td { padding: 14px 8px; font-size: 13.5px; color: #2a2a2a; border-bottom: 1px solid rgba(74,127,167,.08); }
 .reference { font-weight: 700; color: #0A1931; }
 .presc { color: #4A7FA7; }

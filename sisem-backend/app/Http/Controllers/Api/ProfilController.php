@@ -25,6 +25,8 @@ class ProfilController extends Controller
                 'adresse' => $u->adresse,
                 'ville' => $u->ville,
                 'numero_dossier' => $u->numero_dossier,
+                'sexe' => $u->sexe,
+                'age' => $this->calculerAge($u->date_naissance),
             ]);
         }
 
@@ -77,5 +79,22 @@ class ProfilController extends Controller
         }
 
         return response()->json(['message' => 'Profil mis à jour.']);
+    }
+
+    // En pédiatrie : mois avant 1 an, années ensuite
+    private function calculerAge($naissance): ?string
+    {
+        if (! $naissance) {
+            return null;
+        }
+        $date = $naissance instanceof \Illuminate\Support\Carbon
+            ? $naissance
+            : \Illuminate\Support\Carbon::parse($naissance);
+        $mois = (int) $date->diffInMonths(now());
+        if ($mois < 12) {
+            return $mois . ' mois';
+        }
+        $ans = (int) $date->diffInYears(now());
+        return $ans . ($ans > 1 ? ' ans' : ' an');
     }
 }

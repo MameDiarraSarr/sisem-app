@@ -1,34 +1,105 @@
 <div class="page">
-  <div class="entete">
-    <h1>Mon profil</h1>
-  </div>
+  @if (chargement()) {
+    <div class="chargement">Chargement…</div>
+  } @else if (profil(); as p) {
 
-  @if (patient) {
-    <div class="carte-profil glass">
+    <div class="entete-page">
       <div class="avatar">{{ initiales() }}</div>
-      <h2>{{ patient.prenom }} {{ patient.nom }}</h2>
-      <span class="role">Patient</span>
-    </div>
-
-    <div class="infos glass">
-      <div class="ligne">
-        <span class="lbl">Téléphone</span>
-        <span class="val">{{ patient.telephone }}</span>
-      </div>
-      <div class="ligne">
-        <span class="lbl">Identifiant patient</span>
-        <span class="val">#{{ patient.id }}</span>
+      <div>
+        <h1>{{ p.prenom }} {{ p.nom }}</h1>
+        <span class="role">Patient</span>
       </div>
     </div>
 
-    <button class="btn-mdp">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Changer mon mot de passe
-    </button>
+    <!-- ══ UNE SEULE SECTION, DEUX ACCORDÉONS ══ -->
+    <div class="section glass">
 
-    <button class="btn-out" (click)="seDeconnecter()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
-      Déconnexion
-    </button>
+      <!-- Accordéon 1 : Mes informations -->
+      <button class="accordeon-tete" (click)="basculerInfos()">
+        <b>Mes informations</b>
+        <svg class="fleche" [class.ouvert]="sectionInfos()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      @if (sectionInfos()) {
+        <div class="accordeon-corps">
+          @if (!modeEdition()) {
+            <div class="infos">
+              <div class="bloc-info"><span class="lbl">Identifiant / tél</span><b>{{ p.telephone }}</b></div>
+              <div class="bloc-info"><span class="lbl">Email</span><b>{{ p.email ?? '—' }}</b></div>
+            </div>
+
+            @if (message()) { <div class="msg-ok">{{ message() }}</div> }
+
+            <button class="btn-modifier" (click)="activerEdition()">Modifier mes informations</button>
+          } @else {
+            <div class="form">
+              <label>
+                Identifiant / tél
+                <input type="tel" [(ngModel)]="telephone" name="tel">
+                <span class="avertissement">Votre téléphone vous sert à vous connecter. Si vous le changez, utilisez le nouveau numéro à la prochaine connexion.</span>
+              </label>
+              <label>
+                Email
+                <input type="email" [(ngModel)]="email" name="email">
+              </label>
+
+              @if (erreur()) { <div class="msg-erreur">{{ erreur() }}</div> }
+
+              <div class="actions">
+                <button class="btn-annuler" (click)="annulerEdition()" [disabled]="enregistrement()">Annuler</button>
+                <button class="btn-enregistrer" (click)="enregistrer()" [disabled]="enregistrement()">
+                  {{ enregistrement() ? 'Enregistrement…' : 'Enregistrer' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="accordeon-separateur"></div>
+
+      <!-- Accordéon 2 : Changer mon mot de passe -->
+      <button class="accordeon-tete" (click)="basculerMdp()">
+        <b>Changer mon mot de passe</b>
+        <svg class="fleche" [class.ouvert]="sectionMdp()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      @if (sectionMdp()) {
+        <div class="accordeon-corps">
+          <div class="aide">
+            <p>Ne choisissez pas un mot de passe déjà utilisé sur un autre site, ni trop évident.</p>
+            <p>Utilisez au moins 6 caractères.</p>
+            <p>Le nouveau mot de passe doit être différent de l'ancien.</p>
+          </div>
+
+          <div class="form">
+            <label>
+              Mot de passe actuel
+              <input type="password" [(ngModel)]="ancien" name="ancien" placeholder="••••••••">
+            </label>
+            <label>
+              Nouveau mot de passe
+              <input type="password" [(ngModel)]="nouveau" name="nouveau" placeholder="••••••••">
+            </label>
+            <label>
+              Confirmer le nouveau mot de passe
+              <input type="password" [(ngModel)]="confirmation" name="confirmation" placeholder="••••••••" (keyup.enter)="changerMotDePasse()">
+            </label>
+
+            @if (erreurMdp()) { <div class="msg-erreur">{{ erreurMdp() }}</div> }
+            @if (messageMdp()) { <div class="msg-ok">{{ messageMdp() }}</div> }
+
+            <button class="btn-enregistrer pleine" (click)="changerMotDePasse()" [disabled]="chargementMdp()">
+              {{ chargementMdp() ? 'Enregistrement…' : 'Valider le nouveau mot de passe' }}
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+
+
+  } @else {
+    <div class="chargement">Profil introuvable.</div>
   }
 </div>
