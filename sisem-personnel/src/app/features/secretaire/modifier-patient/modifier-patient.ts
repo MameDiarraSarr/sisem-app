@@ -27,6 +27,8 @@ export class ModifierPatient implements OnInit {
   email = '';
   adresse = '';
   ville = '';
+  typePatient = '';
+  pavillonId = '';
 
   id = 0;
 
@@ -60,6 +62,8 @@ export class ModifierPatient implements OnInit {
         this.email = p.email ?? '';
         this.adresse = p.adresse ?? '';
         this.ville = p.ville ?? '';
+        this.typePatient = p.type_patient;
+        this.pavillonId = p.pavillon_id ? String(p.pavillon_id) : '';
 
         // L'âge revient sous forme de chaîne ("8 ans", "5 mois") : on le décompose
         if (p.age) {
@@ -92,6 +96,10 @@ export class ModifierPatient implements OnInit {
       this.erreur.set('L\'âge du patient est obligatoire.');
       return;
     }
+    if (this.typePatient === 'interne' && !this.pavillonId) {
+      this.erreur.set('Un patient interne doit être rattaché à un pavillon.');
+      return;
+    }
 
     this.erreur.set(null);
     this.chargement.set(true);
@@ -107,6 +115,8 @@ export class ModifierPatient implements OnInit {
       email: this.email || null,
       adresse: this.adresse || null,
       ville: this.ville || null,
+      type_patient: this.typePatient as 'interne' | 'externe',
+      pavillon_id: this.typePatient === 'interne' && this.pavillonId ? Number(this.pavillonId) : null,
     };
 
     this.patientService.modifierPatient(this.id, dto).subscribe({

@@ -127,6 +127,7 @@ class PatientController extends Controller
             'email' => ['nullable', 'email', 'max:150'],
             'adresse' => ['nullable', 'string', 'max:255'],
             'ville' => ['nullable', 'string', 'max:100'],
+            'type_patient' => ['required', Rule::in(['interne', 'externe'])],
             'pavillon_id' => ['nullable', 'exists:pavillons,id'],
         ]);
 
@@ -137,6 +138,13 @@ class PatientController extends Controller
         }
 
         unset($donnees['age_valeur'], $donnees['age_unite']);
+
+        // Un patient interne doit avoir un pavillon (vérif AVANT la transaction)
+        if ($donnees['type_patient'] === 'interne' && empty($donnees['pavillon_id'])) {
+            return response()->json([
+                'message' => 'Un patient interne doit être rattaché à un pavillon.',
+            ], 422);
+        }
 
         DB::transaction(function () use ($patient, $donnees) {
             // Champs communs → table utilisateurs
@@ -150,11 +158,15 @@ class PatientController extends Controller
                 'adresse' => $donnees['adresse'] ?? null,
             ]);
 
-            // Champs propres au patient → table patients (dont le pavillon, pour un interne)
-            $majPatient = ['ville' => $donnees['ville'] ?? null];
-            if ($patient->type_patient === 'interne') {
-                $majPatient['pavillon_id'] = $donnees['pavillon_id'] ?? $patient->pavillon_id;
-            }
+            // Champs propres au patient → table patients
+            $majPatient = [
+                'ville' => $donnees['ville'] ?? null,
+                'type_patient' => $donnees['type_patient'],
+            ];
+            // Interne → garde son pavillon ; externe → on vide le pavillon
+            $majPatient['pavillon_id'] = $donnees['type_patient'] === 'interne'
+                ? $donnees['pavillon_id']
+                : null;
             $patient->update($majPatient);
         });
 
@@ -183,13 +195,10 @@ class PatientController extends Controller
         }
 
         $mois = (int) $naissance->diffInMonths(now());
-
         if ($mois < 12) {
             return $mois . ' mois';
         }
-
         $ans = (int) $naissance->diffInYears(now());
-
         return $ans . ($ans > 1 ? ' ans' : ' an');
     }
 

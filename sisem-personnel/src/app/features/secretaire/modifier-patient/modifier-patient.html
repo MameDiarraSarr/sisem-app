@@ -43,6 +43,24 @@
           <option value="F">Féminin</option>
         </select>
       </div>
+      <div class="field">
+        <label>Type de patient</label>
+        <select [(ngModel)]="typePatient" name="typePatient">
+          <option value="interne">Interne</option>
+          <option value="externe">Externe</option>
+        </select>
+      </div>
+      @if (typePatient === 'interne') {
+        <div class="field">
+          <label>Pavillon</label>
+          <select [(ngModel)]="pavillonId" name="pavillonId">
+            <option value="">Sélectionner</option>
+            @for (p of pavillons(); track p.id) {
+              <option [value]="p.id">{{ p.nom }}</option>
+            }
+          </select>
+        </div>
+      }
     </div>
 
     <div class="section-title">Coordonnées</div>
