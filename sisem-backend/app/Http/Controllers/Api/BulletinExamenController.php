@@ -198,6 +198,9 @@ class BulletinExamenController extends Controller
                 'nom_complet' => $b->patient->prenom . ' ' . $b->patient->nom,
                 'numero_dossier' => $b->patient->numero_dossier,
                 'type_patient' => $b->patient->type_patient,
+                'sexe' => $b->patient->sexe,
+                'age' => $this->calculerAge($b->patient->date_naissance),
+                'adresse' => $b->patient->adresse,
             ],
             'pavillon' => $b->pavillon?->nom,
             'medecin' => $b->medecin ? [
@@ -241,5 +244,21 @@ class BulletinExamenController extends Controller
         });
 
         return $base;
+    }
+
+    private function calculerAge($naissance): ?string
+    {
+        if (! $naissance) {
+            return null;
+        }
+        $date = $naissance instanceof \Illuminate\Support\Carbon
+            ? $naissance
+            : \Illuminate\Support\Carbon::parse($naissance);
+        $mois = (int) $date->diffInMonths(now());
+        if ($mois < 12) {
+            return $mois . ' mois';
+        }
+        $ans = (int) $date->diffInYears(now());
+        return $ans . ($ans > 1 ? ' ans' : ' an');
     }
 }

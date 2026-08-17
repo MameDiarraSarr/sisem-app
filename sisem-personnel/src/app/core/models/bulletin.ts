@@ -21,6 +21,9 @@ export interface Bulletin {
     nom_complet: string;
     numero_dossier: string | null;
     type_patient: 'interne' | 'externe';
+    sexe: string | null;
+    age: string | null;
+    adresse: string | null;
   };
   pavillon: string | null;
   medecin: {

@@ -14,17 +14,18 @@
     <h3>Tous les bulletins</h3>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input placeholder="Rechercher par patient, N° Labo ou examen..." [(ngModel)]="recherche">
+      <input placeholder="Rechercher par patient, N° Labo, pavillon ou examen..." [(ngModel)]="recherche">
     </div>
   </div>
 
   <table>
-    <thead><tr><th>N° Labo</th><th>Patient</th><th>Examen demandé</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+    <thead><tr><th>N° Labo</th><th>Patient</th><th>Pavillon</th><th>Examen demandé</th><th>Date</th><th>Statut</th><th></th></tr></thead>
     <tbody>
       @for (bulletin of bulletins(); track bulletin.id) {
         <tr>
           <td><b>{{ bulletin.numero_labo }}</b></td>
           <td>{{ bulletin.patient.nom_complet }}</td>
+          <td>{{ bulletin.pavillon ?? '—' }}</td>
           <td>
             @if (bulletin.examens.length === 1) {
               {{ bulletin.examens[0].nom_examen }}
@@ -52,7 +53,7 @@
         </tr>
       } @empty {
         @if (charge()) {
-          <tr><td colspan="6" class="vide">Aucun examen enregistré.</td></tr>
+          <tr><td colspan="7" class="vide">Aucun examen enregistré.</td></tr>
         }
       }
     </tbody>

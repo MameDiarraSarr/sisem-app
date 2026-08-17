@@ -33,6 +33,7 @@ export class Examens implements OnInit {
     return this.tout().filter(b =>
       b.patient.nom_complet.toLowerCase().includes(terme) ||
       b.numero_labo.toLowerCase().includes(terme) ||
+      (b.pavillon ?? '').toLowerCase().includes(terme) ||
       b.examens.some(e => e.nom_examen.toLowerCase().includes(terme))
     );
   });

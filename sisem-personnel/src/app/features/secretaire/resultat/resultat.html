@@ -20,60 +20,65 @@
   @if (bulletin(); as b) {
     <div class="feuille glass">
 
-      <div class="entete">
-        <div class="hopital">
-          <b>Hôpital d'Enfants Albert Royer</b>
-          <span>Système de Suivi des Examens Médicaux</span>
+      <div class="doc-entete">
+        <img src="logo.png" alt="Logo HER" class="logo-her">
+        <div>
+          <b style="display:block; font-size:14px; color:#1A3D63;">Système de Suivi des Examens Médicaux (SISEM)</b>
+          <span style="display:block; font-size:12px; color:#646464;">LABORATOIRE — HÔPITAL D'ENFANTS ALBERT ROYER</span>
+          <span style="display:block; font-size:12px; color:#646464;">Tel: 33-859-47-47</span>
         </div>
-        <div class="labo">N° Labo : <b>{{ b.numero_labo }}</b></div>
       </div>
+      <div class="doc-separator"></div>
 
       <div class="bloc-infos">
-        <div class="info"><span class="lbl">Patient</span><b>{{ b.patient.nom_complet }}</b></div>
-        @if (b.patient.numero_dossier) {
-          <div class="info"><span class="lbl">N° Dossier</span><b>{{ b.patient.numero_dossier }}</b></div>
+        <div class="info-row">
+          <span class="info"><span class="lbl">Patient</span> <b>{{ b.patient.nom_complet }}</b></span>
+        </div>
+        <div class="info-row two-col">
+          <span class="info"><span class="lbl">N° Dossier</span> <b>{{ b.patient.numero_dossier ?? '—' }}</b></span>
+          <span class="info"><span class="lbl">Âge</span> <b>{{ b.patient.age ?? '—' }}</b></span>
+        </div>
+        <div class="info-row two-col">
+          <span class="info"><span class="lbl">Sexe</span> <b>{{ b.patient.sexe === 'M' ? 'Masculin' : b.patient.sexe === 'F' ? 'Féminin' : '—' }}</b></span>
+          <span class="info"><span class="lbl">Date du résultat</span> <b>{{ b.date_enregistrement }}</b></span>
+        </div>
+        @if (b.patient.adresse) {
+          <div class="info-row"><span class="info"><span class="lbl">Adresse</span> <b>{{ b.patient.adresse }}</b></span></div>
         }
-        @if (b.pavillon) {
-          <div class="info"><span class="lbl">Pavillon</span><b>{{ b.pavillon }}</b></div>
-        }
+        
         @if (b.medecin) {
-          <div class="info"><span class="lbl">Médecin prescripteur</span><b>{{ b.medecin.nom_complet }}</b></div>
+          <div class="info-row"><span class="info"><span class="lbl">Prescrit par</span> <b>{{ b.medecin.nom_complet }}</b></span></div>
         }
         @if (b.indication_examen) {
-          <div class="info"><span class="lbl">Indication</span><b>{{ b.indication_examen }}</b></div>
+          <div class="info-row"><span class="info"><span class="lbl">Indication</span> <b>{{ b.indication_examen }}</b></span></div>
         }
         @if (b.traitement_en_cours) {
-          <div class="info"><span class="lbl">Traitement en cours</span><b>{{ b.traitement_en_cours }}</b></div>
+          <div class="info-row"><span class="info"><span class="lbl">Traitement en cours</span> <b>{{ b.traitement_en_cours }}</b></span></div>
         }
-        <div class="info"><span class="lbl">Date</span><b>{{ b.date_enregistrement }}</b></div>
-
       </div>
 
-      <div class="section-title">Résultats des analyses</div>
-
       @for (examen of b.examens; track examen.examen_demande_id) {
-        <h4 class="nom-examen">{{ examen.nom_examen }}</h4>
-        <table>
-          <thead><tr><th>Analyse</th><th>Résultat</th><th>Unité</th><th>Valeur de référence</th><th>État</th></tr></thead>
-          <tbody>
-            @for (analyse of examen.analyses; track analyse.analyse_reference_id) {
-              <tr>
-                <td><b>{{ analyse.nom_analyse }}</b></td>
-                <td class="valeur">{{ analyse.valeur_resultat ?? '—' }}</td>
-                <td class="unite">{{ analyse.unite }}</td>
-                <td class="ref">{{ analyse.valeur_normale }}</td>
-                <td>
-                  @switch (statutValeur(analyse.valeur_resultat ?? '', analyse.valeur_normale)) {
-                    @case ('normal') { <span class="etat normal">Normal</span> }
-                    @case ('anormal') { <span class="etat anormal">Hors norme</span> }
-                    @default { <span class="etat neutre">—</span> }
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        <div class="examen-section">
+          <h4 class="examen-titre">{{ examen.nom_examen }}</h4>
+          <table>
+            <tbody>
+              @for (analyse of examen.analyses; track analyse.analyse_reference_id) {
+                <tr>
+                  <td class="param">{{ analyse.nom_analyse }}</td>
+                  <td class="valeur" [class.anormal]="statutValeur(analyse.valeur_resultat ?? '', analyse.valeur_normale) === 'anormal'">{{ analyse.valeur_resultat ?? '—' }}</td>
+                  <td class="unite">{{ analyse.unite }}</td>
+                  <td class="ref">({{ analyse.valeur_normale }})</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       }
+
+      <div class="doc-signature">
+        <p>Compte-rendu validé par le biologiste responsable.</p>
+        <p class="mention">Document généré par SISEM — Hôpital d'Enfants Albert Royer.</p>
+      </div>
 
     </div>
   } @else if (erreur()) {

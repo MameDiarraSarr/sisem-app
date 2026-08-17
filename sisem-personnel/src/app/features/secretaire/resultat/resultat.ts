@@ -27,7 +27,7 @@ export class Resultat implements OnInit {
   }
 
   retour(): void {
-    this.router.navigate(['/secretaire']);
+    this.router.navigate(['/secretaire/examens']);
   }
 
   imprimer(): void {
