@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { BulletinService } from '../../../core/services/bulletin';
 import { Bulletin } from '../../../core/models/bulletin';
 import { environment } from '../../../../environments/environment';
+import { NotificationService } from '../../../core/services/notification';
 
 // Une ligne de saisie par analyse — on garde l'examen_demande_id auquel elle appartient
 interface LigneSaisie {
@@ -28,6 +29,7 @@ export class SaisieResultats implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private bulletinService = inject(BulletinService);
+  private notif = inject(NotificationService);
 
   bulletin = signal<Bulletin | null>(null);
   lignes = signal<LigneSaisie[]>([]);
@@ -79,6 +81,7 @@ export class SaisieResultats implements OnInit {
     this.http.post(`${environment.apiUrl}/bulletins/${this.id}/resultats`, { resultats }).subscribe({
       next: () => {
         this.chargement.set(false);
+        this.notif.charger();
         this.router.navigate(['/technicien']);
       },
       error: (err) => {

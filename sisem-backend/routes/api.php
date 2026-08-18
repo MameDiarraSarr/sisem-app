@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
 // ── Bulletins d'examen ──
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::get('/bulletins', [BulletinExamenController::class, 'index']);
+    Route::get('/bulletins/nombre-a-traiter', [BulletinExamenController::class, 'nombreATraiter']);
     Route::get('/bulletins/{bulletin}', [BulletinExamenController::class, 'show']);
 
     Route::post('/bulletins', [BulletinExamenController::class, 'store'])

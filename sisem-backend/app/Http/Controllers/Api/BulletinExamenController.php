@@ -46,6 +46,25 @@ class BulletinExamenController extends Controller
         return response()->json($bulletins->map(fn ($b) => $this->formater($b)));
     }
 
+    // Compteur pour la cloche : nombre de bulletins que ce rôle doit encore traiter
+    public function nombreATraiter(Request $request)
+    {
+        $user = $request->user();
+        $requete = BulletinExamen::query();
+
+        match ($user->role) {
+            'technicien' => $requete->where('statut', 'enregistre'),   // à saisir
+            'biologiste' => $requete->where('statut', 'saisi'),        // à valider
+            'major' => $requete->where('statut', 'valide')
+                                ->where('pavillon_id', $user->pavillon_id),
+            'medecin' => $requete->where('statut', 'valide')
+                                 ->whereIn('pavillon_id', $this->pavillonsDuMedecin($user)),
+            default => $requete->whereRaw('1 = 0'), // secrétaire/admin : rien à traiter
+        };
+
+        return response()->json(['nombre' => $requete->count()]);
+    }
+
     // Les pavillons où le médecin connecté a une affectation active
     private function pavillonsDuMedecin($user): array
     {

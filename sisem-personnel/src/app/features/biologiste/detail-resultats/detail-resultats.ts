@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { BulletinService } from '../../../core/services/bulletin';
 import { Bulletin } from '../../../core/models/bulletin';
+import { NotificationService } from '../../../core/services/notification';
 
 @Component({
   selector: 'app-detail-resultats',
@@ -14,6 +15,7 @@ export class DetailResultats implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private bulletinService = inject(BulletinService);
+  private notif = inject(NotificationService);
 
   bulletin = signal<Bulletin | null>(null);
   chargement = signal(false);
@@ -33,6 +35,7 @@ export class DetailResultats implements OnInit {
     this.bulletinService.validerBulletin(this.id).subscribe({
       next: () => {
         this.chargement.set(false);
+        this.notif.charger();
         this.router.navigate(['/biologiste']);
       },
       error: (err) => {
@@ -47,6 +50,7 @@ export class DetailResultats implements OnInit {
     this.bulletinService.renvoyerBulletin(this.id).subscribe({
       next: () => {
         this.chargement.set(false);
+        this.notif.charger();
         this.router.navigate(['/biologiste']);
       },
       error: (err) => {

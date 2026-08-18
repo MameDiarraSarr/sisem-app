@@ -1,7 +1,7 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from '../../core/services/auth';
-
+import { NotificationService } from '../../core/services/notification';
 // Un lien de menu
 interface LienMenu {
   libelle: string;
@@ -15,10 +15,15 @@ interface LienMenu {
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout {
+export class Layout implements OnInit {
 
   private auth = inject(Auth);
   private router = inject(Router);
+  notif = inject(NotificationService);
+
+  ngOnInit(): void {
+    this.notif.charger();
+  }
 
   // L'utilisateur connecté
   utilisateur = this.auth.utilisateurConnecte;
@@ -77,6 +82,12 @@ export class Layout {
 
     // par défaut, aucun menu
     return [];
+  });
+
+  // La cloche "à traiter" ne concerne que les rôles avec une file de travail
+  roleAvecCloche = computed(() => {
+    const role = this.utilisateur()?.role;
+    return role === 'technicien' || role === 'biologiste';
   });
 
   // Initiales pour l'avatar
