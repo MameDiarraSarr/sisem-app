@@ -26,10 +26,14 @@ import { DetailPatient } from './features/secretaire/detail-patient/detail-patie
 import { Resultat } from './features/secretaire/resultat/resultat';
 import { ModifierPatient } from './features/secretaire/modifier-patient/modifier-patient';
 import { ChangerMotDePasse } from './features/changer-mot-de-passe/changer-mot-de-passe';
+import { MotDePasseOublie } from './features/auth/mot-de-passe-oublie/mot-de-passe-oublie';
+import { ReinitialiserMotDePasse } from './features/auth/reinitialiser-mot-de-passe/reinitialiser-mot-de-passe';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
+  { path: 'mot-de-passe-oublie', component: MotDePasseOublie },
+  { path: 'reinitialiser-mot-de-passe', component: ReinitialiserMotDePasse },
   { path: 'changer-mot-de-passe', component: ChangerMotDePasse, canActivate: [authGuard] },
 
   {

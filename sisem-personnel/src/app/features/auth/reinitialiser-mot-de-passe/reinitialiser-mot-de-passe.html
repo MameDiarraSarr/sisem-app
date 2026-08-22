@@ -1,0 +1,53 @@
+<div class="bg">
+  <img src="labos.jpg" alt="Laboratoire">
+</div>
+
+<div class="brand-block">
+  <div class="logo">
+    <div class="mk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg>
+    </div>
+    <span class="bn">SISEM</span>
+  </div>
+</div>
+
+<div class="glass">
+  <h2>Nouveau mot de passe</h2>
+  <p class="sub">Choisissez un nouveau mot de passe pour votre compte</p>
+
+  @if (!termine()) {
+    <div class="field">
+      <label for="pwd">Nouveau mot de passe</label>
+      <div class="iw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input id="pwd" type="password" placeholder="••••••••" [(ngModel)]="motDePasse">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pwd2">Confirmer le mot de passe</label>
+      <div class="iw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input id="pwd2" type="password" placeholder="••••••••" [(ngModel)]="motDePasseConfirmation">
+      </div>
+    </div>
+  }
+
+  @if (message()) {
+    <p class="message-succes">{{ message() }}</p>
+  }
+
+  @if (erreur()) {
+    <p class="message-erreur">{{ erreur() }}</p>
+  }
+
+  @if (!termine()) {
+    <button class="btn" (click)="reinitialiser()" [disabled]="chargement()">
+      {{ chargement() ? 'Enregistrement...' : 'Réinitialiser' }}
+    </button>
+  } @else {
+    <button class="btn" (click)="allerConnexion()">Aller à la connexion</button>
+  }
+
+  <p class="foot"><a class="lk" routerLink="/login">Retour à la connexion</a></p>
+</div>

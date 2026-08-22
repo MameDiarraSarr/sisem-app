@@ -1,0 +1,39 @@
+<div class="bg">
+  <img src="labos.jpg" alt="Laboratoire">
+</div>
+
+<div class="brand-block">
+  <div class="logo">
+    <div class="mk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg>
+    </div>
+    <span class="bn">SISEM</span>
+  </div>
+</div>
+
+<div class="glass">
+  <h2>Mot de passe oublié</h2>
+  <p class="sub">Saisissez votre e-mail pour recevoir un lien de réinitialisation</p>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <div class="iw">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+      <input id="email" type="email" placeholder="exemple@albertroyer.sn" [(ngModel)]="email">
+    </div>
+  </div>
+
+  @if (message()) {
+    <p class="message-succes">{{ message() }}</p>
+  }
+
+  @if (erreur()) {
+    <p class="message-erreur">{{ erreur() }}</p>
+  }
+
+  <button class="btn" (click)="envoyer()" [disabled]="chargement()">
+    {{ chargement() ? 'Envoi...' : 'Envoyer le lien' }}
+  </button>
+
+  <p class="foot"><a class="lk" routerLink="/login">Retour à la connexion</a></p>
+</div>

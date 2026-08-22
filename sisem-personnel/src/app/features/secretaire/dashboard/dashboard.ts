@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PatientService } from '../../../core/services/patient';
 import { Patient } from '../../../core/models/patient';
+import { BulletinService } from '../../../core/services/bulletin';
+import { Bulletin } from '../../../core/models/bulletin';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,11 +14,15 @@ import { Patient } from '../../../core/models/patient';
 })
 export class Dashboard implements OnInit {
   private patientService = inject(PatientService);
+  private bulletinService = inject(BulletinService);
 
   recherche = signal('');
 
   // Les patients chargés depuis l'API, dans un signal
   private tousLesPatients = signal<Patient[]>([]);
+
+  // Les bulletins chargés depuis l'API, dans un signal
+  private tousLesBulletins = signal<Bulletin[]>([]);
 
   chargement = signal(false);
   erreur = signal<string | null>(null);
@@ -33,6 +39,11 @@ export class Dashboard implements OnInit {
         this.chargement.set(false);
       },
     });
+
+    this.bulletinService.getBulletins().subscribe({
+      next: (liste) => this.tousLesBulletins.set(liste),
+      error: () => {}, // on n'affiche pas d'erreur bloquante pour ça
+    });
   }
 
   // Patients filtrés selon la recherche
@@ -44,5 +55,24 @@ export class Dashboard implements OnInit {
       p.nom.toLowerCase().includes(terme) ||
       (p.numero_dossier?.toLowerCase().includes(terme) ?? false)
     );
+  });
+
+  // Patients enregistrés aujourd'hui
+  patientsAujourdhui = computed(() => {
+  const aujourdhui = new Date();
+  const jourStr = String(aujourdhui.getDate()).padStart(2, '0');
+  const moisStr = String(aujourdhui.getMonth() + 1).padStart(2, '0');
+  const anneeStr = String(aujourdhui.getFullYear());
+  const aujourdhuiFr = `${jourStr}/${moisStr}/${anneeStr}`; // "19/08/2026"
+
+  return this.tousLesPatients().filter(p =>
+    p.date_enregistrement === aujourdhuiFr
+  ).length;
+});
+
+  // Patients qui n'ont encore aucun bulletin créé
+  patientsSansBulletin = computed(() => {
+    const idsAvecBulletin = new Set(this.tousLesBulletins().map(b => b.patient.id));
+    return this.tousLesPatients().filter(p => !idsAvecBulletin.has(p.id)).length;
   });
 }
