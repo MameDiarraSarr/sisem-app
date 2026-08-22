@@ -12,11 +12,14 @@ use App\Http\Controllers\Api\MedecinController;
 use App\Http\Controllers\Api\AffectationController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\MotDePasseController;
+use App\Http\Controllers\Api\MotDePasseOublieController;
 use App\Http\Controllers\Api\ProfilController;
 use App\Http\Controllers\Api\PavillonController;
 
 
 Route::post('/personnel/connexion', [AuthPersonnelController::class, 'connexion']);
+Route::post('/personnel/mot-de-passe-oublie', [MotDePasseOublieController::class, 'demander']);
+Route::post('/personnel/reinitialiser-mot-de-passe', [MotDePasseOublieController::class, 'reinitialiser']);
 Route::middleware(['auth:sanctum', 'personnel'])->group(function () {
     Route::post('/personnel/deconnexion', [AuthPersonnelController::class, 'deconnexion']);
     Route::get('/personnel/moi', [AuthPersonnelController::class, 'moi']);
