@@ -54,7 +54,7 @@ export class Auth {
       .subscribe({ complete: () => this.nettoyer(), error: () => this.nettoyer() });
   }
 
-  private nettoyer(): void {
+  nettoyer(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('utilisateur');
     this.utilisateurConnecte.set(null);
