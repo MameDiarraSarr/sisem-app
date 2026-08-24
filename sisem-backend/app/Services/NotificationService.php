@@ -45,9 +45,9 @@ class NotificationService
 
         $destinataires = collect();
 
-        // Toutes les secrétaires actives
+        // Toutes les secrétaires débloquées
         $destinataires = $destinataires->merge(
-            \App\Models\User::where('role', 'secretaire')->where('statut', 'actif')->get()
+            \App\Models\User::where('role', 'secretaire')->where('statut', 'debloque')->get()
         );
 
         // Le major du pavillon du bulletin
@@ -55,7 +55,7 @@ class NotificationService
             $destinataires = $destinataires->merge(
                 \App\Models\User::where('role', 'major')
                     ->where('pavillon_id', $bulletin->pavillon_id)
-                    ->where('statut', 'actif')
+                    ->where('statut', 'debloque')
                     ->get()
             );
         }

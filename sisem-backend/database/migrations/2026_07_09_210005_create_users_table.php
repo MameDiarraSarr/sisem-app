@@ -31,7 +31,7 @@ return new class extends Migration
             $table->foreign('id')->references('id')->on('utilisateurs')->cascadeOnDelete();
             $table->string('matricule')->unique();
             $table->enum('role', ['admin', 'secretaire', 'technicien', 'biologiste', 'medecin', 'major']);
-            $table->enum('statut', ['actif', 'inactif'])->default('actif');
+            $table->enum('statut', ['debloque', 'bloque'])->default('debloque');
             $table->foreignId('pavillon_id')->nullable()->constrained('pavillons')->nullOnDelete();
             $table->timestamps();
         });

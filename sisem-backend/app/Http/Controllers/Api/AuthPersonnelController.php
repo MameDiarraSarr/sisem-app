@@ -27,9 +27,9 @@ class AuthPersonnelController extends Controller
             ]);
         }
 
-        if ($user->statut !== 'actif') {
+        if ($user->statut !== 'debloque') {
             throw ValidationException::withMessages([
-                'email' => ['Ce compte a été désactivé.'],
+                'email' => ['Ce compte a été bloqué.'],
             ]);
         }
 

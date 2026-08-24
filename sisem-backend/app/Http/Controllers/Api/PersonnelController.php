@@ -69,7 +69,7 @@ class PersonnelController extends Controller
                 'id' => $utilisateur->id,
                 'matricule' => $this->genererMatricule($donnees['role']),
                 'role' => $donnees['role'],
-                'statut' => 'actif',
+                'statut' => 'debloque',
                 'pavillon_id' => $pavillonCompte,
             ]);
 
@@ -140,7 +140,7 @@ class PersonnelController extends Controller
     // Activer / désactiver — on ne supprime jamais un compte (traçabilité)
     public function changerStatut(Request $request, User $user)
     {
-        $nouveau = $user->statut === 'actif' ? 'inactif' : 'actif';
+        $nouveau = $user->statut === 'debloque' ? 'bloque' : 'debloque';
         $user->update(['statut' => $nouveau]);
 
         return response()->json(['message' => 'Statut mis à jour.', 'statut' => $nouveau]);

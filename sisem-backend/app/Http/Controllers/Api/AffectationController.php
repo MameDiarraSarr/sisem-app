@@ -31,9 +31,9 @@ class AffectationController extends Controller
             'pavillon_id' => ['required', 'exists:pavillons,id'],
         ]);
 
-        // Le compte du médecin doit être actif pour pouvoir l'affecter
+        // Le compte du médecin doit être débloqué pour pouvoir l'affecter
         $medecin = Medecin::with('user')->find($donnees['medecin_id']);
-        if (! $medecin->user || $medecin->user->statut !== 'actif') {
+        if (! $medecin->user || $medecin->user->statut !== 'debloque') {
             return response()->json([
                 'message' => 'Ce médecin a un compte bloqué : il faut d\'abord le réactiver avant de l\'affecter.',
             ], 422);
