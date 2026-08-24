@@ -8,6 +8,6 @@ export interface MembrePersonnel {
   role: 'secretaire' | 'technicien' | 'biologiste' | 'major' | 'medecin' | 'admin';
   pavillon: string | null;      // nom du pavillon
   pavillon_id: number | null;   // id, pour les formulaires
-  statut: 'actif' | 'inactif';
+  statut: 'debloque' | 'bloque';
   specialite: string | null;    // spécialité, pour les médecins
 }

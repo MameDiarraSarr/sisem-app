@@ -20,7 +20,7 @@ export class Dashboard implements OnInit {
   }
 
   total = computed(() => this.membres().length);
-  actifs = computed(() => this.membres().filter(m => m.statut === 'actif').length);
+  actifs = computed(() => this.membres().filter(m => m.statut === 'debloque').length);
   medecins = computed(() => this.membres().filter(m => m.role === 'medecin').length);
 
   repartition = computed(() => [
