@@ -6,7 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Personnel extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
@@ -56,7 +56,7 @@ class User extends Authenticatable
 
     public function medecin()
     {
-        return $this->hasOne(Medecin::class);
+        return $this->hasOne(Medecin::class, 'user_id');
     }
 
     public function estMedecin(): bool

@@ -47,13 +47,13 @@ class NotificationService
 
         // Toutes les secrétaires débloquées
         $destinataires = $destinataires->merge(
-            \App\Models\User::where('role', 'secretaire')->where('statut', 'debloque')->get()
+            \App\Models\Personnel::where('role', 'secretaire')->where('statut', 'debloque')->get()
         );
 
         // Le major du pavillon du bulletin
         if ($bulletin->pavillon_id) {
             $destinataires = $destinataires->merge(
-                \App\Models\User::where('role', 'major')
+                \App\Models\Personnel::where('role', 'major')
                     ->where('pavillon_id', $bulletin->pavillon_id)
                     ->where('statut', 'debloque')
                     ->get()

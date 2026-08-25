@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Affectation;
 use App\Models\Medecin;
 use App\Models\Pavillon;
-use App\Models\User;
+use App\Models\Personnel;
 use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
 
@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         $usad = Pavillon::where('nom', 'USAD')->first();
 
         // Crée un Utilisateur (identité) + le Personnel lié (même id, clé partagée)
-        $creerPersonnel = function (array $u, array $p): User {
+        $creerPersonnel = function (array $u, array $p): Personnel {
             $utilisateur = Utilisateur::create([
                 'prenom' => $u['prenom'],
                 'nom' => $u['nom'],
@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
                 'mot_de_passe' => 'test123',
             ]);
 
-            return User::create([
+            return Personnel::create([
                 'id' => $utilisateur->id,
                 'matricule' => $p['matricule'],
                 'role' => $p['role'],

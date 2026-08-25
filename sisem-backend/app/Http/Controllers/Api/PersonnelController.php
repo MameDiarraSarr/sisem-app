@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Medecin;
-use App\Models\User;
+use App\Models\Personnel;
 use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,7 +16,7 @@ class PersonnelController extends Controller
     {
         $recherche = $request->query('recherche');
 
-        $personnel = User::with('pavillon', 'medecin')
+        $personnel = Personnel::with('pavillon', 'medecin')
             ->when($recherche, function ($query, $terme) {
                 $query->where(function ($q) use ($terme) {
                     $q->where('matricule', 'ilike', "%{$terme}%")
@@ -65,7 +65,7 @@ class PersonnelController extends Controller
             // Pour un médecin, le pavillon se gère uniquement via les affectations.
             $pavillonCompte = $donnees['role'] === 'major' ? ($donnees['pavillon_id'] ?? null) : null;
 
-            $user = User::create([
+            $user = Personnel::create([
                 'id' => $utilisateur->id,
                 'matricule' => $this->genererMatricule($donnees['role']),
                 'role' => $donnees['role'],
@@ -93,7 +93,7 @@ class PersonnelController extends Controller
         return response()->json($reponse, 201);
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, Personnel $user)
     {
         $donnees = $request->validate([
             'prenom' => ['required', 'string', 'max:100'],
@@ -138,7 +138,7 @@ class PersonnelController extends Controller
     }
 
     // Activer / désactiver — on ne supprime jamais un compte (traçabilité)
-    public function changerStatut(Request $request, User $user)
+    public function changerStatut(Request $request, Personnel $user)
     {
         $nouveau = $user->statut === 'debloque' ? 'bloque' : 'debloque';
         $user->update(['statut' => $nouveau]);
@@ -154,12 +154,12 @@ class PersonnelController extends Controller
         ];
 
         $prefixe = $prefixes[$role];
-        $count = User::where('role', $role)->count() + 1;
+        $count = Personnel::where('role', $role)->count() + 1;
 
         return $prefixe . '-' . str_pad((string) $count, 3, '0', STR_PAD_LEFT);
     }
 
-    private function formater(User $u): array
+    private function formater(Personnel $u): array
     {
         return [
             'id' => $u->id,

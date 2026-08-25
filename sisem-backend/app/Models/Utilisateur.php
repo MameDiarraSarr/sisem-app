@@ -33,7 +33,7 @@ class Utilisateur extends Authenticatable
     // Le personnel lié à cet utilisateur (s'il en est un)
     public function personnel()
     {
-        return $this->hasOne(User::class, 'id');
+        return $this->hasOne(Personnel::class, 'id');
     }
 
     // Le patient lié à cet utilisateur (s'il en est un)

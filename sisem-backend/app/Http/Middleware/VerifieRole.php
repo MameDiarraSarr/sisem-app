@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
+use App\Models\Personnel;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -12,7 +12,7 @@ class VerifieRole
     {
         $user = $request->user();
 
-        if (! $user instanceof User || ! in_array($user->role, $roles, true)) {
+        if (! $user instanceof Personnel || ! in_array($user->role, $roles, true)) {
             return response()->json(['message' => 'Accès refusé.'], 403);
         }
 
