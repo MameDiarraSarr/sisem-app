@@ -30,7 +30,7 @@
       <div class="grid">
         <div class="field">
           <label>N° Labo <span class="opt">(donné par l'accueil)</span></label>
-          <input type="text" placeholder="25/03/07/2026" [(ngModel)]="numeroLabo" name="numeroLabo">
+          <input type="text" placeholder="25/03/07/2026" [(ngModel)]="numeroLabo" name="numeroLabo" autocomplete="off">
         </div>
 
         <div class="field autocomplete">
@@ -56,11 +56,11 @@
 
         <div class="field">
           <label>Indication</label>
-          <input type="text" placeholder="Motif de l'examen..." [(ngModel)]="indication" name="indication">
+          <input type="text" placeholder="Motif de l'examen..." [(ngModel)]="indication" name="indication" autocomplete="off">
         </div>
         <div class="field">
           <label>Traitement en cours <span class="opt">(optionnel)</span></label>
-          <input type="text" placeholder="Aucun / nom du traitement" [(ngModel)]="traitementEnCours" name="traitementEnCours">
+          <input type="text" placeholder="Aucun / nom du traitement" [(ngModel)]="traitementEnCours" name="traitementEnCours" autocomplete="off">
         </div>
 
         @if (patientEstInterne()) {
