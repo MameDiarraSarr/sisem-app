@@ -52,6 +52,11 @@ h1 { font-size: 24px; font-weight: 800; color: #fff; text-align: center; }
   color: #ffd5d5; font-size: 13px; padding: 10px 14px; border-radius: 11px; margin-bottom: 18px; text-align: center;
 }
 
+.succes {
+  background: rgba(90,200,150,.15); border: 1px solid rgba(90,200,150,.35);
+  color: #c9f5e1; font-size: 14px; padding: 14px 16px; border-radius: 12px; margin-bottom: 18px; text-align: center; line-height: 1.5;
+}
+
 .btn-connexion {
   width: 100%; padding: 15px; border: none; border-radius: 13px;
   background: linear-gradient(135deg, #4A7FA7, #B3CFE5);
@@ -60,9 +65,7 @@ h1 { font-size: 24px; font-weight: 800; color: #fff; text-align: center; }
   box-shadow: 0 10px 26px rgba(74,127,167,.4);
 }
 .btn-connexion:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(74,127,167,.5); }
+.btn-connexion:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
 .foot { font-size: 12px; color: #B3CFE5; text-align: center; margin-top: 22px; line-height: 1.5; }
-
-.lien-oubli { text-align: right; margin: -6px 0 18px; }
-.lien-oubli a { font-size: 13px; color: #B3CFE5; text-decoration: none; cursor: pointer; }
-.lien-oubli a:hover { text-decoration: underline; }
+.foot a { color: #B3CFE5; text-decoration: underline; cursor: pointer; }

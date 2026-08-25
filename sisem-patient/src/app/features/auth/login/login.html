@@ -22,6 +22,8 @@
       <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse" (keyup.enter)="seConnecter()">
     </div>
 
+    <p class="lien-oubli"><a routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a></p>
+
     @if (erreur()) {
       <div class="erreur">{{ erreur() }}</div>
     }

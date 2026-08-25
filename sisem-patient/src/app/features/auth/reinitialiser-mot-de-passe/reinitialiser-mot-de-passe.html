@@ -1,0 +1,40 @@
+<div class="bg"></div>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="login-wrap">
+  <div class="card">
+    <div class="logo">
+      <div class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="#B3CFE5" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+      <span class="bn">SISEM</span>
+    </div>
+
+    <h1>Nouveau mot de passe</h1>
+    <p class="sub">Choisissez un nouveau mot de passe pour votre compte</p>
+
+    @if (termine()) {
+      <div class="succes">{{ message() }}</div>
+      <p class="foot"><a routerLink="/login">Aller à la connexion</a></p>
+    } @else {
+      <div class="field">
+        <label>Nouveau mot de passe</label>
+        <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse">
+      </div>
+
+      <div class="field">
+        <label>Confirmer le mot de passe</label>
+        <input type="password" placeholder="••••••••" [(ngModel)]="confirmation" name="confirmation" (keyup.enter)="reinitialiser()">
+      </div>
+
+      @if (erreur()) {
+        <div class="erreur">{{ erreur() }}</div>
+      }
+
+      <button class="btn-connexion" (click)="reinitialiser()" [disabled]="chargement()">
+        {{ chargement() ? 'Validation...' : 'Réinitialiser' }}
+      </button>
+
+      <p class="foot"><a routerLink="/login">Retour à la connexion</a></p>
+    }
+  </div>
+</div>
