@@ -15,23 +15,51 @@
   </div>
 
   <!-- Le formulaire -->
-  <div class="form-card glass">
+  <div class="form-card glass" autocomplete="off">
 
     <div class="section-title">Informations personnelles</div>
     <div class="grid">
       <div class="field">
         <label>Prénom</label>
-        <input type="text" placeholder="Amadou" [(ngModel)]="prenom" name="prenom">
+        <input 
+          type="text" 
+          placeholder="Amadou" 
+          [(ngModel)]="prenom" 
+          name="champ_a1"
+          id="champ_a1"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
       <div class="field">
         <label>Nom</label>
-        <input type="text" placeholder="Diop" [(ngModel)]="nom" name="nom">
+        <input 
+          type="text" 
+          placeholder="Diop" 
+          [(ngModel)]="nom" 
+          name="champ_a2"
+          id="champ_a2"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
       <div class="field">
         <label>Âge</label>
         <div class="age-groupe">
-          <input type="number" min="0" placeholder="8" [(ngModel)]="ageValeur" name="ageValeur" class="age-nombre">
-          <select [(ngModel)]="ageUnite" name="ageUnite" class="age-unite">
+          <input 
+            type="number" 
+            min="0" 
+            placeholder="8" 
+            [(ngModel)]="ageValeur" 
+            name="champ_a3" 
+            id="champ_a3"
+            class="age-nombre"
+            autocomplete="off">
+          <select [(ngModel)]="ageUnite" name="champ_a4" id="champ_a4" class="age-unite" autocomplete="off">
             <option value="ans">ans</option>
             <option value="mois">mois</option>
           </select>
@@ -39,7 +67,7 @@
       </div>
       <div class="field">
         <label>Sexe</label>
-        <select [(ngModel)]="sexe" name="sexe">
+        <select [(ngModel)]="sexe" name="champ_a5" id="champ_a5" autocomplete="off">
           <option value="">Sélectionner</option>
           <option value="M">Masculin</option>
           <option value="F">Féminin</option>
@@ -51,19 +79,61 @@
     <div class="grid">
       <div class="field">
         <label>Téléphone</label>
-        <input type="tel" placeholder="77 123 45 67" [(ngModel)]="telephone" name="telephone">
+        <input 
+          type="tel" 
+          placeholder="77 123 45 67" 
+          [(ngModel)]="telephone" 
+          name="champ_a6"
+          id="champ_a6"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
       <div class="field">
         <label>Email <span class="opt">(optionnel)</span></label>
-        <input type="email" placeholder="exemple@mail.com" [(ngModel)]="email" name="email">
+        <input 
+          type="text" 
+          inputmode="email"
+          placeholder="exemple@mail.com" 
+          [(ngModel)]="email" 
+          name="champ_a7"
+          id="champ_a7"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
       <div class="field">
         <label>Adresse</label>
-        <input type="text" placeholder="Quartier, rue..." [(ngModel)]="adresse" name="adresse">
+        <input 
+          type="text" 
+          placeholder="Quartier, rue..." 
+          [(ngModel)]="adresse" 
+          name="champ_a8"
+          id="champ_a8"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
       <div class="field">
         <label>Ville</label>
-        <input type="text" placeholder="Dakar" [(ngModel)]="ville" name="ville">
+        <input 
+          type="text" 
+          placeholder="Dakar" 
+          [(ngModel)]="ville" 
+          name="champ_a9"
+          id="champ_a9"
+          autocomplete="off"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          readonly
+          (focus)="$event.target.removeAttribute('readonly')">
       </div>
     </div>
 
@@ -71,7 +141,7 @@
     <div class="grid">
       <div class="field">
         <label>Patient</label>
-        <select [(ngModel)]="typePatient" name="typePatient">
+        <select [(ngModel)]="typePatient" name="champ_a10" id="champ_a10" autocomplete="off">
           <option value="">Sélectionner</option>
           <option value="interne">Interne</option>
           <option value="externe">Externe</option>
@@ -80,7 +150,7 @@
       @if (typePatient === 'interne') {
         <div class="field">
           <label>Pavillon</label>
-          <select [(ngModel)]="pavillonId" name="pavillonId">
+          <select [(ngModel)]="pavillonId" name="champ_a11" id="champ_a11" autocomplete="off">
             <option value="">Sélectionner</option>
             @for (p of pavillons(); track p.id) {
               <option [value]="p.id">{{ p.nom }}</option>

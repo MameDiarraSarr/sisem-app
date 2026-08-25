@@ -14,12 +14,12 @@
 
     <div class="field">
       <label>Numéro de téléphone</label>
-      <input type="tel" placeholder="77 123 45 67" [(ngModel)]="telephone" name="telephone">
+      <input type="tel" placeholder="77 123 45 67" [(ngModel)]="telephone" name="telephone" autocomplete="off">
     </div>
 
     <div class="field">
       <label>Mot de passe</label>
-      <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse" (keyup.enter)="seConnecter()">
+      <input type="password" placeholder="••••••••" [(ngModel)]="motDePasse" name="motDePasse" (keyup.enter)="seConnecter()" autocomplete="new-password">
     </div>
 
     <p class="lien-oubli"><a routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a></p>
