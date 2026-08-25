@@ -56,7 +56,7 @@ class Personnel extends Authenticatable
 
     public function medecin()
     {
-        return $this->hasOne(Medecin::class, 'user_id');
+        return $this->hasOne(Medecin::class, 'id');
     }
 
     public function estMedecin(): bool

@@ -75,7 +75,7 @@ class PersonnelController extends Controller
 
             if ($donnees['role'] === 'medecin') {
                 $medecin = Medecin::create([
-                    'user_id' => $user->id,
+                    'id' => $user->id,
                     'specialite' => $donnees['specialite'] ?? null,
                 ]);
                 $user->medecin_id_cree = $medecin->id; // pour la redirection vers Affectations

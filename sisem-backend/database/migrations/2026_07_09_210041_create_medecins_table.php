@@ -6,21 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('medecins', function (Blueprint $table) {
-            $table->id();
-$table->foreignId('user_id')->unique()->constrained('personnels')->cascadeOnDelete();            $table->string('specialite')->nullable();
+            // Clé partagée : l'id du médecin EST l'id du personnel (héritage)
+            $table->unsignedBigInteger('id')->primary();
+            $table->foreign('id')->references('id')->on('personnels')->cascadeOnDelete();
+
+            $table->string('specialite')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('medecins');

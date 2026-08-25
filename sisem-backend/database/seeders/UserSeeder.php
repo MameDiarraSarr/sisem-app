@@ -70,8 +70,8 @@ class UserSeeder extends Seeder
             ['matricule' => 'MED-002', 'role' => 'medecin']
         );
 
-        $medAliou = Medecin::create(['user_id' => $userAliou->id, 'specialite' => 'Pédiatrie']);
-        $medMariama = Medecin::create(['user_id' => $userMariama->id, 'specialite' => 'Néphrologie']);
+        $medAliou = Medecin::create(['id' => $userAliou->id, 'specialite' => 'Pédiatrie']);
+        $medMariama = Medecin::create(['id' => $userMariama->id, 'specialite' => 'Néphrologie']);
 
         Affectation::create([
             'medecin_id' => $medAliou->id, 'pavillon_id' => $pavillonM->id,
