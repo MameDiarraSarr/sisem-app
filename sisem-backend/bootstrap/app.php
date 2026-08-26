@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'patient' => \App\Http\Middleware\EstPatient::class,
             'role' => \App\Http\Middleware\VerifieRole::class,
         ]);
+
+        // API pure : jamais de redirection vers une page de login web
+        // (sinon Laravel essaie de générer route('login'), qui n'existe pas → 500)
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Les requêtes API non authentifiées reçoivent un 401 JSON
