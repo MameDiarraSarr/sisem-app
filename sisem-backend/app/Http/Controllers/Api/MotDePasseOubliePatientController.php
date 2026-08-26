@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 class MotDePasseOubliePatientController extends Controller
 {
     // Page frontend où le patient définit son nouveau mot de passe
-    private string $lienFront = 'http://localhost:4200/reinitialiser-mot-de-passe';
+    private string $lienFront = 'http://localhost:4300/reinitialiser-mot-de-passe';
 
     // Le patient saisit son téléphone → on lui envoie un lien (email si dispo, sinon WhatsApp)
     public function demander(Request $request)

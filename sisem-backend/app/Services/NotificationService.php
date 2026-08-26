@@ -8,7 +8,7 @@ use App\Models\Notification;
 class NotificationService
 {
     // URL de connexion — à adapter au déploiement
-    private string $lienConnexion = 'http://localhost:4200/login';
+    private string $lienConnexion = 'http://localhost:4300/login';
 
     // Appelé quand un bulletin est validé
     public function notifierResultatsDisponibles(BulletinExamen $bulletin): Notification
